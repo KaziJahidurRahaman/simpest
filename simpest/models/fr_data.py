@@ -32,7 +32,7 @@ class InputsHourly:
 
 @dataclass
 class InputsDaily:
-    """Daily input record (assembed from 24 hourly records each day)."""
+    """Daily input record (assembled from 24 hourly records each day)."""
     date: datetime = datetime.min
     tmax: float = 0.0                   # °C
     tmin: float = 0.0                   # °C
