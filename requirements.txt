@@ -3,3 +3,4 @@ pandas
 simplace
 seaborn
 matplotlib
+simpest
