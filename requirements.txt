@@ -1,1 +1,5 @@
 numpy
+pandas
+simplace
+seaborn
+matplotlib
