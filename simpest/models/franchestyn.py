@@ -1,3 +1,9 @@
+"""FraNchEstYN model orchestration for the simpest pipeline.
+
+This module exposes the public configuration dataclass, the main simulation
+entrypoint, and CSV output helpers for season summary, simulation results,
+and calibrated parameters.
+"""
 from __future__ import annotations
 
 import csv
@@ -44,11 +50,45 @@ def _resolve_default_reference() -> str:
 
 
 def _resolve_local_model_file(filename: str) -> str:
+    """Resolve a filename relative to this module's directory.
+
+    Args:
+        filename: Bare filename to resolve (e.g. ``'fr_crop_parameters.json'``).
+
+    Returns:
+        Absolute path string to the file alongside this module.
+    """
     return str(Path(__file__).with_name(filename))
 
 
 @dataclass(frozen=True)
 class FranchestynConfig:
+    """Configuration for a FraNchEstYN simulation run.
+
+    Attributes:
+        param_file: Path to the legacy franchestyn parameters CSV. Leave empty
+            when using modular JSON parameter files.
+        crop_param_file: Path to ``fr_crop_parameters.json``. Defaults to the
+            bundled file.
+        disease_param_file: Path to ``fr_disease_parameters.json``. Defaults
+            to the bundled file.
+        fungicide_param_file: Path to ``fr_fungicide_parameters.json``. Defaults
+            to the bundled file.
+        reference_path: Path to the reference CSV used for calibration.
+        crop_type: Crop type identifier (e.g. ``'wheat'``).
+        disease_type: Disease type identifier (e.g. ``'septoria'``).
+        fungicide_type: Fungicide type identifier (e.g. ``'protectant'``), or
+            ``None`` to disable the fungicide sub-model.
+        site: Site identifier matching the sowing and reference CSV.
+        variety: Variety identifier matching the sowing and reference CSV.
+        disease: Disease column name in the reference CSV.
+        is_calibration: If ``True``, runs the Nelder-Mead optimizer before
+            the final simulation.
+        calibration_variable: ``'crop'``, ``'disease'``, or ``'all'``.
+        use_gdd: If ``True``, derives cycle completion from GDD (recommended).
+        n_restarts: Number of optimizer multi-start restarts.
+        max_iter: Maximum optimizer iterations per restart.
+    """
     param_file: str = ""
     crop_param_file: str = field(default_factory=lambda: _resolve_local_model_file("fr_crop_parameters.json"))
     disease_param_file: str = field(default_factory=lambda: _resolve_local_model_file("fr_disease_parameters.json"))
@@ -68,6 +108,16 @@ class FranchestynConfig:
 
 
 def _outputs_to_records(date_outputs):
+    """Convert daily simulation outputs to a list of flat record dicts.
+
+    Args:
+        date_outputs: Dict mapping ``datetime`` to ``Outputs`` as returned by
+            ``FranchestynRunner.run()``.
+
+    Returns:
+        List of dicts with one entry per simulated day, suitable for
+        constructing a ``pandas.DataFrame``.
+    """
     records = []
     for dt, out in sorted(date_outputs.items()):
         records.append(
@@ -114,6 +164,32 @@ def run_franchestyn(
     disease_param_file: str | None = None,
     fungicide_param_file: str | None = None,
 ) -> dict:
+    """Run the FraNchEstYN model for one or more growing seasons.
+
+    If ``config.is_calibration`` is ``True``, the Nelder-Mead optimizer is
+    run before the final simulation. Parameter files can be overridden
+    per-call via the optional arguments.
+
+    Args:
+        weather_path: Path to the daily weather CSV (or directory containing
+            ``daily/{site}.csv``).
+        management_path: Path to the sowing management CSV.
+        start_year: First simulation year (inclusive).
+        end_year: Last simulation year (inclusive).
+        config: FraNchEstYN configuration dataclass.
+        cropmodel_path: Optional path to the external crop model CSV. Pass
+            ``None`` to use the internal crop model.
+        crop_param_file: Override for the crop parameters JSON.
+        disease_param_file: Override for the disease parameters JSON.
+        fungicide_param_file: Override for the fungicide parameters JSON.
+
+    Returns:
+        Dictionary with a single key ``'outputs'`` containing:
+
+        - ``'simulation'``: list of per-day record dicts.
+        - ``'summary'``: dict with ``'rmse'``, ``'is_calibration'``,
+          ``'calibration_variable'``, and ``'best_params'``.
+    """
     crop_param_file = crop_param_file or config.crop_param_file
     disease_param_file = disease_param_file or config.disease_param_file
     fungicide_param_file = fungicide_param_file or config.fungicide_param_file
@@ -177,6 +253,18 @@ def run_franchestyn(
 
 
 def save_simulation_results_csv(res_ot_simulation, output_root: Path, filename: str = "franchestyn_simulation_results.csv") -> Path:
+    """Write the per-day simulation records to a CSV file.
+
+    Args:
+        res_ot_simulation: List of record dicts from ``run_franchestyn``
+            (``result['outputs']['simulation']``).
+        output_root: Root output directory.
+        filename: Output filename; default is
+            ``'franchestyn_simulation_results.csv'``.
+
+    Returns:
+        Path to the written CSV file.
+    """
     output_file = output_root / "SimulationExperimentTemplate" / filename
     df = pd.DataFrame(res_ot_simulation)
     df.to_csv(output_file, index=False)
@@ -184,6 +272,24 @@ def save_simulation_results_csv(res_ot_simulation, output_root: Path, filename: 
 
 
 def build_season_summary(df: pd.DataFrame, site: str, variety: str) -> pd.DataFrame:
+    """Aggregate per-day simulation output into one row per growing season.
+
+    Computes AUDPC via the trapezoid rule, peak disease severity, attainable
+    and actual yield/AGB, yield loss (raw and percentage), and optional
+    seasonal weather averages when those columns are present.
+
+    Args:
+        df: Per-day simulation DataFrame (e.g. from ``pd.DataFrame(simulation)``).
+        site: Site identifier written to the ``Site`` column.
+        variety: Variety identifier written to the ``Variety`` column.
+
+    Returns:
+        DataFrame with one row per growing season and columns including
+        ``GrowingSeason``, ``Site``, ``Variety``, ``AUDPC``,
+        ``DiseaseSeverity``, ``YieldAttainable``, ``YieldActual``,
+        ``YieldLossRaw``, ``YieldLossPerc``, ``AGBattainable``, and
+        ``AGBactual``. Returns an empty DataFrame when ``df`` is empty.
+    """
     if df.empty:
         return pd.DataFrame()
 
@@ -251,6 +357,17 @@ def build_season_summary(df: pd.DataFrame, site: str, variety: str) -> pd.DataFr
 
 
 def save_season_summary_csv(summary_df: pd.DataFrame, output_root: Path, filename: str = "franchestyn_season_summary.csv") -> Path | None:
+    """Write the season summary DataFrame to a CSV file.
+
+    Args:
+        summary_df: Season summary DataFrame returned by ``build_season_summary``.
+        output_root: Root output directory.
+        filename: Output filename; default is
+            ``'franchestyn_season_summary.csv'``.
+
+    Returns:
+        Path to the written CSV file, or ``None`` if ``summary_df`` is empty.
+    """
     if summary_df.empty:
         return None
 
@@ -266,6 +383,25 @@ def save_calibrated_parameters_csv(
     variety: str,
     filename: str | None = None,
 ) -> Path | None:
+    """Write calibrated parameter values to a CSV file.
+
+    Writes rows with columns ``model, param, value``, splitting each
+    ``'class_ParamName'`` key into its model-class and parameter-name parts.
+    The file is placed under
+    ``output_root / SimulationExperimentTemplate / calibratedParameters /``.
+
+    Args:
+        best_params: Best-fit parameter dict returned by the optimizer
+            (``result['outputs']['summary']['best_params']``).
+        output_root: Root output directory.
+        site: Site identifier used in the default filename.
+        variety: Variety identifier used in the default filename.
+        filename: Override filename. If ``None``, defaults to
+            ``'calibratedParameters_{site}_{variety}.csv'``.
+
+    Returns:
+        Path to the written CSV file, or ``None`` if ``best_params`` is empty.
+    """
     if not best_params:
         return None
 

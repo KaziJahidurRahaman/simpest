@@ -20,11 +20,20 @@ def run(
     output: Outputs,
     output1: Outputs,
 ) -> None:
-    """Compute one daily fungicide step.
+    """Compute one daily fungicide degradation, tenacity, and efficacy step.
 
-    If no treatment has been applied yet (DateTreatmentLast.year <= 1) this
-    function is a no-op and all fungicide outputs remain at their default (0).
-    """
+    If no treatment has been applied yet (``DateTreatmentLast.year <= 1``)
+    this function is a no-op and all fungicide output fields remain at their
+    default value (0).
+
+    Args:
+        input_: Today's daily inputs, including ``date``,
+            ``date_treatment_last``, and ``precipitation``.
+        parameters: Model parameters (uses ``par_fungicide`` sub-record).
+        output: Previous day's fungicide output state (tenacity, actual
+            degradation, tenacity_function).
+        output1: Current day's fungicide output, modified in-place.
+    """"
     pf = parameters.par_fungicide
     last = input_.date_treatment_last
 

@@ -18,13 +18,11 @@ from .fr_utilities import t_response, rain_detachment
 
 
 class DiseaseModel:
-    """Stateful SEIR disease model.
+    """Stateful SEIR disease model for within-season foliar disease progression.
 
-    Lifecycle
-    ---------
     Create a fresh instance at the start of each growing season (sowing date).
-    For each hour: call run_hourly().
-    After hour 23 (handled by the runner): call run_daily().
+    For each hour, call ``run_hourly()``. After hour 23 (handled by the
+    runner), call ``run_daily()``.
     """
 
     def __init__(self) -> None:
@@ -51,12 +49,20 @@ class DiseaseModel:
         """Process one hour of weather data.
 
         During hours 0–22 this accumulates the hydro-thermal time rate and the
-        RH suitability function.  At hour 23 it finalises the daily infection
+        RH suitability function. At hour 23 it finalises the daily infection
         metrics and clears the hourly buffers.
 
-        Note: output1 is the SAME object across all 24 hours of a day (the
-        runner does NOT replace it between hours).  The runner swaps
-        output ↔ output1 only AFTER hour 23's run_hourly() returns.
+        Note:
+            ``output1`` is the same object across all 24 hours of a day; the
+            runner swaps ``output ↔ output1`` only after hour 23 returns.
+
+        Args:
+            input_: Hourly weather inputs including temperature, RH,
+                precipitation, and leaf wetness.
+            parameters: Model parameters.
+            output: Previous day's accumulated output state.
+            output1: Current day's output, accumulated in-place across all
+                24 hours.
         """
         par = parameters.par_disease
 
@@ -157,12 +163,15 @@ class DiseaseModel:
     ) -> None:
         """Run the daily SEIR tissue progression.
 
-        At entry:
-          output  – the hourly-accumulated state from hours 0–23 of today
-          output1 – fresh daily output, with season-persistent fields pre-set
-                    by the runner (growing_season, f_int_peak,
-                    is_primary_inoculum_started, first_seasonal_infection,
-                    cycle_percentage_first_infection)
+        Args:
+            input_: Daily aggregated weather inputs.
+            parameters: Model parameters.
+            output: Hourly-accumulated state from hours 0–23 of today (after
+                the runner has swapped ``output ↔ output1``).
+            output1: Fresh daily output with season-persistent fields pre-set
+                by the runner (``growing_season``, ``f_int_peak``,
+                ``is_primary_inoculum_started``, ``first_seasonal_infection``,
+                ``cycle_percentage_first_infection``).
         """
         par = parameters.par_disease
         pc  = parameters.par_crop
@@ -321,10 +330,17 @@ class DiseaseModel:
 def _rh_function(
     rh: float, lw: float, rh_lw: float, rh_crit: float
 ) -> float:
-    """Logistic RH suitability function (0–1).
+    """Logistic relative humidity suitability function.
 
-    Returns 1 during leaf wetness, 0 below the critical threshold, and
-    follows a logistic curve between critical and non-limiting thresholds.
+    Args:
+        rh: Current relative humidity (%).
+        lw: Leaf wetness flag (1 = wet, 0 = dry).
+        rh_lw: RH threshold above which RH is non-limiting (%).
+        rh_crit: Critical minimum RH threshold (%).
+
+    Returns:
+        Suitability index in [0, 1]: 1.0 during leaf wetness, 0.0 below the
+        critical threshold, and a logistic value in between.
     """
     if lw == 1:
         return 1.0
@@ -343,11 +359,20 @@ def _inoculum_model(
     output: Outputs,
     output1: Outputs,
 ) -> float:
-    """Primary inoculum release model (three release shapes).
+    """Primary inoculum release model supporting three release shapes.
 
-    Shape 0 – constant: always returns OuterInoculumMax.
+    Shape 0 – constant: always returns ``OuterInoculumMax``.
     Shape 1 – bell-shaped: rises then falls symmetrically around crop midpoint.
     Shape 2 – logistic decrease: peaks at onset and falls logistically.
+
+    Args:
+        input_: Daily weather inputs (unused; kept for signature consistency).
+        parameters: Model parameters.
+        output: Previous day's output state.
+        output1: Current day's output state.
+
+    Returns:
+        Primary inoculum quantity for today.
     """
     par = parameters.par_disease
     shape = int(par.outer_inoculum_shape_release)

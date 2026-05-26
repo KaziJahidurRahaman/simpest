@@ -21,16 +21,12 @@ from .fr_data import Parameter
 class FranchestynOptimizer:
     """Nelder-Mead calibration for FraNchEstYN.
 
-    Parameters
-    ----------
-    runner : FranchestynRunner
-        Fully-configured runner instance (reads data from disk once).
-    calibration_variable : str
-        'crop', 'disease', or 'all'.  Selects which parameters to calibrate.
-    n_restarts : int
-        Number of independent Nelder-Mead restarts (multi-start).
-    max_iter : int
-        Maximum number of iterations per restart.
+    Args:
+        runner: Fully-configured runner instance (reads data from disk once).
+        calibration_variable: ``'crop'``, ``'disease'``, or ``'all'``.
+            Selects which parameters to calibrate.
+        n_restarts: Number of independent Nelder-Mead restarts (multi-start).
+        max_iter: Maximum number of iterations per restart.
     """
 
     def __init__(
@@ -60,10 +56,8 @@ class FranchestynOptimizer:
     def calibrate(self) -> Dict[str, float]:
         """Run multi-start Nelder-Mead and return the best parameter set.
 
-        Returns
-        -------
-        dict
-            Best-fit parameter values keyed by 'class_ParamName'.
+        Returns:
+            Best-fit parameter values keyed by ``'ClassName_ParamName'``.
         """
         
         if not self.calib_keys:
@@ -119,7 +113,15 @@ class FranchestynOptimizer:
     # -----------------------------------------------------------------------
 
     def _objective(self, x: np.ndarray) -> float:
-        """RMSE objective function for scipy.optimize.minimize."""
+        """RMSE objective function for ``scipy.optimize.minimize``.
+
+        Args:
+            x: Candidate parameter vector aligned with ``self.calib_keys``.
+
+        Returns:
+            RMSE value, or ``1e300`` when ``x`` is out of bounds or a
+            simulation error occurs.
+        """
         self._n_eval += 1
 
         # Penalise out-of-bounds (mirrors C# behaviour)
@@ -145,7 +147,12 @@ class FranchestynOptimizer:
         return rmse
 
     def _on_iteration(self, _xk: np.ndarray) -> None:
-        """Scipy callback called each optimizer iteration."""
+        """Scipy callback invoked after each optimizer iteration.
+
+        Args:
+            _xk: Current parameter vector (unused; progress is tracked via
+                instance counters).
+        """
         self._iter_in_restart += 1
         sys.stdout.write(
             f"\rRun {self._current_restart}/{self.n_restarts} Iteration {self._iter_in_restart}/{self.max_iter} CURR RMSE={self._last_rmse:.4f}"
@@ -153,7 +160,13 @@ class FranchestynOptimizer:
         sys.stdout.flush()
 
     def _select_calib_params(self) -> Tuple[List[str], List[Tuple[float, float]]]:
-        """Return (keys, bounds) for parameters flagged for calibration."""
+        """Select parameters flagged for calibration.
+
+        Returns:
+            Tuple of ``(keys, bounds)`` where ``keys`` is a list of
+            ``'ClassName_ParamName'`` strings and ``bounds`` is the
+            corresponding list of ``(minimum, maximum)`` tuples.
+        """
         calib_keys: List[str] = []
         bounds: List[Tuple[float, float]] = []
 

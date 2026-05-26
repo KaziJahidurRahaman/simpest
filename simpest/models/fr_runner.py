@@ -41,54 +41,40 @@ _MAX_DAS = 11 * 30
 class FranchestynRunner:
     """End-to-end FraNchEstYN simulation runner.
 
-    Parameters
-    ----------
-    weather_dir : str
-        Directory containing weather sub-folders (daily/ or hourly/).
-    param_file : str
-        Path to franchestynParameters.csv (legacy) or crop_parameters.json.
-    sowing_file : str
-        Path to management/sowing.csv.
-    ref_dir : str
-        Directory containing referenceData.csv (and optionally other files).
-    crop_model_dir : str or None
-        Directory containing cropModelData.csv.  Pass None to use the internal
-        crop model instead.
-    site : str
-        Site name (must match weather file and sowing/reference CSVs).
-    variety : str
-        Variety name.
-    disease : str
-        Disease column name in referenceData.csv.
-    start_year : int
-        First simulation year (inclusive).
-    end_year : int
-        Last simulation year (inclusive).
-    weather_time_step : str
-        'daily' (default) or 'hourly'.
-    calibration_variable : str
-        'crop', 'disease', or 'all'.  Controls which parameters are treated as
-        calibration targets.
-    latitude : float
-        Site latitude (degrees north).  Used by daily-to-hourly synthesis.
-    crop_type : str or None
-        Crop type ('wheat', 'rice') for modular loading.  If provided with
-        crop_param_file, uses read_crop_parameters().
-    crop_param_file : str or None
-        Path to crop_parameters.json (modular architecture).
-    disease_param_file : str or None
-        Path to disease_parameters.json (modular architecture).
-    disease_type : str or None
-        Disease type ('septoria', 'brown_rust', etc.) for modular loading.
-        If None, disease parameters not loaded.
-    fungicide_param_file : str or None
-        Path to fungicide_parameters.json (modular architecture).
-    fungicide_type : str or None
-        Fungicide type ('protectant') for modular loading.
-        If None, fungicide parameters not loaded.
-    use_gdd : bool
-        If True, compute cycle_percentage from GDD when available.
-        If False, force C#-style calendar interpolation.
+    Args:
+        weather_dir: Directory containing weather sub-folders (``daily/`` or
+            ``hourly/``), or a direct path to a weather CSV file.
+        param_file: Path to ``franchestynParameters.csv`` (legacy) or
+            ``crop_parameters.json``.
+        sowing_file: Path to ``management/sowing.csv``.
+        ref_dir: Directory containing ``referenceData.csv``.
+        crop_model_dir: Directory containing ``cropModelData.csv``. Pass
+            ``None`` to use the internal crop model.
+        site: Site name — must match weather file and sowing/reference CSVs.
+        variety: Variety name.
+        disease: Disease column name in ``referenceData.csv``.
+        start_year: First simulation year (inclusive).
+        end_year: Last simulation year (inclusive).
+        weather_time_step: ``'daily'`` (default) or ``'hourly'``.
+        calibration_variable: ``'crop'``, ``'disease'``, or ``'all'``.
+            Controls which parameters are treated as calibration targets.
+        is_calibration: Whether this runner is used inside a calibration loop.
+        latitude: Site latitude (degrees north). Used by daily-to-hourly
+            weather synthesis.
+        crop_type: Crop type (e.g. ``'wheat'``, ``'rice'``) for modular
+            parameter loading. Required together with ``crop_param_file``.
+        crop_param_file: Path to ``crop_parameters.json`` (modular
+            architecture).
+        disease_param_file: Path to ``disease_parameters.json`` (modular
+            architecture).
+        disease_type: Disease type (e.g. ``'septoria'``, ``'brown_rust'``)
+            for modular parameter loading. ``None`` skips disease parameters.
+        fungicide_param_file: Path to ``fungicide_parameters.json`` (modular
+            architecture).
+        fungicide_type: Fungicide type (e.g. ``'protectant'``) for modular
+            parameter loading. ``None`` skips fungicide parameters.
+        use_gdd: If ``True``, compute ``cycle_percentage`` from GDD when
+            available; if ``False``, force C#-style calendar interpolation.
     """
 
     def __init__(
@@ -184,18 +170,16 @@ class FranchestynRunner:
         self,
         param_values: Optional[Dict[str, float]] = None,
     ) -> Dict[datetime, Outputs]:
-        """Run the model for all years and return daily outputs.
+        """Run the model for all configured years.
 
-        Parameters
-        ----------
-        param_values : dict, optional
-            Override parameter values keyed by 'class_ParamName'
-            (e.g. {'disease_PathogenSpread': 0.5}).  Non-calibrated params
-            are taken from the parameter CSV.
+        Args:
+            param_values: Parameter overrides keyed by ``'ClassName_ParamName'``
+                (e.g. ``{'disease_PathogenSpread': 0.5}``). Non-overridden
+                parameters are taken from the parameter file defaults.
 
-        Returns
-        -------
-        dict mapping end-of-day datetime → Outputs
+        Returns:
+            Mapping of end-of-day ``datetime`` (hour 23) to the daily
+            ``Outputs`` object for that day.
         """
         parameters = self._build_parameters(param_values or {})
         weather_data = self._load_weather()
@@ -330,7 +314,18 @@ class FranchestynRunner:
     ) -> float:
         """Compute the root mean square error against reference data.
 
-        Mirrors the objective function in optimizer.cs:ObjfuncVal().
+        Mirrors the objective function in ``optimizer.cs:ObjfuncVal()``.
+
+        Args:
+            date_outputs: Daily outputs returned by :meth:`run`.
+            include_crop: Whether to include crop variables (AGB, yield,
+                light interception) in the RMSE.
+            include_disease: Whether to include disease severity and actual
+                yield in the RMSE.
+
+        Returns:
+            RMSE rounded to 3 decimal places, or ``0.0`` when no reference
+            data overlap is found.
         """
         errors: List[float] = []
         ref = self.sim_unit.reference_data
@@ -410,7 +405,16 @@ class FranchestynRunner:
     def _build_parameters(
         self, param_values: Dict[str, float]
     ) -> Parameters:
-        """Assemble a Parameters object from CSV defaults + overrides."""
+        """Assemble a ``Parameters`` object from file defaults and overrides.
+
+        Args:
+            param_values: Override values keyed by ``'ClassName_ParamName'``;
+                calibration output values are used as a secondary fallback.
+
+        Returns:
+            A fully populated :class:`Parameters` instance ready for
+            simulation.
+        """
         parameters = Parameters()
 
         for key, p in self.name_param.items():
@@ -435,8 +439,12 @@ class FranchestynRunner:
     def _load_weather(self) -> Dict[datetime, InputsHourly]:
         """Load weather data for the configured site and time step.
 
-        If ``self.weather_dir`` is itself an existing CSV file, it is used
+        If ``self.weather_dir`` is itself an existing CSV file it is used
         directly (i.e. the caller already resolved the full path).
+
+        Returns:
+            Mapping of ``datetime`` (one entry per hour) to
+            :class:`~.fr_data.InputsHourly` records.
         """
         wd = self.weather_dir
         if os.path.isfile(wd):
@@ -462,7 +470,19 @@ class FranchestynRunner:
 # ---------------------------------------------------------------------------
 
 def _set_param(parameters: Parameters, param_class: str, param_name: str, value) -> None:
-    """Find the matching field on par_crop, par_disease, or par_fungicide and set it."""
+    """Set a named parameter on the matching sub-object of ``parameters``.
+
+    Looks up ``par_crop``, ``par_disease``, or ``par_fungicide`` based on
+    *param_class* (case-insensitive), converts *param_name* from CamelCase to
+    snake_case, and sets the attribute with type-coercion.
+
+    Args:
+        parameters: The ``Parameters`` container to mutate.
+        param_class: Class name prefix from the parameter key (e.g.
+            ``'crop'``, ``'disease'``, ``'fungicide'``).
+        param_name: CamelCase field name (e.g. ``'TbaseCrop'``).
+        value: Value to set; coerced to the field's existing type.
+    """
     # Map CSV class names (case-insensitive) to Parameters sub-objects
     sub_map = {
         "crop":      parameters.par_crop,
@@ -484,7 +504,17 @@ def _set_param(parameters: Parameters, param_class: str, param_name: str, value)
 
 
 def _camel_to_snake(name: str) -> str:
-    """Convert CamelCase to snake_case (handles runs of uppercase too)."""
+    """Convert a CamelCase identifier to snake_case.
+
+    Handles consecutive uppercase sequences correctly
+    (e.g. ``'AHUMax'`` → ``'a_h_u_max'``).
+
+    Args:
+        name: CamelCase string to convert.
+
+    Returns:
+        Equivalent snake_case string.
+    """
     import re
     s1 = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1_\2', name)
     result = re.sub(r'([a-z\d])([A-Z])', r'\1_\2', s1).lower()

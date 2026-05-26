@@ -23,12 +23,12 @@ def run(input_: InputsDaily, parameters: Parameters,
         output: Outputs, output1: Outputs) -> None:
     """Compute one daily crop growth step.
 
-    Parameters
-    ----------
-    input_      : today's daily inputs (includes crop_model_data if external model)
-    parameters  : model parameters
-    output      : previous day's output state (read mostly; reset on harvest)
-    output1     : today's output (modified in-place)
+    Args:
+        input_: Today's daily inputs (includes ``crop_model_data`` when an
+            external crop model is active).
+        parameters: Model parameters.
+        output: Previous day's output state (read mostly; reset on harvest).
+        output1: Today's output, modified in-place.
     """
     pc = parameters.par_crop
     pd = parameters.par_disease
@@ -243,27 +243,67 @@ def run(input_: InputsDaily, parameters: Parameters,
 # ---------------------------------------------------------------------------
 
 def _light_stealers_fn(severity: float, damage: float) -> float:
-    """Fraction of light interception retained = (1-severity)^damage."""
+    """Compute retained light interception fraction due to light-stealing lesions.
+
+    Args:
+        severity: Disease severity fraction [0, 1].
+        damage: Damage exponent parameter.
+
+    Returns:
+        Retained fraction = ``(1 - severity) ** damage``.
+    """
     return (1.0 - severity) ** damage
 
 
 def _rue_reduction_fn(severity: float, damage: float) -> float:
-    """Fraction of RUE retained = (1-severity)^damage."""
+    """Compute retained radiation use efficiency fraction.
+
+    Args:
+        severity: Disease severity fraction [0, 1].
+        damage: Damage exponent parameter.
+
+    Returns:
+        Retained RUE fraction = ``(1 - severity) ** damage``.
+    """
     return (1.0 - severity) ** damage
 
 
 def _assimilate_sappers_fn(severity: float, damage_max: float) -> float:
-    """Assimilate drain (kg ha⁻¹) = severity * damage_max."""
+    """Compute daily assimilate drain from saprophytic lesions.
+
+    Args:
+        severity: Disease severity fraction [0, 1].
+        damage_max: Maximum assimilate drain (kg ha⁻¹).
+
+    Returns:
+        Assimilate drain in kg ha⁻¹ = ``severity * damage_max``.
+    """
     return severity * damage_max
 
 
 def _senescence_accelerator_fn(severity: float, accel_max: float) -> float:
-    """Senescence acceleration (fraction) = severity * accel_max."""
+    """Compute senescence acceleration caused by disease.
+
+    Args:
+        severity: Disease severity fraction [0, 1].
+        accel_max: Maximum acceleration as a fraction of the senescence half-point.
+
+    Returns:
+        Senescence acceleration fraction = ``severity * accel_max``.
+    """
     return severity * accel_max
 
 
 def _pheno_code(gdd: float, flowering_gdd: float) -> int:
-    """Return 1 (vegetative) or 2 (reproductive)."""
+    """Determine phenological stage code from accumulated GDD.
+
+    Args:
+        gdd: Accumulated growing degree days.
+        flowering_gdd: GDD threshold for the onset of the reproductive phase.
+
+    Returns:
+        1 during the vegetative phase, 2 during the reproductive phase.
+    """
     return 1 if gdd < flowering_gdd else 2
 
 
@@ -273,9 +313,19 @@ def _f_int_compute(
 ) -> tuple[float, bool]:
     """Compute light interception fraction using logistic growth/senescence curves.
 
-    Returns
-    -------
-    (f_int, senescence_started)
+    Args:
+        cycle_length: Total GDD from sowing to maturity (\u00b0C\u00b7day).
+        slope_growth: Logistic slope of the growth-phase curve.
+        half_int_growth: GDD at 50% light interception during growth (% of cycle).
+        slope_senescence: Logistic slope of the senescence-phase curve.
+        half_int_senescence: GDD at 50% light interception during senescence
+            (% of cycle).
+        gdd: Current accumulated growing degree days.
+
+    Returns:
+        Tuple of ``(f_int, senescence_started)`` where ``f_int`` is the light
+        interception fraction [0, 1] and ``senescence_started`` is ``True``
+        once the senescence curve dominates the growth curve.
     """
     hig_gdd = cycle_length * half_int_growth / 100.0
     his_gdd = cycle_length * half_int_senescence / 100.0
@@ -288,12 +338,31 @@ def _f_int_compute(
 
 
 def _carbon_rate(rue: float, radiation: float, f_temp: float, f_int: float) -> float:
-    """Carbon assimilation rate (g m⁻² d⁻¹).
-    Multiply by 10 at call-site to convert to kg ha⁻¹.
+    """Compute daily carbon assimilation rate (g m⁻² d⁻¹).
+
+    Multiply by 10 at the call-site to convert to kg ha⁻¹.
+
+    Args:
+        rue: Radiation use efficiency (g MJ⁻¹).
+        radiation: Daily total radiation (MJ m⁻² d⁻¹).
+        f_temp: Temperature response factor [0, 1].
+        f_int: Light interception fraction [0, 1].
+
+    Returns:
+        Carbon assimilation rate in g m⁻² d⁻¹.
     """
     return rue * f_int * radiation * 0.5 * f_temp
 
 
 def _yield_rate(pheno_code: int, bio_rate_pot: float, partitioning_max: float) -> float:
-    """Yield increment = bio_rate * partitioning_max, only during reproductive phase."""
+    """Compute daily yield increment during the reproductive phase.
+
+    Args:
+        pheno_code: Phenological stage (1 = vegetative, 2 = reproductive).
+        bio_rate_pot: Potential daily biomass rate (kg ha\u207b\u00b9 d\u207b\u00b9).
+        partitioning_max: Maximum fraction of biomass partitioned to yield.
+
+    Returns:
+        Daily yield increment in kg ha\u207b\u00b9, or 0.0 during the vegetative phase.
+    """
     return 0.0 if pheno_code != 2 else bio_rate_pot * partitioning_max

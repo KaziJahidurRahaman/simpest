@@ -1,6 +1,6 @@
-# simpest module
+# franchestyn
 
-::: simpest.simpest
+::: simpest.models.franchestyn
     options:
       show_root_heading: true
       show_root_full_path: false

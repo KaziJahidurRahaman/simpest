@@ -1,6 +1,6 @@
-# simpest module
+# fr_disease_model
 
-::: simpest.simpest
+::: simpest.models.fr_disease_model
     options:
       show_root_heading: true
       show_root_full_path: false

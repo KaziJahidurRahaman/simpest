@@ -1,6 +1,6 @@
-# simpest module
+# fr_runner
 
-::: simpest.simpest
+::: simpest.models.fr_runner
     options:
       show_root_heading: true
       show_root_full_path: false

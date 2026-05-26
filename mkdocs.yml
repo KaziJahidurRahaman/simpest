@@ -88,3 +88,13 @@ nav:
     - API Reference:
           - simpest module: simpest.md
           - common module: common.md
+          - Models:
+              - franchestyn: models/franchestyn.md
+              - simplace: models/simplace.md
+              - fr_runner: models/fr_runner.md
+              - fr_crop_model: models/fr_crop_model.md
+              - fr_disease_model: models/fr_disease_model.md
+              - fr_fungicide_model: models/fr_fungicide_model.md
+              - fr_optimizer: models/fr_optimizer.md
+              - fr_utilities: models/fr_utilities.md
+              - fr_data: models/fr_data.md

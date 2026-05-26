@@ -1,3 +1,8 @@
+"""SIMPLACE integration helpers for the simpest pipeline.
+
+This module provides functions to initialize and run SIMPLACE, read project
+metadata, and convert SIMPLACE outputs into FraNchEstYN-compatible CSV files.
+"""
 import csv
 import math
 from dataclasses import dataclass
@@ -14,6 +19,15 @@ _SIMPLACE_INSTANCE = None
 
 @dataclass(frozen=True)
 class SimplaceConfig:
+    """SIMPLACE runtime configuration.
+
+    Attributes:
+        install_dir: Path to the SIMPLACE installation directory.
+        work_dir: Path to the simulation working directory.
+        output_dir: Path where SIMPLACE writes output files.
+        solution_path: Relative path to the SIMPLACE solution (.sol.xml) file.
+        project_path: Relative path to the SIMPLACE project (.proj.xml) file.
+    """
     install_dir: str = "C:/ParamVC/Research/simplace+/simplace_portable/workspace/"
     work_dir: str = "C:/ParamVC/Research/simplace+/simplace_portable/workspace/simplace_run/simulation/"
     output_dir: str = "C:/ParamVC/Research/simplace+/simplace_out/"
@@ -22,6 +36,17 @@ class SimplaceConfig:
 
 
 def init_simplace(config: SimplaceConfig):
+    """Initialize and return a SIMPLACE shell instance.
+
+    Reuses an existing instance when the JVM is already running. On the first
+    call, starts the JVM via ``simplace.initSimplace``.
+
+    Args:
+        config: SIMPLACE runtime configuration.
+
+    Returns:
+        The active SIMPLACE shell (``SimplaceWrapper`` or JPype proxy).
+    """
     global _SIMPLACE_INSTANCE
 
     if _SIMPLACE_INSTANCE is not None and jpype.isJVMStarted():
@@ -41,12 +66,29 @@ def init_simplace(config: SimplaceConfig):
 
 
 def run_simplace(shell, config: SimplaceConfig, project_lines: list[int]):
+    """Open a SIMPLACE project and run the specified project lines.
+
+    Args:
+        shell: Active SIMPLACE shell returned by ``init_simplace``.
+        config: SIMPLACE runtime configuration supplying solution and project paths.
+        project_lines: Line numbers within the project file to simulate.
+    """
     simplace.openProject(shell, config.solution_path, config.project_path)
     simplace.setProjectLines(shell, project_lines)
     simplace.runProject(shell)
 
 
 def get_project_row(work_root: Path, selected_line: int) -> dict:
+    """Read a single row from the SIMPLACE project CSV.
+
+    Args:
+        work_root: Root of the SIMPLACE working directory.
+        selected_line: 1-based row number in the project CSV to retrieve.
+
+    Returns:
+        Dictionary with keys ``projectid``, ``simulationid``, ``startdate``,
+        ``enddate``, ``location``, ``iopt``, ``idem``, and ``irri``.
+    """
     project_csv = (
         work_root
         / "SimulationExperimentTemplate"
@@ -73,6 +115,19 @@ def get_project_row(work_root: Path, selected_line: int) -> dict:
 
 
 def export_crop_model_data(output_root: Path, project_row: dict) -> Path:
+    """Convert a SIMPLACE daily output CSV to the FraNchEstYN crop model format.
+
+    Reads the SIMPLACE ``*_daily.csv`` file, filters all-zero rows (pre-sowing),
+    and writes a normalised ``cropModel_data.csv`` with columns
+    ``year, doy, agb, yield, fint, lai, gdd``.
+
+    Args:
+        output_root: Root output directory written by SIMPLACE.
+        project_row: Project metadata dict returned by ``get_project_row``.
+
+    Returns:
+        Path to the generated ``cropModel_data.csv`` file.
+    """
     src = output_root / "SimulationExperimentTemplate" / f"{project_row['location']}{project_row['iopt']}_daily.csv"
     dst = output_root / "SimulationExperimentTemplate" / "cropModel_data.csv"
 
@@ -105,10 +160,32 @@ def export_crop_model_data(output_root: Path, project_row: dict) -> Path:
 
 
 def _saturation_vapor_pressure(t_celsius: float) -> float:
+    """Saturation vapour pressure via the Magnus formula (kPa).
+
+    Args:
+        t_celsius: Air temperature (°C).
+
+    Returns:
+        Saturation vapour pressure in kPa.
+    """
     return 0.6108 * math.exp((17.27 * t_celsius) / (t_celsius + 237.3))
 
 
 def convert_weather(work_root: Path, output_root: Path, location: str) -> Path:
+    """Convert a SIMPLACE weather file to the FraNchEstYN daily CSV format.
+
+    Derives relative humidity extrema (RHx, RHn) from vapour pressure and the
+    Magnus saturation formula, then writes a CSV with columns
+    ``site, year, month, day, tx, tn, p, rad, vp, rhx, rhn``.
+
+    Args:
+        work_root: Root of the SIMPLACE working directory.
+        output_root: Root output directory where the converted file is written.
+        location: Location identifier used to resolve the source weather file.
+
+    Returns:
+        Path to the generated ``weather_franchestyn.csv`` file.
+    """
     weather_src = work_root / "SimulationExperimentTemplate" / "data" / "weather" / f"{location}.txt"
     weather_dst = output_root / "SimulationExperimentTemplate" / "weather_franchestyn.csv"
 
@@ -156,6 +233,20 @@ def convert_weather(work_root: Path, output_root: Path, location: str) -> Path:
 
 
 def build_management(output_root: Path, project_row: dict, crop: str = "wheat", variety: str = "generic") -> Path:
+    """Build the FraNchEstYN sowing management CSV from project metadata.
+
+    Writes a single-row CSV with columns ``site, crop, variety, year, sowingDOY``.
+    The sowing day-of-year is derived as ``idem - 7``, clamped to a minimum of 1.
+
+    Args:
+        output_root: Root output directory where the management file is written.
+        project_row: Project metadata dict returned by ``get_project_row``.
+        crop: Crop type string written to the management CSV.
+        variety: Variety string written to the management CSV.
+
+    Returns:
+        Path to the generated ``management_franchestyn.csv`` file.
+    """
     start_date = datetime.strptime(project_row["startdate"], "%d.%m.%Y")
     _ = start_date
     sowing_doy = max(1, project_row["idem"] - 7)
@@ -187,6 +278,21 @@ def merge_simplace_and_franchestyn(
     franchestyn_df: pd.DataFrame,
     out_name: str = "merged_simulation_data.csv",
 ) -> Path:
+    """Join SIMPLACE daily output with FraNchEstYN simulation results on date.
+
+    Suffixes SIMPLACE columns with ``_S`` and FraNchEstYN columns with ``_F``,
+    performs a left merge on the parsed date column, and writes the result to
+    ``output_root / SimulationExperimentTemplate / out_name``.
+
+    Args:
+        output_root: Root output directory written by SIMPLACE.
+        project_row: Project metadata dict returned by ``get_project_row``.
+        franchestyn_df: DataFrame of FraNchEstYN daily simulation records.
+        out_name: Filename for the merged output CSV.
+
+    Returns:
+        Path to the written merged CSV file.
+    """
     simplace_daily_path = output_root / "SimulationExperimentTemplate" / f"{project_row['location']}{project_row['iopt']}_daily.csv"
     simplace_df = pd.read_csv(simplace_daily_path, sep=";")
 

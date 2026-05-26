@@ -1,6 +1,6 @@
-# simpest module
+# fr_optimizer
 
-::: simpest.simpest
+::: simpest.models.fr_optimizer
     options:
       show_root_heading: true
       show_root_full_path: false

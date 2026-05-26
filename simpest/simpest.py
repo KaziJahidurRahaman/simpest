@@ -1,4 +1,8 @@
-"""Main module."""
+"""Top-level pipeline entrypoints for simpest.
+
+This module exposes the public orchestration function that runs the SIMPLACE
+to FraNchEstYN workflow and writes downstream CSV outputs.
+"""
 from pathlib import Path
 
 import pandas as pd
