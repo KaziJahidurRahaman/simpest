@@ -38,7 +38,11 @@ theme:
 
 plugins:
     - search
-    - mkdocstrings
+    - mkdocstrings:
+          handlers:
+              python:
+                  options:
+                      docstring_style: google
     - git-revision-date
     - git-revision-date-localized:
           enable_creation_date: true

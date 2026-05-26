@@ -32,12 +32,17 @@ def run_pipeline(
 ) -> dict:
     """Run the full SIMPLACE -> FraNchEstYN pipeline.
 
-    Parameters
-    ----------
-    shutdown_simplace : bool
-        If True, calls ``simplace.shutDown(shell)`` in ``finally``.
-        Keep this False in Jupyter to avoid possible kernel restarts when
-        the underlying JVM is terminated.
+    Args:
+        simplace_config: Configuration used to initialize and run SIMPLACE.
+        franchestyn_config: Configuration used to run FraNchEstYN.
+        project_lines: SIMPLACE project line numbers to run.
+        shutdown_simplace: If True, calls ``simplace.shutDown(shell)`` in
+            ``finally``. Keep this False in Jupyter to avoid possible kernel
+            restarts when the underlying JVM is terminated.
+
+    Returns:
+        A dictionary containing paths, selected project metadata, merged CSV
+        location, FraNchEstYN result payload, and shutdown state.
     """
     shell = init_simplace(simplace_config)
     try:
