@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#welcome-to-simpest" class="md-skip">
+        <a href="#simpest" class="md-skip">
           Skip to content
         </a>
       
@@ -329,10 +329,76 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#features" class="md-nav__link">
+  <a href="#introduction" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Features
+        Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#package-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Package Description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#directory-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directory Tree
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quickstart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quickstart
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Links
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project
       
     </span>
   </a>
@@ -728,10 +794,76 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#features" class="md-nav__link">
+  <a href="#introduction" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Features
+        Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#package-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Package Description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#directory-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directory Tree
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quickstart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quickstart
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Links
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project
       
     </span>
   </a>
@@ -761,16 +893,162 @@
   
 
 
-<h1 id="welcome-to-simpest">Welcome to simpest<a class="headerlink" href="#welcome-to-simpest" title="Permanent link">&para;</a></h1>
-<p><a href="https://pypi.python.org/pypi/simpest"><img alt="image" src="https://img.shields.io/pypi/v/simpest.svg" /></a></p>
-<p><strong>Simpest</strong></p>
+<h1 id="simpest">simpest<a class="headerlink" href="#simpest" title="Permanent link">&para;</a></h1>
+<p><img alt="simpest logo" src="imgs/simpest_logo.png" /></p>
+<p><a href="https://pypi.python.org/pypi/simpest"><img alt="PyPI" src="https://img.shields.io/pypi/v/simpest.svg" /></a>
+<a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-green.svg" /></a></p>
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
+<p><strong>simpest</strong> is a Python package for crop and disease simulation workflows.
+It connects <a href="https://www.simplace.net">SIMPLACE</a> outputs with the FraNchEstYN
+model family so you can run end-to-end experiments from weather and management
+data to simulation and summary results.</p>
+<h2 id="package-description">Package Description<a class="headerlink" href="#package-description" title="Permanent link">&para;</a></h2>
+<p>The package supports a practical modeling pipeline:</p>
 <ul>
-<li>Free software: MIT License</li>
-<li>Documentation: <a href="https://KaziJahidurRahaman.github.io/simpest">https://KaziJahidurRahaman.github.io/simpest</a></li>
+<li>Runs SIMPLACE scenarios</li>
+<li>Converts SIMPLACE outputs to FraNchEstYN-compatible inputs</li>
+<li>Runs crop, disease, and fungicide simulation steps</li>
+<li>Calibrates selected parameters using multi-start Nelder-Mead optimization</li>
+<li>Export daily simulation and seasonal summary outputs.</li>
 </ul>
-<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
+<p>Core modules are available under <a href="../simpest/models">simpest/models</a>.</p>
+<h2 id="directory-tree">Directory Tree<a class="headerlink" href="#directory-tree" title="Permanent link">&para;</a></h2>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span></pre></div></td><td class="code"><div><pre><span></span><code>simpest/
+|- docs/
+|  |- examples/
+|  |- index.md
+|  |- installation.md
+|  |- usage.md
+|  |- simpest.md
+|  |- common.md
+|- simpest/
+|  |- simpest.py
+|  |- common.py
+|  |- models/
+|     |- simplace.py
+|     |- franchestyn.py
+|     |- fr_runner.py
+|     |- fr_crop_model.py
+|     |- fr_disease_model.py
+|     |- fr_fungicide_model.py
+|     |- fr_optimizer.py
+|     |- fr_utilities.py
+|     |- fr_data.py
+|- tests/
+|- mkdocs.yml
+|- pyproject.toml
+|- README.md
+</code></pre></div></td></tr></table></div>
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>simpest
+</code></pre></div></td></tr></table></div>
+<p>For development installs, use editable mode:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</code></pre></div></td></tr></table></div>
+<h2 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h2>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">simpest.models.simplace</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimplaceConfig</span><span class="p">,</span> <span class="n">init_simplace</span><span class="p">,</span> <span class="n">run_simplace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simpest.models.franchestyn</span><span class="w"> </span><span class="kn">import</span> <span class="n">FranchestynConfig</span><span class="p">,</span> <span class="n">run_franchestyn</span>
+
+<span class="c1"># 1) Configure and run SIMPLACE</span>
+<span class="n">sp_cfg</span> <span class="o">=</span> <span class="n">SimplaceConfig</span><span class="p">(</span>
+    <span class="n">install_dir</span><span class="o">=</span><span class="s2">&quot;&lt;SIMPLACE_INSTALL&gt;&quot;</span><span class="p">,</span>
+    <span class="n">work_dir</span><span class="o">=</span><span class="s2">&quot;&lt;SIMPLACE_WORK&gt;&quot;</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;&lt;OUTPUT_DIR&gt;&quot;</span><span class="p">,</span>
+    <span class="n">solution_path</span><span class="o">=</span><span class="s2">&quot;&lt;SOLUTION_PATH&gt;&quot;</span><span class="p">,</span>
+    <span class="n">project_path</span><span class="o">=</span><span class="s2">&quot;&lt;PROJECT_PATH&gt;&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">shell</span> <span class="o">=</span> <span class="n">init_simplace</span><span class="p">(</span><span class="n">sp_cfg</span><span class="p">)</span>
+<span class="n">run_simplace</span><span class="p">(</span><span class="n">shell</span><span class="p">,</span> <span class="n">sp_cfg</span><span class="p">,</span> <span class="n">project_lines</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># 2) Configure and run FraNchEstYN</span>
+<span class="n">fr_cfg</span> <span class="o">=</span> <span class="n">FranchestynConfig</span><span class="p">(</span>
+    <span class="n">reference_path</span><span class="o">=</span><span class="s2">&quot;&lt;REFERENCE_CSV&gt;&quot;</span><span class="p">,</span>
+    <span class="n">crop_type</span><span class="o">=</span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
+    <span class="n">disease_type</span><span class="o">=</span><span class="s2">&quot;septoria&quot;</span><span class="p">,</span>
+    <span class="n">site</span><span class="o">=</span><span class="s2">&quot;indiana&quot;</span><span class="p">,</span>
+    <span class="n">variety</span><span class="o">=</span><span class="s2">&quot;Generic&quot;</span><span class="p">,</span>
+    <span class="n">disease</span><span class="o">=</span><span class="s2">&quot;thisDisease&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">run_franchestyn</span><span class="p">(</span>
+    <span class="n">weather_path</span><span class="o">=</span><span class="s2">&quot;&lt;WEATHER_FILE&gt;&quot;</span><span class="p">,</span>
+    <span class="n">management_path</span><span class="o">=</span><span class="s2">&quot;&lt;MANAGEMENT_FILE&gt;&quot;</span><span class="p">,</span>
+    <span class="n">start_year</span><span class="o">=</span><span class="mi">2018</span><span class="p">,</span>
+    <span class="n">end_year</span><span class="o">=</span><span class="mi">2019</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">fr_cfg</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;outputs&quot;</span><span class="p">][</span><span class="s2">&quot;summary&quot;</span><span class="p">])</span>
+</code></pre></div></td></tr></table></div>
+<p>See the full workflow notebook at <a href="examples/simpest_workflow_example/">docs/examples/simpest_workflow_example.ipynb</a>.</p>
+<h2 id="quick-links">Quick Links<a class="headerlink" href="#quick-links" title="Permanent link">&para;</a></h2>
 <ul>
-<li>TODO</li>
+<li><a href="installation/">Installation</a></li>
+<li><a href="usage/">Usage</a></li>
+<li><a href="simpest/">API Reference</a></li>
+<li><a href="examples/intro/">Examples</a></li>
+<li><a href="contributing/">Contributing</a></li>
+<li><a href="changelog/">Changelog</a></li>
+</ul>
+<h2 id="project">Project<a class="headerlink" href="#project" title="Permanent link">&para;</a></h2>
+<ul>
+<li>License: MIT</li>
+<li>Source: <a href="https://github.com/KaziJahidurRahaman/simpest">https://github.com/KaziJahidurRahaman/simpest</a></li>
+<li>Documentation: <a href="https://KaziJahidurRahaman.github.io/simpest">https://KaziJahidurRahaman.github.io/simpest</a></li>
 </ul>
 
 
@@ -794,7 +1072,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 21, 2026 06:08:01 UTC"><span class="timeago" datetime="2026-05-21T06:08:01+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 21, 2026 06:08:01 UTC">2026-05-21</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 27, 2026 08:34:58 UTC"><span class="timeago" datetime="2026-05-27T08:34:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 27, 2026 08:34:58 UTC">2026-05-27</span>
   </span>
 
     
