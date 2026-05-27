@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE projectdata PUBLIC "-//SIMPLACE/DTD PRJ 1.0//EN" "http://simplace.net/dtd/SimProject_4_1.dtd">
+
+<projectdata>
+  <description title="Project to calculate different scenarios with lintul5" author="Gunther Krauss" qualitylevel="II">WIKI_START
+=== Purpose ===
+* Serve as a general example for documenting the simulations of a research project
+* Runs the same scenarios (locations, time period, emergence vc dates, model options) as
+the example batch file provided with the original model.
+
+=== References ===
+This project uses standard parameters and data that is provided with the Lintul5 package from
+the Model Library of the Plant Production Systems, Wageningen, Netherlands
+
+[http://models.pps.wur.nl/content/lintul-5-crop-growth-simulation-model-potential-water-limited-n-limited-and-npk-limited-co-0 Link]
+
+Executable program, fortran source code, input and output data can be downloaded as a .zip file from the link above.
+
+=== Data ====
+Data (parameters/run scenarios) was derived from following files from the directory Test-L-NPK
+* (B) BATCH.INP - batch input file that controls the run
+
+=== Remarks ===
+
+
+=== Usage ====
+* Used with solution SimulationExperimentTemplate/solution/Lintul5_indiana.sol.xml to calculate all scenarios from (B)
+
+WIKI_END</description>
+  <interfaces>
+    <interface id="projectdatafile" type="CSV">
+      <poolsize>1</poolsize>
+      <divider>;</divider>
+      <filename>${_WORKDIR_}/SimulationExperimentTemplate/data/projectdata/lintul5all_indiana.csv</filename>
+    </interface>
+    <interface id="lintul5sum" type="CSV">
+      <poolsize>100</poolsize>
+      <divider>;</divider>
+      <filename>${_OUTPUTDIR_}/SimulationExperimentTemplate/summary_all_indiana.csv</filename>
+    </interface>
+  </interfaces>
+  <projects>
+    <resource id="projectdata" interface="projectdatafile">
+      <description title="Project data for running different scenarios, data derived from (B)" />
+      <header>
+        <var id="projectid" datatype="CHAR" key="projectid" />
+        <var id="simulationname" datatype="CHAR" key="simulationname" />
+        <var id="startdate" datatype="DATE" />
+        <var id="enddate" datatype="DATE" />
+        <var id="vLocation" datatype="CHAR" />
+        <var id="vIOPT" datatype="INT" description="switch for water and NPK-limitation; 1=potential, 2=waterlimited, 3=water+Nlimited, 4=water+NPKlimited" />
+        <var id="vIDEM" datatype="INT" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" description="doy of emergence" />
+        <var id="vIRRI" datatype="INT" description="switch for irrigation, 0=no irrigation, 1=irrigation" />
+        <var id="vISOW" datatype="INT" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" description="doy of sowing for winter wheat" />
+      </header>
+    </resource>
+  </projects>
+</projectdata>
+

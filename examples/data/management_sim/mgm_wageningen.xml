@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ManagementData>
+	<management>
+<parameter id="SeasonId">default</parameter>
+		<parameter id="Latitude">51.97</parameter>
+		<parameter id="SunInclination">-4</parameter>
+		<parameter id="Altitude">7</parameter>
+		
+		<parameter id="FERNTAB" description="Fertiliser N applications as function of day number" unit="g/m^2">
+			<value>0</value><value>0.0</value>
+			<value>99</value><value>0.0</value>
+			<value>100</value><value>0.0</value>
+			<value>101</value><value>0.0</value>
+			<value>124</value><value>0.0</value>
+			<value>125</value><value>5.0</value>
+			<value>126</value><value>0.0</value>
+			<value>200</value><value>0.0</value>
+		</parameter>
+
+		<parameter id="FERPTAB" description="Fertiliser P applications as function of day number" unit="g/m^2">
+			<value>0</value><value> 0.0</value>
+			<value>99</value><value> 0.0</value>
+			<value>100</value><value> 0.0</value>
+			<value>101</value><value> 0.0</value>
+			<value>124</value><value> 0.0</value>
+			<value>125</value><value> 1.0</value>
+			<value>126</value><value> 0.0</value>
+			<value>200</value><value> 0.0</value>
+		</parameter>
+
+		<parameter id="FERKTAB" description="Fertiliser K applications as function of day number" unit="g/m^2">
+			<value>0</value><value>0.0</value>
+			<value>99</value><value>0.0</value>
+			<value>100</value><value> 0.0</value>
+			<value>101</value><value> 0.0</value>
+			<value>124</value><value> 0.0</value>
+			<value>125</value><value> 5.0</value>
+			<value>126</value><value> 0.0</value>
+			<value>200</value><value> 0.0</value>
+		</parameter>
+
+
+		<!--* ** Recovery fraction of applied fertiliser N, P and K -->
+		<parameter id="NRFTAB" description="kg N uptake by the crop per kg fertiliser-N applied as function of day number" unit="">
+			<value>0</value><value>0.70</value>
+			<value>200</value><value>0.70</value>
+		</parameter>
+		<parameter id="PRFTAB" description="kg P uptake by the crop per kg fertiliser-P applied as function of day number" unit="">
+			<value>0</value><value>0.20</value>
+			<value>200</value><value>0.20</value>
+		</parameter>
+		<parameter id="KRFTAB" description="kg K uptake by the crop per kg fertiliser-K applied as function of day number" unit="">
+			<value>0</value><value>0.60</value>
+			<value>200</value><value>0.60</value>
+		</parameter>
+
+
+		<!--* * Soil N, P and K mineralization -->
+		<parameter id="NMINS" description="total mineral soil N available at start of growth period [g/m^2]" unit="">3.</parameter>
+		<parameter id="RTNMINS" description="fraction of soil mineral N coming available per day [day-1]" unit="">0.025</parameter>
+
+		<parameter id="PMINS" description="total mineral soil P available at start of growth period [g/m^2]" unit="">.3</parameter>
+		<parameter id="RTPMINS" description="fraction of soil mineral P coming available per day [day-1]" unit="">0.025</parameter>
+
+		<parameter id="KMINS" description="total mineral soil K available at start of growth period [g/m^2]" unit="">2.</parameter>
+		<parameter id="RTKMINS" description="fraction of soil mineral K coming available per day [day-1]" unit="">0.025</parameter>
+		
+
+		<parameter id="IRRTAB" description="irrigation water applied per day [cm] as function of day number" unit="">
+			<value>0</value><value>0.0</value>
+			<value>164</value><value>0.0</value>
+			<value>165</value><value>2.0</value>
+			<value>166</value><value>0.0</value>
+			<value>200</value><value>0.0</value>
+			<value>201</value><value>2.0</value>
+			<value>202</value><value>0.0</value>
+			<value>220</value><value>0.0</value>
+			<value>221</value><value>2.0</value>
+			<value>222</value><value>0.0</value>
+			<value>365</value><value>0.0</value>
+		</parameter>
+	</management>
+</ManagementData>

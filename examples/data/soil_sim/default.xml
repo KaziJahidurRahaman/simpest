@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SoilData>
+  <soil>
+    <parameter id="SoilType">default</parameter> <!-- source/reference:  -->
+    <parameter id="SMDRY" description="soil moisture content at airdry (pF= 6.0)" unit="[mm3/mm3]">0.150</parameter>
+    <parameter id="SMW" description="soil moisture content at wilting point (pF= 4.2)" unit="[mm3/mm3]">0.200</parameter>
+    <parameter id="SMFC" description="soil moisture content at field capacity (pF= 2.3)" unit="[mm3/mm3]">0.350</parameter>
+    <parameter id="SM0" description="soil moisture content at saturation" unit="[mm3/mm3]">0.450</parameter>
+    <parameter id="CRAIRC" description="critical soil air content for aeration" unit="[mm3/mm3]">0.07</parameter>
+    <parameter id="SMI" description="soil moisture content in initial root zone at planting or emergence" unit="[mm3/mm3]">0.300</parameter>
+    <parameter id="SMLOWI" description="initial soil moisture content in lower zone at planting or emergence" unit="[mm3/mm3]">0.300</parameter> 
+    <parameter id="RDMSO" description="maximum rooting depth as determined by soil structure" unit="[m]">1.50</parameter>
+    <parameter id="RUNFR" description="average fraction of precipitation lost by runoff" unit="[-]">0.0</parameter>
+    <parameter id="CFEV" description="correction factor of time course of soil evaporation (value between 1 and about 4)" unit="">2.0</parameter>
+    <parameter id="KSUB" description="maximal percolation rate from lower zone to deeper soil layers" unit="[mm day-1]">100.</parameter>   
+  </soil>
+</SoilData>  
