@@ -11,7 +11,12 @@ from .fr_runner import FranchestynRunner
 
 
 def _resolve_default_reference() -> str:
-    """Resolve a local default reference CSV using repository files only."""
+    """
+    Resolve a local default reference CSV using repository files only.
+
+    Returns:
+        str: Path to the default reference CSV file.
+    """
     repo_root = Path(__file__).resolve().parents[2]
     candidates = [
         repo_root
@@ -44,11 +49,41 @@ def _resolve_default_reference() -> str:
 
 
 def _resolve_local_model_file(filename: str) -> str:
+    """
+    Get the path to a local model file by filename.
+
+    Args:
+        filename (str): Name of the file to resolve.
+
+    Returns:
+        str: Path to the local model file.
+    """
     return str(Path(__file__).with_name(filename))
 
 
 @dataclass(frozen=True)
 class FranchestynConfig:
+    """
+    Configuration for FraNchEstYN model runs.
+
+    Attributes:
+        param_file (str): Path to the main parameter file.
+        crop_param_file (str): Path to crop parameter file.
+        disease_param_file (str): Path to disease parameter file.
+        fungicide_param_file (str): Path to fungicide parameter file.
+        reference_path (str): Path to reference CSV.
+        crop_type (str): Crop type (e.g., 'wheat').
+        disease_type (str): Disease type (e.g., 'septoria').
+        fungicide_type (str|None): Fungicide type (e.g., 'protectant').
+        site (str): Site name.
+        variety (str): Variety name.
+        disease (str): Disease name.
+        is_calibration (bool): Whether to run calibration.
+        calibration_variable (str): Calibration variable ('all', 'crop', 'disease').
+        use_gdd (bool): Use growing degree days.
+        n_restarts (int): Number of calibration restarts.
+        max_iter (int): Maximum calibration iterations.
+    """
     param_file: str = ""
     crop_param_file: str = field(default_factory=lambda: _resolve_local_model_file("fr_crop_parameters.json"))
     disease_param_file: str = field(default_factory=lambda: _resolve_local_model_file("fr_disease_parameters.json"))
@@ -68,6 +103,15 @@ class FranchestynConfig:
 
 
 def _outputs_to_records(date_outputs):
+    """
+    Convert date_outputs from FraNchEstYN runner to a list of record dicts.
+
+    Args:
+        date_outputs (dict): Mapping of date to output objects.
+
+    Returns:
+        list of dict: List of output records for each date.
+    """
     records = []
     for dt, out in sorted(date_outputs.items()):
         records.append(
@@ -114,6 +158,23 @@ def run_franchestyn(
     disease_param_file: str | None = None,
     fungicide_param_file: str | None = None,
 ) -> dict:
+    """
+    Run the FraNchEstYN model with the given configuration and input files.
+
+    Args:
+        weather_path (str): Path to weather input file.
+        management_path (str): Path to management input file.
+        start_year (int): Start year for simulation.
+        end_year (int): End year for simulation.
+        config (FranchestynConfig): FraNchEstYN configuration object.
+        cropmodel_path (str|None, optional): Path to crop model data file.
+        crop_param_file (str|None, optional): Path to crop parameter file.
+        disease_param_file (str|None, optional): Path to disease parameter file.
+        fungicide_param_file (str|None, optional): Path to fungicide parameter file.
+
+    Returns:
+        dict: Dictionary with simulation outputs and summary.
+    """
     crop_param_file = crop_param_file or config.crop_param_file
     disease_param_file = disease_param_file or config.disease_param_file
     fungicide_param_file = fungicide_param_file or config.fungicide_param_file
@@ -177,6 +238,17 @@ def run_franchestyn(
 
 
 def save_simulation_results_csv(res_ot_simulation, output_root: Path, filename: str = "franchestyn_simulation_results.csv") -> Path:
+    """
+    Save FraNchEstYN simulation results to a CSV file.
+
+    Args:
+        res_ot_simulation (list of dict): Simulation output records.
+        output_root (Path): Output root directory.
+        filename (str, optional): Output filename. Defaults to 'franchestyn_simulation_results.csv'.
+
+    Returns:
+        Path: Path to the saved CSV file.
+    """
     output_file = output_root / "SimulationExperimentTemplate" / filename
     df = pd.DataFrame(res_ot_simulation)
     df.to_csv(output_file, index=False)
@@ -184,6 +256,17 @@ def save_simulation_results_csv(res_ot_simulation, output_root: Path, filename: 
 
 
 def build_season_summary(df: pd.DataFrame, site: str, variety: str) -> pd.DataFrame:
+    """
+    Build a season summary DataFrame from simulation results.
+
+    Args:
+        df (pd.DataFrame): Simulation results DataFrame.
+        site (str): Site name.
+        variety (str): Variety name.
+
+    Returns:
+        pd.DataFrame: Season summary DataFrame.
+    """
     if df.empty:
         return pd.DataFrame()
 
@@ -251,6 +334,17 @@ def build_season_summary(df: pd.DataFrame, site: str, variety: str) -> pd.DataFr
 
 
 def save_season_summary_csv(summary_df: pd.DataFrame, output_root: Path, filename: str = "franchestyn_season_summary.csv") -> Path | None:
+    """
+    Save season summary DataFrame to a CSV file.
+
+    Args:
+        summary_df (pd.DataFrame): Season summary DataFrame.
+        output_root (Path): Output root directory.
+        filename (str, optional): Output filename. Defaults to 'franchestyn_season_summary.csv'.
+
+    Returns:
+        Path|None: Path to the saved CSV file, or None if summary_df is empty.
+    """
     if summary_df.empty:
         return None
 
@@ -266,6 +360,19 @@ def save_calibrated_parameters_csv(
     variety: str,
     filename: str | None = None,
 ) -> Path | None:
+    """
+    Save best calibration parameters to a CSV file.
+
+    Args:
+        best_params (dict): Best parameter values from calibration.
+        output_root (Path): Output root directory.
+        site (str): Site name.
+        variety (str): Variety name.
+        filename (str|None, optional): Output filename. If None, uses a default pattern.
+
+    Returns:
+        Path|None: Path to the saved CSV file, or None if best_params is empty.
+    """
     if not best_params:
         return None
 

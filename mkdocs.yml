@@ -83,4 +83,7 @@ nav:
         - examples/intro.ipynb
     - API Reference:
           - simpest module: simpest.md
+          - models:
+              - simplace module: models/simplace.md
+              - franchestyn module: models/franchestyn.md
         #   - common module: common.md
