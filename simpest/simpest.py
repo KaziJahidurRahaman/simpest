@@ -17,7 +17,7 @@ def run_pipeline(
 
 
     """
-    Run the full SIMPLACE → FraNchEstYN pipeline.
+    Run the full SIMPLACE and FraNchEstYN pipeline.
 
     This function initializes and runs a SIMPLACE simulation, prepares the required input files,
     and then runs the FraNchEstYN model using the outputs from SIMPLACE. It saves all intermediate
