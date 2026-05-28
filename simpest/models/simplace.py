@@ -11,6 +11,12 @@ import simplace
 def get_simplace_directories(shell):
     """
     Wrapper for simplace.getSimplaceDirectories to avoid exposing simplace in notebooks.
+
+    Args:
+        shell: Simplace shell instance.
+
+    Returns:
+        dict: Simplace directories information.
     """
     return simplace.getSimplaceDirectories(shell)
 
@@ -20,6 +26,16 @@ _SIMPLACE_INSTANCE = None
 
 @dataclass(frozen=True)
 class SimplaceConfig:
+    """
+    Configuration for Simplace runs.
+
+    Attributes:
+        install_dir (str): Path to Simplace installation directory.
+        work_dir (str): Path to Simplace working directory.
+        output_dir (str): Path to Simplace output directory.
+        solution_path (str): Path to Simplace solution XML file.
+        project_path (str): Path to Simplace project XML file.
+    """
     install_dir: str = "C:/ParamVC/Research/simplace+/simplace_portable/workspace/"
     work_dir: str = "C:/ParamVC/Research/simplace+/simplace_portable/workspace/simplace_run/simulation/"
     output_dir: str = "C:/ParamVC/Research/simplace+/simplace_out/"
@@ -28,6 +44,15 @@ class SimplaceConfig:
 
 
 def init_simplace(config: SimplaceConfig):
+    """
+    Initialize and return a Simplace instance using the given configuration.
+
+    Args:
+        config (SimplaceConfig): Simplace configuration object.
+
+    Returns:
+        Simplace instance.
+    """
     global _SIMPLACE_INSTANCE
 
     if _SIMPLACE_INSTANCE is not None and jpype.isJVMStarted():
@@ -47,12 +72,30 @@ def init_simplace(config: SimplaceConfig):
 
 
 def run_simplace(shell, config: SimplaceConfig, project_lines: list[int]):
+    """
+    Run a Simplace project for the specified project lines.
+
+    Args:
+        shell: Simplace shell instance.
+        config (SimplaceConfig): Simplace configuration object.
+        project_lines (list[int]): List of project line indices to run.
+    """
     simplace.openProject(shell, config.solution_path, config.project_path)
     simplace.setProjectLines(shell, project_lines)
     simplace.runProject(shell)
 
 
 def get_project_row(work_root: Path, selected_line: int) -> dict:
+    """
+    Get a row from the project CSV file by line index.
+
+    Args:
+        work_root (Path): Root directory for Simplace workspace.
+        selected_line (int): Line number (1-based) to select from the project CSV.
+
+    Returns:
+        dict: Dictionary with project row data.
+    """
     project_csv = (
         work_root
         / "SimulationExperimentTemplate"
@@ -79,6 +122,16 @@ def get_project_row(work_root: Path, selected_line: int) -> dict:
 
 
 def export_crop_model_data(output_root: Path, project_row: dict) -> Path:
+    """
+    Export crop model data from Simplace daily output to a CSV file for FraNchEstYN.
+
+    Args:
+        output_root (Path): Output root directory.
+        project_row (dict): Project row dictionary.
+
+    Returns:
+        Path: Path to the exported crop model CSV file.
+    """
     src = output_root / "SimulationExperimentTemplate" / f"{project_row['location']}{project_row['iopt']}_daily.csv"
     dst = output_root / "SimulationExperimentTemplate" / "cropModel_data.csv"
 
@@ -111,10 +164,30 @@ def export_crop_model_data(output_root: Path, project_row: dict) -> Path:
 
 
 def _saturation_vapor_pressure(t_celsius: float) -> float:
+    """
+    Calculate the saturation vapor pressure for a given temperature.
+
+    Args:
+        t_celsius (float): Temperature in Celsius.
+
+    Returns:
+        float: Saturation vapor pressure (kPa).
+    """
     return 0.6108 * math.exp((17.27 * t_celsius) / (t_celsius + 237.3))
 
 
 def convert_weather(work_root: Path, output_root: Path, location: str) -> Path:
+    """
+    Convert Simplace weather file to FraNchEstYN-compatible CSV format.
+
+    Args:
+        work_root (Path): Simplace workspace root directory.
+        output_root (Path): Output root directory.
+        location (str): Location name (used for weather file).
+
+    Returns:
+        Path: Path to the converted weather CSV file.
+    """
     weather_src = work_root / "SimulationExperimentTemplate" / "data" / "weather" / f"{location}.txt"
     weather_dst = output_root / "SimulationExperimentTemplate" / "weather_franchestyn.csv"
 
@@ -162,6 +235,18 @@ def convert_weather(work_root: Path, output_root: Path, location: str) -> Path:
 
 
 def build_management(output_root: Path, project_row: dict, crop: str = "wheat", variety: str = "generic") -> Path:
+    """
+    Build and save a management CSV file for FraNchEstYN.
+
+    Args:
+        output_root (Path): Output root directory.
+        project_row (dict): Project row dictionary.
+        crop (str, optional): Crop name. Defaults to "wheat".
+        variety (str, optional): Variety name. Defaults to "generic".
+
+    Returns:
+        Path: Path to the management CSV file.
+    """
     start_date = datetime.strptime(project_row["startdate"], "%d.%m.%Y")
     _ = start_date
     sowing_doy = max(1, project_row["idem"] - 7)
@@ -193,6 +278,18 @@ def merge_simplace_and_franchestyn(
     franchestyn_df: pd.DataFrame,
     out_name: str = "merged_simulation_data.csv",
 ) -> Path:
+    """
+    Merge Simplace and FraNchEstYN daily outputs into a single CSV file.
+
+    Args:
+        output_root (Path): Output root directory.
+        project_row (dict): Project row dictionary.
+        franchestyn_df (pd.DataFrame): FraNchEstYN daily output DataFrame.
+        out_name (str, optional): Output filename. Defaults to "merged_simulation_data.csv".
+
+    Returns:
+        Path: Path to the merged CSV file.
+    """
     simplace_daily_path = output_root / "SimulationExperimentTemplate" / f"{project_row['location']}{project_row['iopt']}_daily.csv"
     simplace_df = pd.read_csv(simplace_daily_path, sep=";")
 
