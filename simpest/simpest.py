@@ -9,8 +9,8 @@ import simpest.models.franchestyn as franchestyn_mod
 
 
 def run_pipeline(
-    simplace_config: SimplaceConfig,
-    franchestyn_config: FranchestynConfig,
+    implace_config: simplace_mod.SimplaceConfig,
+    franchestyn_config: franchestyn_mod.FranchestynConfig,
     project_lines: list[int],
     shutdown_simplace: bool = False,
 ) -> dict:
