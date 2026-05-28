@@ -1475,27 +1475,15 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">simplace</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">simpest</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">simpest.models.simplace</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">SimplaceConfig</span><span class="p">,</span> <span class="n">init_simplace</span><span class="p">,</span> <span class="n">run_simplace</span><span class="p">,</span> <span class="n">get_project_row</span><span class="p">,</span>
-                                     <span class="n">export_crop_model_data</span><span class="p">,</span> <span class="n">convert_weather</span><span class="p">,</span> <span class="n">build_management</span><span class="p">,</span>
-                                     <span class="n">merge_simplace_and_franchestyn</span><span class="p">,</span> <span class="n">get_simplace_directories</span><span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">simpest.models.franchestyn</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">FranchestynConfig</span><span class="p">,</span><span class="n">run_franchestyn</span><span class="p">,</span><span class="n">build_season_summary</span><span class="p">,</span>
-                                        <span class="n">save_simulation_results_csv</span><span class="p">,</span><span class="n">save_season_summary_csv</span><span class="p">,</span>
-                                        <span class="n">save_calibrated_parameters_csv</span><span class="p">,)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">simpest.models.simplace</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">simplace</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">simpest.models.franchestyn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">franchestyn</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-1">from pathlib import Path
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import simplace
-import simpest
-from simpest.models.simplace import (SimplaceConfig, init_simplace, run_simplace, get_project_row,
-                                     export_crop_model_data, convert_weather, build_management,
-                                     merge_simplace_and_franchestyn, get_simplace_directories)
-from simpest.models.franchestyn import (FranchestynConfig,run_franchestyn,build_season_summary,
-                                        save_simulation_results_csv,save_season_summary_csv,
-                                        save_calibrated_parameters_csv,)</div>
+import simpest.models.simplace as simplace
+import simpest.models.franchestyn as franchestyn</div>
 </div>
 </div>
 </div>
@@ -1836,21 +1824,21 @@ plt.show()
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">sp_cfg</span> <span class="o">=</span> <span class="n">SimplaceConfig</span><span class="p">(</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">sp_cfg</span> <span class="o">=</span> <span class="n">simplace</span><span class="o">.</span><span class="n">SimplaceConfig</span><span class="p">(</span>
     <span class="n">install_dir</span><span class="o">=</span><span class="n">SIMPLACE_INSTALL</span><span class="p">,</span> <span class="n">work_dir</span><span class="o">=</span><span class="n">SIMPLACE_WORK</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">SIMPLACE_OUT</span><span class="p">,</span>
     <span class="n">solution_path</span><span class="o">=</span><span class="n">SOLUTION_PATH</span><span class="p">,</span> <span class="n">project_path</span><span class="o">=</span><span class="n">PROJECT_PATH</span><span class="p">,</span>
 <span class="p">)</span>
 
 
 <span class="c1"># Stage 1: Run SIMPLACE only</span>
-<span class="n">shell</span> <span class="o">=</span> <span class="n">init_simplace</span><span class="p">(</span><span class="n">sp_cfg</span><span class="p">)</span>
-<span class="n">run_simplace</span><span class="p">(</span><span class="n">shell</span><span class="p">,</span> <span class="n">sp_cfg</span><span class="p">,</span> <span class="n">project_lines</span><span class="o">=</span><span class="n">PROJECT_LINES</span><span class="p">)</span>
+<span class="n">shell</span> <span class="o">=</span> <span class="n">simplace</span><span class="o">.</span><span class="n">init_simplace</span><span class="p">(</span><span class="n">sp_cfg</span><span class="p">)</span>
+<span class="n">simplace</span><span class="o">.</span><span class="n">run_simplace</span><span class="p">(</span><span class="n">shell</span><span class="p">,</span> <span class="n">sp_cfg</span><span class="p">,</span> <span class="n">project_lines</span><span class="o">=</span><span class="n">PROJECT_LINES</span><span class="p">)</span>
 
-<span class="n">dirs</span> <span class="o">=</span> <span class="n">get_simplace_directories</span><span class="p">(</span><span class="n">shell</span><span class="p">)</span>
+<span class="n">dirs</span> <span class="o">=</span> <span class="n">simplace</span><span class="o">.</span><span class="n">get_simplace_directories</span><span class="p">(</span><span class="n">shell</span><span class="p">)</span>
 <span class="n">work_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dirs</span><span class="p">[</span><span class="s2">"_WORKDIR_"</span><span class="p">])</span>
 <span class="n">output_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dirs</span><span class="p">[</span><span class="s2">"_OUTPUTDIR_"</span><span class="p">])</span>
 <span class="n">selected_line</span> <span class="o">=</span> <span class="n">PROJECT_LINES</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">project_row</span> <span class="o">=</span> <span class="n">get_project_row</span><span class="p">(</span><span class="n">work_root</span><span class="p">,</span> <span class="n">selected_line</span><span class="o">=</span><span class="n">selected_line</span><span class="p">)</span>
+<span class="n">project_row</span> <span class="o">=</span> <span class="n">simplace</span><span class="o">.</span><span class="n">get_project_row</span><span class="p">(</span><span class="n">work_root</span><span class="p">,</span> <span class="n">selected_line</span><span class="o">=</span><span class="n">selected_line</span><span class="p">)</span>
 <span class="n">simplace_daily_path</span> <span class="o">=</span> <span class="n">output_root</span> <span class="o">/</span> <span class="s2">"SimulationExperimentTemplate"</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">project_row</span><span class="p">[</span><span class="s1">'location'</span><span class="p">]</span><span class="si">}{</span><span class="n">project_row</span><span class="p">[</span><span class="s1">'iopt'</span><span class="p">]</span><span class="si">}</span><span class="s2">_daily.csv"</span>
 <span class="n">start_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">project_row</span><span class="p">[</span><span class="s2">"startdate"</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">end_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">project_row</span><span class="p">[</span><span class="s2">"enddate"</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
@@ -1863,21 +1851,21 @@ plt.show()
 <span class="n">sim_df</span><span class="p">[</span><span class="s1">'TAGB'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">sim_df</span><span class="p">[</span><span class="s1">'TAGB'</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s1">'coerce'</span><span class="p">)</span>
 <span class="n">sim_df</span><span class="p">[</span><span class="s1">'WSO'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">sim_df</span><span class="p">[</span><span class="s1">'WSO'</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s1">'coerce'</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-5">sp_cfg = SimplaceConfig(
+<div class="clipboard-copy-txt" id="cell-5">sp_cfg = simplace.SimplaceConfig(
     install_dir=SIMPLACE_INSTALL, work_dir=SIMPLACE_WORK, output_dir=SIMPLACE_OUT,
     solution_path=SOLUTION_PATH, project_path=PROJECT_PATH,
 )
 
 
 # Stage 1: Run SIMPLACE only
-shell = init_simplace(sp_cfg)
-run_simplace(shell, sp_cfg, project_lines=PROJECT_LINES)
+shell = simplace.init_simplace(sp_cfg)
+simplace.run_simplace(shell, sp_cfg, project_lines=PROJECT_LINES)
 
-dirs = get_simplace_directories(shell)
+dirs = simplace.get_simplace_directories(shell)
 work_root = Path(dirs["_WORKDIR_"])
 output_root = Path(dirs["_OUTPUTDIR_"])
 selected_line = PROJECT_LINES[0]
-project_row = get_project_row(work_root, selected_line=selected_line)
+project_row = simplace.get_project_row(work_root, selected_line=selected_line)
 simplace_daily_path = output_root / "SimulationExperimentTemplate" / f"{project_row['location']}{project_row['iopt']}_daily.csv"
 start_year = int(project_row["startdate"].split(".")[-1])
 end_year = int(project_row["enddate"].split(".")[-1])
@@ -1925,7 +1913,7 @@ SIMPLACE daily output: data\simpest_outputs\SimulationExperimentTemplate\indiana
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
 <clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-6">
@@ -1942,17 +1930,10 @@ SIMPLACE daily output: data\simpest_outputs\SimulationExperimentTemplate\indiana
 <span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
-<span class="c1"># ---------------------------------------------------</span>
-<span class="c1"># Load data (using your file path logic)</span>
-<span class="c1"># ---------------------------------------------------</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">sim_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-<span class="c1"># Convert date column - Update column name if it is 'CURRENTDAY' or 'CURRENT.DATE'</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">sim_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 <span class="n">df</span><span class="p">[</span><span class="s2">"date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"CURRENT.DATE"</span><span class="p">],</span> <span class="n">dayfirst</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="c1"># ---------------------------------------------------</span>
-<span class="c1"># Define Variable Groups</span>
-<span class="c1"># ---------------------------------------------------</span>
 <span class="n">groups</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">(</span><span class="s2">"Crop Growth"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"LAI"</span><span class="p">,</span> <span class="s2">"DVS"</span><span class="p">,</span> <span class="s2">"RD"</span><span class="p">]),</span>
     <span class="p">(</span><span class="s2">"Biomass &amp; Yield"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"TAGB"</span><span class="p">,</span> <span class="s2">"WSO"</span><span class="p">]),</span>
@@ -1964,9 +1945,6 @@ SIMPLACE daily output: data\simpest_outputs\SimulationExperimentTemplate\indiana
     <span class="p">(</span><span class="s2">"Root Dynamics"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"RD"</span><span class="p">,</span> <span class="s2">"RDM"</span><span class="p">,</span> <span class="s2">"RDMCR"</span><span class="p">])</span>
 <span class="p">]</span>
 
-<span class="c1"># ---------------------------------------------------</span>
-<span class="c1"># Create the 2-column Multi-row Figure</span>
-<span class="c1"># ---------------------------------------------------</span>
 <span class="n">sns</span><span class="o">.</span><span class="n">set_theme</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">"whitegrid"</span><span class="p">)</span>
 <span class="n">n_groups</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
 <span class="n">n_cols</span> <span class="o">=</span> <span class="mi">2</span>
@@ -2002,17 +1980,10 @@ SIMPLACE daily output: data\simpest_outputs\SimulationExperimentTemplate\indiana
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# ---------------------------------------------------
-# Load data (using your file path logic)
-# ---------------------------------------------------
-df = sim_df.copy()
 
-# Convert date column - Update column name if it is 'CURRENTDAY' or 'CURRENT.DATE'
+df = sim_df.copy()
 df["date"] = pd.to_datetime(df["CURRENT.DATE"], dayfirst=True)
 
-# ---------------------------------------------------
-# Define Variable Groups
-# ---------------------------------------------------
 groups = [
     ("Crop Growth", ["LAI", "DVS", "RD"]),
     ("Biomass &amp; Yield", ["TAGB", "WSO"]),
@@ -2024,9 +1995,6 @@ groups = [
     ("Root Dynamics", ["RD", "RDM", "RDMCR"])
 ]
 
-# ---------------------------------------------------
-# Create the 2-column Multi-row Figure
-# ---------------------------------------------------
 sns.set_theme(style="whitegrid")
 n_groups = len(groups)
 n_cols = 2
@@ -2104,7 +2072,7 @@ plt.show()</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">fr_cfg</span> <span class="o">=</span> <span class="n">FranchestynConfig</span><span class="p">(</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">fr_cfg</span> <span class="o">=</span> <span class="n">franchestyn</span><span class="o">.</span><span class="n">FranchestynConfig</span><span class="p">(</span>
     <span class="n">reference_path</span><span class="o">=</span><span class="n">path_reference_f</span><span class="p">,</span>
     <span class="n">crop_type</span><span class="o">=</span><span class="n">FRANCH_CROP_TYPE</span><span class="p">,</span>
     <span class="n">disease_type</span><span class="o">=</span><span class="n">FRANCH_DISEASE_TYPE</span><span class="p">,</span>
@@ -2119,11 +2087,11 @@ plt.show()</div>
     <span class="n">max_iter</span><span class="o">=</span><span class="n">FRANCH_MAX_ITER</span><span class="p">,</span>
  <span class="p">)</span>
 
-<span class="n">crop_model_path</span> <span class="o">=</span> <span class="n">export_crop_model_data</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">)</span>
-<span class="n">weather_path</span> <span class="o">=</span> <span class="n">convert_weather</span><span class="p">(</span><span class="n">work_root</span><span class="p">,</span> <span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">[</span><span class="s2">"location"</span><span class="p">])</span>
-<span class="n">management_path</span> <span class="o">=</span> <span class="n">build_management</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">)</span>
+<span class="n">crop_model_path</span> <span class="o">=</span> <span class="n">simplace</span><span class="o">.</span><span class="n">export_crop_model_data</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">)</span>
+<span class="n">weather_path</span> <span class="o">=</span> <span class="n">simplace</span><span class="o">.</span><span class="n">convert_weather</span><span class="p">(</span><span class="n">work_root</span><span class="p">,</span> <span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">[</span><span class="s2">"location"</span><span class="p">])</span>
+<span class="n">management_path</span> <span class="o">=</span> <span class="n">simplace</span><span class="o">.</span><span class="n">build_management</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-7">fr_cfg = FranchestynConfig(
+<div class="clipboard-copy-txt" id="cell-7">fr_cfg = franchestyn.FranchestynConfig(
     reference_path=path_reference_f,
     crop_type=FRANCH_CROP_TYPE,
     disease_type=FRANCH_DISEASE_TYPE,
@@ -2138,9 +2106,9 @@ plt.show()</div>
     max_iter=FRANCH_MAX_ITER,
  )
 
-crop_model_path = export_crop_model_data(output_root, project_row)
-weather_path = convert_weather(work_root, output_root, project_row["location"])
-management_path = build_management(output_root, project_row)</div>
+crop_model_path = simplace.export_crop_model_data(output_root, project_row)
+weather_path = simplace.convert_weather(work_root, output_root, project_row["location"])
+management_path = simplace.build_management(output_root, project_row)</div>
 </div>
 </div>
 </div>
@@ -2235,7 +2203,7 @@ Treatment columns found: []
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="c1"># Stage 2: Run FraNchEstYN using SIMPLACE-generated inputs</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">run_franchestyn</span><span class="p">(</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">franchestyn</span><span class="o">.</span><span class="n">run_franchestyn</span><span class="p">(</span>
     <span class="n">weather_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">weather_path</span><span class="p">),</span>
     <span class="n">management_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">management_path</span><span class="p">),</span>
     <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
@@ -2247,21 +2215,21 @@ Treatment columns found: []
 <span class="n">summary</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">'outputs'</span><span class="p">][</span><span class="s1">'summary'</span><span class="p">]</span>
 <span class="n">simulation</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">'outputs'</span><span class="p">][</span><span class="s1">'simulation'</span><span class="p">]</span>
 
-<span class="n">save_simulation_results_csv</span><span class="p">(</span><span class="n">simulation</span><span class="p">,</span> <span class="n">output_root</span><span class="p">)</span>
+<span class="n">franchestyn</span><span class="o">.</span><span class="n">save_simulation_results_csv</span><span class="p">(</span><span class="n">simulation</span><span class="p">,</span> <span class="n">output_root</span><span class="p">)</span>
 <span class="n">simulation_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
-<span class="n">season_summary</span> <span class="o">=</span> <span class="n">build_season_summary</span><span class="p">(</span><span class="n">simulation_df</span><span class="p">,</span> <span class="n">site</span><span class="o">=</span><span class="n">fr_cfg</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">variety</span><span class="o">=</span><span class="n">fr_cfg</span><span class="o">.</span><span class="n">variety</span><span class="p">)</span>
-<span class="n">save_season_summary_csv</span><span class="p">(</span><span class="n">season_summary</span><span class="p">,</span> <span class="n">output_root</span><span class="p">)</span>
+<span class="n">season_summary</span> <span class="o">=</span> <span class="n">franchestyn</span><span class="o">.</span><span class="n">build_season_summary</span><span class="p">(</span><span class="n">simulation_df</span><span class="p">,</span> <span class="n">site</span><span class="o">=</span><span class="n">fr_cfg</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">variety</span><span class="o">=</span><span class="n">fr_cfg</span><span class="o">.</span><span class="n">variety</span><span class="p">)</span>
+<span class="n">franchestyn</span><span class="o">.</span><span class="n">save_season_summary_csv</span><span class="p">(</span><span class="n">season_summary</span><span class="p">,</span> <span class="n">output_root</span><span class="p">)</span>
 
 <span class="n">best_params</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'best_params'</span><span class="p">,</span> <span class="p">{})</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}</span>
-<span class="n">save_calibrated_parameters_csv</span><span class="p">(</span><span class="n">best_params</span><span class="p">,</span> <span class="n">output_root</span><span class="p">,</span> <span class="n">site</span><span class="o">=</span><span class="n">fr_cfg</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">variety</span><span class="o">=</span><span class="n">fr_cfg</span><span class="o">.</span><span class="n">variety</span><span class="p">)</span>
-<span class="n">merged_path</span> <span class="o">=</span> <span class="n">merge_simplace_and_franchestyn</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">,</span> <span class="n">simulation_df</span><span class="p">)</span>
+<span class="n">franchestyn</span><span class="o">.</span><span class="n">save_calibrated_parameters_csv</span><span class="p">(</span><span class="n">best_params</span><span class="p">,</span> <span class="n">output_root</span><span class="p">,</span> <span class="n">site</span><span class="o">=</span><span class="n">fr_cfg</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">variety</span><span class="o">=</span><span class="n">fr_cfg</span><span class="o">.</span><span class="n">variety</span><span class="p">)</span>
+<span class="n">merged_path</span> <span class="o">=</span> <span class="n">simplace</span><span class="o">.</span><span class="n">merge_simplace_and_franchestyn</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">,</span> <span class="n">simulation_df</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">'FraNchEstYN completed'</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">'Merged output:'</span><span class="p">,</span> <span class="n">merged_path</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">'RMSE:'</span><span class="p">,</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'rmse'</span><span class="p">))</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-9"># Stage 2: Run FraNchEstYN using SIMPLACE-generated inputs
-result = run_franchestyn(
+result = franchestyn.run_franchestyn(
     weather_path=str(weather_path),
     management_path=str(management_path),
     start_year=start_year,
@@ -2273,14 +2241,14 @@ result = run_franchestyn(
 summary = result['outputs']['summary']
 simulation = result['outputs']['simulation']
 
-save_simulation_results_csv(simulation, output_root)
+franchestyn.save_simulation_results_csv(simulation, output_root)
 simulation_df = pd.DataFrame(simulation)
-season_summary = build_season_summary(simulation_df, site=fr_cfg.site, variety=fr_cfg.variety)
-save_season_summary_csv(season_summary, output_root)
+season_summary = franchestyn.build_season_summary(simulation_df, site=fr_cfg.site, variety=fr_cfg.variety)
+franchestyn.save_season_summary_csv(season_summary, output_root)
 
 best_params = summary.get('best_params', {}) if isinstance(summary, dict) else {}
-save_calibrated_parameters_csv(best_params, output_root, site=fr_cfg.site, variety=fr_cfg.variety)
-merged_path = merge_simplace_and_franchestyn(output_root, project_row, simulation_df)
+franchestyn.save_calibrated_parameters_csv(best_params, output_root, site=fr_cfg.site, variety=fr_cfg.variety)
+merged_path = simplace.merge_simplace_and_franchestyn(output_root, project_row, simulation_df)
 
 print('FraNchEstYN completed')
 print('Merged output:', merged_path)
@@ -2726,7 +2694,7 @@ plt.show()</div>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 28, 2026 08:27:11 UTC"><span class="timeago" datetime="2026-05-28T08:27:11+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 28, 2026 08:27:11 UTC">2026-05-28</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 28, 2026 08:36:02 UTC"><span class="timeago" datetime="2026-05-28T08:36:02+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 28, 2026 08:36:02 UTC">2026-05-28</span>
   </span>
 
     
