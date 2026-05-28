@@ -1458,7 +1458,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [1]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
 <clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-1">
@@ -1475,11 +1475,12 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">simplace</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">simpest</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">simpest.models.simplace</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">SimplaceConfig</span><span class="p">,</span> <span class="n">init_simplace</span><span class="p">,</span> <span class="n">run_simplace</span><span class="p">,</span><span class="n">get_project_row</span><span class="p">,</span>
-                                     <span class="n">export_crop_model_data</span><span class="p">,</span><span class="n">convert_weather</span><span class="p">,</span><span class="n">build_management</span><span class="p">,</span>
-                                     <span class="n">merge_simplace_and_franchestyn</span><span class="p">,)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simpest.models.simplace</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SimplaceConfig</span><span class="p">,</span> <span class="n">init_simplace</span><span class="p">,</span> <span class="n">run_simplace</span><span class="p">,</span> <span class="n">get_project_row</span><span class="p">,</span>
+    <span class="n">export_crop_model_data</span><span class="p">,</span> <span class="n">convert_weather</span><span class="p">,</span> <span class="n">build_management</span><span class="p">,</span>
+    <span class="n">merge_simplace_and_franchestyn</span><span class="p">,</span> <span class="n">getSimplaceDirectories</span>
+    <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">simpest.models.franchestyn</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">FranchestynConfig</span><span class="p">,</span><span class="n">run_franchestyn</span><span class="p">,</span><span class="n">build_season_summary</span><span class="p">,</span>
                                         <span class="n">save_simulation_results_csv</span><span class="p">,</span><span class="n">save_season_summary_csv</span><span class="p">,</span>
                                         <span class="n">save_calibrated_parameters_csv</span><span class="p">,)</span>
@@ -1488,11 +1489,12 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import simplace
 import simpest
-from simpest.models.simplace import (SimplaceConfig, init_simplace, run_simplace,get_project_row,
-                                     export_crop_model_data,convert_weather,build_management,
-                                     merge_simplace_and_franchestyn,)
+from simpest.models.simplace import (
+    SimplaceConfig, init_simplace, run_simplace, get_project_row,
+    export_crop_model_data, convert_weather, build_management,
+    merge_simplace_and_franchestyn, getSimplaceDirectories
+    )
 from simpest.models.franchestyn import (FranchestynConfig,run_franchestyn,build_season_summary,
                                         save_simulation_results_csv,save_season_summary_csv,
                                         save_calibrated_parameters_csv,)</div>
@@ -1548,8 +1550,8 @@ from simpest.models.franchestyn import (FranchestynConfig,run_franchestyn,build_
 <span class="n">FRANCH_IS_CALIBRATION</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">FRANCH_CALIBRATION_VARIABLE</span> <span class="o">=</span> <span class="s1">'disease'</span> <span class="c1"># 'all'  # 'crop', 'disease', or 'all'</span>
 <span class="n">FRANCH_USE_GDD</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># True: use GDD-based cycle percentage; False: match C# calendar-based cycle percentage</span>
-<span class="n">FRANCH_N_RESTARTS</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">FRANCH_MAX_ITER</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">FRANCH_N_RESTARTS</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">FRANCH_MAX_ITER</span> <span class="o">=</span> <span class="mi">1</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-2">path_weather = './../../../simpest_data/SimulationExperimentTemplate/data/weather/indiana.txt'
 path_weather_f = './../../../simpest_data/SimulationExperimentTemplate/data/weather/weather_indiana_f.txt'
@@ -1579,8 +1581,8 @@ FRANCH_LATITUDE = 40.5
 FRANCH_IS_CALIBRATION = True
 FRANCH_CALIBRATION_VARIABLE = 'disease' # 'all'  # 'crop', 'disease', or 'all'
 FRANCH_USE_GDD = False  # True: use GDD-based cycle percentage; False: match C# calendar-based cycle percentage
-FRANCH_N_RESTARTS = 10
-FRANCH_MAX_ITER = 200
+FRANCH_N_RESTARTS = 1
+FRANCH_MAX_ITER = 1
 </div>
 </div>
 </div>
@@ -1823,7 +1825,7 @@ plt.show()
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
 <clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-5">
@@ -1847,14 +1849,14 @@ plt.show()
 <span class="n">sp_cfg</span> <span class="o">=</span> <span class="n">SimplaceConfig</span><span class="p">(</span>
     <span class="n">install_dir</span><span class="o">=</span><span class="n">SIMPLACE_INSTALL</span><span class="p">,</span> <span class="n">work_dir</span><span class="o">=</span><span class="n">SIMPLACE_WORK</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">SIMPLACE_OUT</span><span class="p">,</span>
     <span class="n">solution_path</span><span class="o">=</span><span class="n">SOLUTION_PATH</span><span class="p">,</span> <span class="n">project_path</span><span class="o">=</span><span class="n">PROJECT_PATH</span><span class="p">,</span>
-<span class="p">)</span>
+    <span class="p">)</span>
 
 
 <span class="c1"># Stage 1: Run SIMPLACE only</span>
 <span class="n">shell</span> <span class="o">=</span> <span class="n">init_simplace</span><span class="p">(</span><span class="n">sp_cfg</span><span class="p">)</span>
 <span class="n">run_simplace</span><span class="p">(</span><span class="n">shell</span><span class="p">,</span> <span class="n">sp_cfg</span><span class="p">,</span> <span class="n">project_lines</span><span class="o">=</span><span class="n">PROJECT_LINES</span><span class="p">)</span>
 
-<span class="n">dirs</span> <span class="o">=</span> <span class="n">simplace</span><span class="o">.</span><span class="n">getSimplaceDirectories</span><span class="p">(</span><span class="n">shell</span><span class="p">)</span>
+<span class="n">dirs</span> <span class="o">=</span> <span class="n">getSimplaceDirectories</span><span class="p">(</span><span class="n">shell</span><span class="p">)</span>
 <span class="n">work_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dirs</span><span class="p">[</span><span class="s2">"_WORKDIR_"</span><span class="p">])</span>
 <span class="n">output_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dirs</span><span class="p">[</span><span class="s2">"_OUTPUTDIR_"</span><span class="p">])</span>
 <span class="n">selected_line</span> <span class="o">=</span> <span class="n">PROJECT_LINES</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -1882,14 +1884,14 @@ plt.show()
 sp_cfg = SimplaceConfig(
     install_dir=SIMPLACE_INSTALL, work_dir=SIMPLACE_WORK, output_dir=SIMPLACE_OUT,
     solution_path=SOLUTION_PATH, project_path=PROJECT_PATH,
-)
+    )
 
 
 # Stage 1: Run SIMPLACE only
 shell = init_simplace(sp_cfg)
 run_simplace(shell, sp_cfg, project_lines=PROJECT_LINES)
 
-dirs = simplace.getSimplaceDirectories(shell)
+dirs = getSimplaceDirectories(shell)
 work_root = Path(dirs["_WORKDIR_"])
 output_root = Path(dirs["_OUTPUTDIR_"])
 selected_line = PROJECT_LINES[0]
@@ -2742,7 +2744,7 @@ plt.show()</div>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 22, 2026 09:35:24 UTC"><span class="timeago" datetime="2026-05-22T09:35:24+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 22, 2026 09:35:24 UTC">2026-05-22</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 28, 2026 08:20:35 UTC"><span class="timeago" datetime="2026-05-28T08:20:35+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 28, 2026 08:20:35 UTC">2026-05-28</span>
   </span>
 
     
