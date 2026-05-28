@@ -682,6 +682,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#simpest.simpest.run_pipeline--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simpest.simpest.run_pipeline--raises" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raises
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -763,6 +785,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#simpest.simpest.run_pipeline--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simpest.simpest.run_pipeline--raises" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raises
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -817,56 +861,102 @@
 
 
 <h2 id="simpest.simpest.run_pipeline" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">run_pipeline</span><span class="p">(</span><span class="n">simplace_config</span><span class="p">,</span> <span class="n">franchestyn_config</span><span class="p">,</span> <span class="n">project_lines</span><span class="p">,</span> <span class="n">shutdown_simplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">run_pipeline</span><span class="p">(</span><span class="n">implace_config</span><span class="p">,</span> <span class="n">franchestyn_config</span><span class="p">,</span> <span class="n">project_lines</span><span class="p">,</span> <span class="n">shutdown_simplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 
 <a href="#simpest.simpest.run_pipeline" class="headerlink" title="Permanent link">&para;</a></h2>
 
     <div class="doc doc-contents ">
 
-      <p>Run the full SIMPLACE -&gt; FraNchEstYN pipeline.</p>
+      <p>Run the full SIMPLACE → FraNchEstYN pipeline.</p>
+<p>This function initializes and runs a SIMPLACE simulation, prepares the required input files,
+and then runs the FraNchEstYN model using the outputs from SIMPLACE. It saves all intermediate
+and final results to disk and returns paths and results for further analysis.</p>
 <h4 id="simpest.simpest.run_pipeline--parameters">Parameters<a class="headerlink" href="#simpest.simpest.run_pipeline--parameters" title="Permanent link">&para;</a></h4>
-<p>shutdown_simplace : bool
-    If True, calls <code>simplace.shutDown(shell)</code> in <code>finally</code>.
-    Keep this False in Jupyter to avoid possible kernel restarts when
-    the underlying JVM is terminated.</p>
+<p>simplace_config : simplace_mod.SimplaceConfig
+    Configuration object for SIMPLACE (install, work, output, solution, project paths).
+franchestyn_config : franchestyn_mod.FranchestynConfig
+    Configuration object for FraNchEstYN (reference, crop, disease, site, etc.).
+project_lines : list of int
+    List of project line indices to run in SIMPLACE (usually [1]).
+shutdown_simplace : bool, optional (default=False)
+    If True, shuts down the SIMPLACE JVM after running (not recommended in Jupyter).</p>
+<h4 id="simpest.simpest.run_pipeline--returns">Returns<a class="headerlink" href="#simpest.simpest.run_pipeline--returns" title="Permanent link">&para;</a></h4>
+<p>dict
+    Dictionary with keys:
+        - 'work_root': Path to SIMPLACE work directory used
+        - 'output_root': Path to SIMPLACE output directory used
+        - 'project_row': Project row dictionary used for the run
+        - 'merged_csv': Path to merged output CSV (SIMPLACE + FraNchEstYN)
+        - 'result': Full FraNchEstYN result dictionary
+        - 'simplace_shutdown': Whether SIMPLACE was shut down</p>
+<h4 id="simpest.simpest.run_pipeline--raises">Raises<a class="headerlink" href="#simpest.simpest.run_pipeline--raises" title="Permanent link">&para;</a></h4>
+<p>Any exception raised by SIMPLACE or FraNchEstYN will propagate unless handled internally.</p>
 
         <details class="quote">
           <summary>Source code in <code>simpest/simpest.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_pipeline</span><span class="p">(</span>
-    <span class="n">simplace_config</span><span class="p">:</span> <span class="n">SimplaceConfig</span><span class="p">,</span>
-    <span class="n">franchestyn_config</span><span class="p">:</span> <span class="n">FranchestynConfig</span><span class="p">,</span>
+    <span class="n">implace_config</span><span class="p">:</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">SimplaceConfig</span><span class="p">,</span>
+    <span class="n">franchestyn_config</span><span class="p">:</span> <span class="n">franchestyn_mod</span><span class="o">.</span><span class="n">FranchestynConfig</span><span class="p">,</span>
     <span class="n">project_lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
     <span class="n">shutdown_simplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the full SIMPLACE -&gt; FraNchEstYN pipeline.</span>
+
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run the full SIMPLACE → FraNchEstYN pipeline.</span>
+
+<span class="sd">    This function initializes and runs a SIMPLACE simulation, prepares the required input files,</span>
+<span class="sd">    and then runs the FraNchEstYN model using the outputs from SIMPLACE. It saves all intermediate</span>
+<span class="sd">    and final results to disk and returns paths and results for further analysis.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    shutdown_simplace : bool</span>
-<span class="sd">        If True, calls ``simplace.shutDown(shell)`` in ``finally``.</span>
-<span class="sd">        Keep this False in Jupyter to avoid possible kernel restarts when</span>
-<span class="sd">        the underlying JVM is terminated.</span>
+<span class="sd">    simplace_config : simplace_mod.SimplaceConfig</span>
+<span class="sd">        Configuration object for SIMPLACE (install, work, output, solution, project paths).</span>
+<span class="sd">    franchestyn_config : franchestyn_mod.FranchestynConfig</span>
+<span class="sd">        Configuration object for FraNchEstYN (reference, crop, disease, site, etc.).</span>
+<span class="sd">    project_lines : list of int</span>
+<span class="sd">        List of project line indices to run in SIMPLACE (usually [1]).</span>
+<span class="sd">    shutdown_simplace : bool, optional (default=False)</span>
+<span class="sd">        If True, shuts down the SIMPLACE JVM after running (not recommended in Jupyter).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Dictionary with keys:</span>
+<span class="sd">            - &#39;work_root&#39;: Path to SIMPLACE work directory used</span>
+<span class="sd">            - &#39;output_root&#39;: Path to SIMPLACE output directory used</span>
+<span class="sd">            - &#39;project_row&#39;: Project row dictionary used for the run</span>
+<span class="sd">            - &#39;merged_csv&#39;: Path to merged output CSV (SIMPLACE + FraNchEstYN)</span>
+<span class="sd">            - &#39;result&#39;: Full FraNchEstYN result dictionary</span>
+<span class="sd">            - &#39;simplace_shutdown&#39;: Whether SIMPLACE was shut down</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    Any exception raised by SIMPLACE or FraNchEstYN will propagate unless handled internally.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">shell</span> <span class="o">=</span> <span class="n">init_simplace</span><span class="p">(</span><span class="n">simplace_config</span><span class="p">)</span>
+
+    <span class="n">shell</span> <span class="o">=</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">init_simplace</span><span class="p">(</span><span class="n">simplace_config</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">run_simplace</span><span class="p">(</span><span class="n">shell</span><span class="p">,</span> <span class="n">simplace_config</span><span class="p">,</span> <span class="n">project_lines</span><span class="o">=</span><span class="n">project_lines</span><span class="p">)</span>
+        <span class="n">simplace_mod</span><span class="o">.</span><span class="n">run_simplace</span><span class="p">(</span><span class="n">shell</span><span class="p">,</span> <span class="n">simplace_config</span><span class="p">,</span> <span class="n">project_lines</span><span class="o">=</span><span class="n">project_lines</span><span class="p">)</span>
+
 
         <span class="n">dirs</span> <span class="o">=</span> <span class="n">simplace</span><span class="o">.</span><span class="n">getSimplaceDirectories</span><span class="p">(</span><span class="n">shell</span><span class="p">)</span>
         <span class="n">work_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dirs</span><span class="p">[</span><span class="s2">&quot;_WORKDIR_&quot;</span><span class="p">])</span>
         <span class="n">output_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dirs</span><span class="p">[</span><span class="s2">&quot;_OUTPUTDIR_&quot;</span><span class="p">])</span>
 
         <span class="n">selected_line</span> <span class="o">=</span> <span class="n">project_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">project_row</span> <span class="o">=</span> <span class="n">get_project_row</span><span class="p">(</span><span class="n">work_root</span><span class="p">,</span> <span class="n">selected_line</span><span class="o">=</span><span class="n">selected_line</span><span class="p">)</span>
+        <span class="n">project_row</span> <span class="o">=</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">get_project_row</span><span class="p">(</span><span class="n">work_root</span><span class="p">,</span> <span class="n">selected_line</span><span class="o">=</span><span class="n">selected_line</span><span class="p">)</span>
 
-        <span class="n">crop_model_path</span> <span class="o">=</span> <span class="n">export_crop_model_data</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">)</span>
-        <span class="n">weather_path</span> <span class="o">=</span> <span class="n">convert_weather</span><span class="p">(</span><span class="n">work_root</span><span class="p">,</span> <span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">])</span>
-        <span class="n">management_path</span> <span class="o">=</span> <span class="n">build_management</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">)</span>
+        <span class="n">crop_model_path</span> <span class="o">=</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">export_crop_model_data</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">)</span>
+        <span class="n">weather_path</span> <span class="o">=</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">convert_weather</span><span class="p">(</span><span class="n">work_root</span><span class="p">,</span> <span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">])</span>
+        <span class="n">management_path</span> <span class="o">=</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">build_management</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">)</span>
 
         <span class="n">start_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">project_row</span><span class="p">[</span><span class="s2">&quot;startdate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">end_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">project_row</span><span class="p">[</span><span class="s2">&quot;enddate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
-        <span class="n">result</span> <span class="o">=</span> <span class="n">run_franchestyn</span><span class="p">(</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">franchestyn_mod</span><span class="o">.</span><span class="n">run_franchestyn</span><span class="p">(</span>
             <span class="n">weather_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">weather_path</span><span class="p">),</span>
             <span class="n">management_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">management_path</span><span class="p">),</span>
             <span class="n">cropmodel_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">crop_model_path</span><span class="p">),</span>
@@ -878,25 +968,25 @@
         <span class="n">summary</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;outputs&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;summary&quot;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="n">simulation</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;outputs&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;simulation&quot;</span><span class="p">,</span> <span class="p">[])</span>
 
-        <span class="n">save_simulation_results_csv</span><span class="p">(</span><span class="n">simulation</span><span class="p">,</span> <span class="n">output_root</span><span class="p">)</span>
+        <span class="n">franchestyn_mod</span><span class="o">.</span><span class="n">save_simulation_results_csv</span><span class="p">(</span><span class="n">simulation</span><span class="p">,</span> <span class="n">output_root</span><span class="p">)</span>
 
         <span class="n">simulation_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
-        <span class="n">season_summary</span> <span class="o">=</span> <span class="n">build_season_summary</span><span class="p">(</span>
+        <span class="n">season_summary</span> <span class="o">=</span> <span class="n">franchestyn_mod</span><span class="o">.</span><span class="n">build_season_summary</span><span class="p">(</span>
             <span class="n">simulation_df</span><span class="p">,</span>
             <span class="n">site</span><span class="o">=</span><span class="n">franchestyn_config</span><span class="o">.</span><span class="n">site</span><span class="p">,</span>
             <span class="n">variety</span><span class="o">=</span><span class="n">franchestyn_config</span><span class="o">.</span><span class="n">variety</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">save_season_summary_csv</span><span class="p">(</span><span class="n">season_summary</span><span class="p">,</span> <span class="n">output_root</span><span class="p">)</span>
+        <span class="n">franchestyn_mod</span><span class="o">.</span><span class="n">save_season_summary_csv</span><span class="p">(</span><span class="n">season_summary</span><span class="p">,</span> <span class="n">output_root</span><span class="p">)</span>
 
         <span class="n">best_params</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;best_params&quot;</span><span class="p">,</span> <span class="p">{})</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}</span>
-        <span class="n">save_calibrated_parameters_csv</span><span class="p">(</span>
+        <span class="n">franchestyn_mod</span><span class="o">.</span><span class="n">save_calibrated_parameters_csv</span><span class="p">(</span>
             <span class="n">best_params</span><span class="p">,</span>
             <span class="n">output_root</span><span class="p">,</span>
             <span class="n">site</span><span class="o">=</span><span class="n">franchestyn_config</span><span class="o">.</span><span class="n">site</span><span class="p">,</span>
             <span class="n">variety</span><span class="o">=</span><span class="n">franchestyn_config</span><span class="o">.</span><span class="n">variety</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">merged_path</span> <span class="o">=</span> <span class="n">merge_simplace_and_franchestyn</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">,</span> <span class="n">simulation_df</span><span class="p">)</span>
+        <span class="n">merged_path</span> <span class="o">=</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">merge_simplace_and_franchestyn</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">,</span> <span class="n">simulation_df</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;work_root&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">work_root</span><span class="p">),</span>
