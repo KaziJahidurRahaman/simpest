@@ -668,45 +668,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="run_pipeline()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#simpest.simpest.run_pipeline--parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Parameters
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#simpest.simpest.run_pipeline--returns" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Returns
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#simpest.simpest.run_pipeline--raises" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Raises
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
     </ul>
@@ -771,45 +732,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="run_pipeline()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#simpest.simpest.run_pipeline--parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Parameters
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#simpest.simpest.run_pipeline--returns" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Returns
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#simpest.simpest.run_pipeline--raises" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Raises
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
     </ul>
@@ -872,27 +794,80 @@
 <p>This function initializes and runs a SIMPLACE simulation, prepares the required input files,
 and then runs the FraNchEstYN model using the outputs from SIMPLACE. It saves all intermediate
 and final results to disk and returns paths and results for further analysis.</p>
-<h4 id="simpest.simpest.run_pipeline--parameters">Parameters<a class="headerlink" href="#simpest.simpest.run_pipeline--parameters" title="Permanent link">&para;</a></h4>
-<p>simplace_config : simplace_mod.SimplaceConfig
-    Configuration object for SIMPLACE (install, work, output, solution, project paths).
-franchestyn_config : franchestyn_mod.FranchestynConfig
-    Configuration object for FraNchEstYN (reference, crop, disease, site, etc.).
-project_lines : list of int
-    List of project line indices to run in SIMPLACE (usually [1]).
-shutdown_simplace : bool, optional (default=False)
-    If True, shuts down the SIMPLACE JVM after running (not recommended in Jupyter).</p>
-<h4 id="simpest.simpest.run_pipeline--returns">Returns<a class="headerlink" href="#simpest.simpest.run_pipeline--returns" title="Permanent link">&para;</a></h4>
-<p>dict
-    Dictionary with keys:
-        - 'work_root': Path to SIMPLACE work directory used
-        - 'output_root': Path to SIMPLACE output directory used
-        - 'project_row': Project row dictionary used for the run
-        - 'merged_csv': Path to merged output CSV (SIMPLACE + FraNchEstYN)
-        - 'result': Full FraNchEstYN result dictionary
-        - 'simplace_shutdown': Whether SIMPLACE was shut down</p>
-<h4 id="simpest.simpest.run_pipeline--raises">Raises<a class="headerlink" href="#simpest.simpest.run_pipeline--raises" title="Permanent link">&para;</a></h4>
-<p>Any exception raised by SIMPLACE or FraNchEstYN will propagate unless handled internally.</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>simplace_config</code></td>
+        <td><code>simplace_mod.SimplaceConfig</code></td>
+        <td><p>Configuration object for SIMPLACE (install, work, output, solution, project paths).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>franchestyn_config</code></td>
+        <td><code>franchestyn_mod.FranchestynConfig</code></td>
+        <td><p>Configuration object for FraNchEstYN (reference, crop, disease, site, etc.).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>project_lines</code></td>
+        <td><code>list of int</code></td>
+        <td><p>List of project line indices to run in SIMPLACE (usually [1]).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>shutdown_simplace</code></td>
+        <td><code>bool</code></td>
+        <td><p>If True, shuts down the SIMPLACE JVM after running (not recommended in Jupyter). Default is False.</p></td>
+        <td><code>False</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>dict</code></td>
+      <td><p>Dictionary with keys:
+    - 'work_root': Path to SIMPLACE work directory used
+    - 'output_root': Path to SIMPLACE output directory used
+    - 'project_row': Project row dictionary used for the run
+    - 'merged_csv': Path to merged output CSV (SIMPLACE + FraNchEstYN)
+    - 'result': Full FraNchEstYN result dictionary
+    - 'simplace_shutdown': Whether SIMPLACE was shut down</p></td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Exceptions:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>Exception</code></td>
+        <td><p>Any exception raised by SIMPLACE or FraNchEstYN will propagate unless handled internally.</p></td>
+      </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>simpest/simpest.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_pipeline</span><span class="p">(</span>
@@ -910,21 +885,18 @@ shutdown_simplace : bool, optional (default=False)
 <span class="sd">    and then runs the FraNchEstYN model using the outputs from SIMPLACE. It saves all intermediate</span>
 <span class="sd">    and final results to disk and returns paths and results for further analysis.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    simplace_config : simplace_mod.SimplaceConfig</span>
-<span class="sd">        Configuration object for SIMPLACE (install, work, output, solution, project paths).</span>
-<span class="sd">    franchestyn_config : franchestyn_mod.FranchestynConfig</span>
-<span class="sd">        Configuration object for FraNchEstYN (reference, crop, disease, site, etc.).</span>
-<span class="sd">    project_lines : list of int</span>
-<span class="sd">        List of project line indices to run in SIMPLACE (usually [1]).</span>
-<span class="sd">    shutdown_simplace : bool, optional (default=False)</span>
-<span class="sd">        If True, shuts down the SIMPLACE JVM after running (not recommended in Jupyter).</span>
+<span class="sd">    Args:</span>
+<span class="sd">        simplace_config (simplace_mod.SimplaceConfig):</span>
+<span class="sd">            Configuration object for SIMPLACE (install, work, output, solution, project paths).</span>
+<span class="sd">        franchestyn_config (franchestyn_mod.FranchestynConfig):</span>
+<span class="sd">            Configuration object for FraNchEstYN (reference, crop, disease, site, etc.).</span>
+<span class="sd">        project_lines (list of int):</span>
+<span class="sd">            List of project line indices to run in SIMPLACE (usually [1]).</span>
+<span class="sd">        shutdown_simplace (bool, optional):</span>
+<span class="sd">            If True, shuts down the SIMPLACE JVM after running (not recommended in Jupyter). Default is False.</span>
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    dict</span>
-<span class="sd">        Dictionary with keys:</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary with keys:</span>
 <span class="sd">            - &#39;work_root&#39;: Path to SIMPLACE work directory used</span>
 <span class="sd">            - &#39;output_root&#39;: Path to SIMPLACE output directory used</span>
 <span class="sd">            - &#39;project_row&#39;: Project row dictionary used for the run</span>
@@ -932,9 +904,8 @@ shutdown_simplace : bool, optional (default=False)
 <span class="sd">            - &#39;result&#39;: Full FraNchEstYN result dictionary</span>
 <span class="sd">            - &#39;simplace_shutdown&#39;: Whether SIMPLACE was shut down</span>
 
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    Any exception raised by SIMPLACE or FraNchEstYN will propagate unless handled internally.</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        Exception: Any exception raised by SIMPLACE or FraNchEstYN will propagate unless handled internally.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">shell</span> <span class="o">=</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">init_simplace</span><span class="p">(</span><span class="n">simplace_config</span><span class="p">)</span>
