@@ -1,11 +1,10 @@
 """
 crop_model.py – Daily crop growth step and damage mechanisms.
-
-Translated from models/crop.cs with two bug fixes applied to the external-model branch:
-  FIX 1 – day_after_sowing is now incremented each day (was never set in C#)
-  FIX 2 – growing_degree_days is now populated from the GDD column of the crop
-           model CSV (was always left as 0 in C#)
 """
+# Translated from models/crop.cs with two bug fixes applied to the external-model branch:
+#   FIX 1 – day_after_sowing is now incremented each day (was never set in C#)
+#   FIX 2 – growing_degree_days is now populated from the GDD column of the crop
+#            model CSV (was always left as 0 in C#)
 
 from __future__ import annotations
 import math

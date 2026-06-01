@@ -39,56 +39,34 @@ _MAX_DAS = 11 * 30
 
 
 class FranchestynRunner:
-    """End-to-end FraNchEstYN simulation runner.
+    """
+    End-to-end FraNchEstYN simulation runner.
 
-    Parameters
-    ----------
-    weather_dir : str
-        Directory containing weather sub-folders (daily/ or hourly/).
-    param_file : str
-        Path to franchestynParameters.csv (legacy) or crop_parameters.json.
-    sowing_file : str
-        Path to management/sowing.csv.
-    ref_dir : str
-        Directory containing referenceData.csv (and optionally other files).
-    crop_model_dir : str or None
-        Directory containing cropModelData.csv.  Pass None to use the internal
-        crop model instead.
-    site : str
-        Site name (must match weather file and sowing/reference CSVs).
-    variety : str
-        Variety name.
-    disease : str
-        Disease column name in referenceData.csv.
-    start_year : int
-        First simulation year (inclusive).
-    end_year : int
-        Last simulation year (inclusive).
-    weather_time_step : str
-        'daily' (default) or 'hourly'.
-    calibration_variable : str
-        'crop', 'disease', or 'all'.  Controls which parameters are treated as
-        calibration targets.
-    latitude : float
-        Site latitude (degrees north).  Used by daily-to-hourly synthesis.
-    crop_type : str or None
-        Crop type ('wheat', 'rice') for modular loading.  If provided with
-        crop_param_file, uses read_crop_parameters().
-    crop_param_file : str or None
-        Path to crop_parameters.json (modular architecture).
-    disease_param_file : str or None
-        Path to disease_parameters.json (modular architecture).
-    disease_type : str or None
-        Disease type ('septoria', 'brown_rust', etc.) for modular loading.
-        If None, disease parameters not loaded.
-    fungicide_param_file : str or None
-        Path to fungicide_parameters.json (modular architecture).
-    fungicide_type : str or None
-        Fungicide type ('protectant') for modular loading.
-        If None, fungicide parameters not loaded.
-    use_gdd : bool
-        If True, compute cycle_percentage from GDD when available.
-        If False, force C#-style calendar interpolation.
+    Args:
+        weather_dir (str): Directory containing weather data.
+        param_file (str): Path to parameter file.
+        sowing_file (str): Path to sowing or management CSV.
+        ref_dir (str): Directory or file path for reference data.
+        crop_model_dir (Optional[str]): Directory or file path for external
+            crop model data. If ``None``, the internal crop model is used.
+        site (str): Site identifier.
+        variety (str): Variety identifier.
+        disease (str): Disease column/key name used in reference data.
+        start_year (int): First simulation year (inclusive).
+        end_year (int): Last simulation year (inclusive).
+        weather_time_step (str): Weather frequency, ``daily`` or ``hourly``.
+        calibration_variable (str): Calibration target scope: ``crop``,
+            ``disease``, or ``all``.
+        is_calibration (bool): Whether the run is used for calibration.
+        latitude (float): Site latitude in decimal degrees.
+        crop_type (Optional[str]): Crop type for modular parameter loading.
+        crop_param_file (Optional[str]): Crop parameter JSON path.
+        disease_param_file (Optional[str]): Disease parameter JSON path.
+        disease_type (Optional[str]): Disease type key for modular loading.
+        fungicide_param_file (Optional[str]): Fungicide parameter JSON path.
+        fungicide_type (Optional[str]): Fungicide type key for modular loading.
+        use_gdd (bool): Whether to compute cycle percentage from GDD when
+            available.
     """
 
     def __init__(
@@ -184,18 +162,16 @@ class FranchestynRunner:
         self,
         param_values: Optional[Dict[str, float]] = None,
     ) -> Dict[datetime, Outputs]:
-        """Run the model for all years and return daily outputs.
+        """
+        Run the model for all configured years and return daily outputs.
 
-        Parameters
-        ----------
-        param_values : dict, optional
-            Override parameter values keyed by 'class_ParamName'
-            (e.g. {'disease_PathogenSpread': 0.5}).  Non-calibrated params
-            are taken from the parameter CSV.
+        Args:
+            param_values (Optional[Dict[str, float]]): Optional override values
+                keyed by ``class_ParamName``.
 
-        Returns
-        -------
-        dict mapping end-of-day datetime → Outputs
+        Returns:
+            Dict[datetime, Outputs]: Mapping of end-of-day timestamp to model
+            outputs.
         """
         parameters = self._build_parameters(param_values or {})
         weather_data = self._load_weather()

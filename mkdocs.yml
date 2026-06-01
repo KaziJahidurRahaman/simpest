@@ -84,10 +84,17 @@ nav:
     - API Reference:
           - simpest module: simpest.md
           - models:
+              - models package: models/models_package.md
               - simplace module: models/simplace.md
               - franchestyn module: models/franchestyn.md
-              - frachestyn crop module: models/fr_crop_model.md
+              - franchestyn crop module: models/fr_crop_model.md
               - franchestyn disease module: models/fr_disease_model.md
               - franchestyn fungicide module: models/fr_fungicide_model.md
               - franchestyn optimization module: models/fr_optimizer.md
+              - franchestyn runner module: models/fr_runner.md
+              - franchestyn data module: models/fr_data.md
+              - franchestyn utilities module: models/fr_utilities.md
+              - franchestyn parameter reader module: models/fr_param_reader.md
+              - franchestyn reference reader module: models/fr_reference_reader.md
+              - franchestyn weather reader module: models/fr_weather_reader.md
         #   - common module: common.md

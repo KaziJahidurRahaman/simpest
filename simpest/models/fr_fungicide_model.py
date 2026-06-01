@@ -20,10 +20,22 @@ def run(
     output: Outputs,
     output1: Outputs,
 ) -> None:
-    """Compute one daily fungicide step.
+    """
+    Compute one daily fungicide step.
 
-    If no treatment has been applied yet (DateTreatmentLast.year <= 1) this
-    function is a no-op and all fungicide outputs remain at their default (0).
+    This function updates concentration, tenacity, degradation, and efficacy
+    for the current day. If no treatment has been applied yet
+    (``date_treatment_last.year <= 1``), it is a no-op.
+
+    Args:
+        input_ (InputsDaily): Daily inputs, including date, precipitation, and
+            last treatment date.
+        parameters (Parameters): Model parameters containing fungicide settings.
+        output (Outputs): Previous day's output state.
+        output1 (Outputs): Current day's output state, updated in place.
+
+    Returns:
+        None: The function mutates ``output1`` in place.
     """
     pf = parameters.par_fungicide
     last = input_.date_treatment_last

@@ -19,18 +19,15 @@ from .fr_data import Parameter
 
 
 class FranchestynOptimizer:
-    """Nelder-Mead calibration for FraNchEstYN.
+    """
+    Nelder-Mead calibration wrapper for FraNchEstYN.
 
-    Parameters
-    ----------
-    runner : FranchestynRunner
-        Fully-configured runner instance (reads data from disk once).
-    calibration_variable : str
-        'crop', 'disease', or 'all'.  Selects which parameters to calibrate.
-    n_restarts : int
-        Number of independent Nelder-Mead restarts (multi-start).
-    max_iter : int
-        Maximum number of iterations per restart.
+    Args:
+        runner (FranchestynRunner): Fully configured runner instance.
+        calibration_variable (str): Calibration target scope: "crop",
+            "disease", or "all".
+        n_restarts (int): Number of independent Nelder-Mead restarts.
+        max_iter (int): Maximum iterations per restart.
     """
 
     def __init__(
@@ -58,12 +55,12 @@ class FranchestynOptimizer:
     # -----------------------------------------------------------------------
 
     def calibrate(self) -> Dict[str, float]:
-        """Run multi-start Nelder-Mead and return the best parameter set.
+        """
+        Run multi-start Nelder-Mead and return the best parameter set.
 
-        Returns
-        -------
-        dict
-            Best-fit parameter values keyed by 'class_ParamName'.
+        Returns:
+            Dict[str, float]: Best-fit parameter values keyed by
+            ``class_ParamName``.
         """
         
         if not self.calib_keys:
