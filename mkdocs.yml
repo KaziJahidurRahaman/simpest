@@ -86,4 +86,8 @@ nav:
           - models:
               - simplace module: models/simplace.md
               - franchestyn module: models/franchestyn.md
+              - frachestyn crop module: models/fr_crop_model.md
+              - franchestyn disease module: models/fr_disease_model.md
+              - franchestyn fungicide module: models/fr_fungicide_model.md
+              - franchestyn optimization module: models/fr_optimizer.md
         #   - common module: common.md
