@@ -81,20 +81,21 @@ nav:
     - Report Issues: https://github.com/KaziJahidurRahaman/simpest/issues
     - Examples:
         - examples/intro.ipynb
+        - examples/simpest_workflow_example.ipynb
     - API Reference:
           - simpest module: simpest.md
           - models:
               - models package: models/models_package.md
               - simplace module: models/simplace.md
               - franchestyn module: models/franchestyn.md
-              - franchestyn crop module: models/fr_crop_model.md
-              - franchestyn disease module: models/fr_disease_model.md
-              - franchestyn fungicide module: models/fr_fungicide_model.md
-              - franchestyn optimization module: models/fr_optimizer.md
-              - franchestyn runner module: models/fr_runner.md
-              - franchestyn data module: models/fr_data.md
-              - franchestyn utilities module: models/fr_utilities.md
-              - franchestyn parameter reader module: models/fr_param_reader.md
-              - franchestyn reference reader module: models/fr_reference_reader.md
-              - franchestyn weather reader module: models/fr_weather_reader.md
+              - fr_crop module: models/fr_crop_model.md
+              - fr_disease module: models/fr_disease_model.md
+              - fr_fungicide module: models/fr_fungicide_model.md
+              - fr_optimizer module: models/fr_optimizer.md
+              - fr_runner module: models/fr_runner.md
+              - fr_data module: models/fr_data.md
+              - fr_utilities module: models/fr_utilities.md
+              - fr_param_reader module: models/fr_param_reader.md
+              - fr_reference_reader module: models/fr_reference_reader.md
+              - fr_weather_reader module: models/fr_weather_reader.md
         #   - common module: common.md
