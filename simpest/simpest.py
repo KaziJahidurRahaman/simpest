@@ -58,12 +58,22 @@ def run_pipeline(
         selected_line = project_lines[0]
         project_row = simplace_mod.get_project_row(work_root, selected_line=selected_line)
 
-        crop_model_path = simplace_mod.export_crop_model_data(output_root, project_row)
-        weather_path = simplace_mod.convert_weather(work_root, output_root, project_row["location"])
-        management_path = simplace_mod.build_management(output_root, project_row)
-
         start_year = int(project_row["startdate"].split(".")[-1])
         end_year = int(project_row["enddate"].split(".")[-1])
+        yearly_sowing_doy = simplace_mod.extract_yearly_sowing_doy(
+            work_root,
+            project_row,
+            start_year,
+            end_year,
+        )
+
+        crop_model_path = simplace_mod.export_crop_model_data(output_root, project_row)
+        weather_path = simplace_mod.convert_weather(work_root, output_root, project_row["location"])
+        management_path = simplace_mod.build_management(
+            output_root,
+            project_row,
+            yearly_sowing_doy=yearly_sowing_doy,
+        )
 
         result = franchestyn_mod.run_franchestyn(
             weather_path=str(weather_path),

@@ -3,6 +3,7 @@ import math
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 import jpype
 import pandas as pd
@@ -103,22 +104,149 @@ def get_project_row(work_root: Path, selected_line: int) -> dict:
         / "projectdata"
         / "lintul5all_indiana.csv"
     )
-    with project_csv.open(newline="", encoding="utf-8") as f_proj:
-        proj_reader = csv.reader(f_proj, delimiter=";")
-        _ = next(proj_reader, None)
+    with project_csv.open(newline="", encoding="utf-8-sig") as f_proj:
+        proj_reader = csv.DictReader(f_proj, delimiter=";")
         project_rows = list(proj_reader)
 
     row = project_rows[selected_line - 1]
-    return {
-        "projectid": row[0],
-        "simulationid": row[1],
-        "startdate": row[2],
-        "enddate": row[3],
-        "location": row[4],
-        "iopt": row[5],
-        "idem": int(row[6]),
-        "irri": row[7],
+    key_map = {k.strip().lower(): k for k in row.keys()}
+
+    def field(*aliases: str, default: str = "") -> str:
+        for alias in aliases:
+            key = key_map.get(alias.lower())
+            if key is not None:
+                return str(row.get(key, default)).strip()
+        return default
+
+    project_row = {
+        "projectid": field("projectid"),
+        "simulationid": field("simulationid"),
+        "startdate": field("startdate"),
+        "enddate": field("enddate"),
+        "location": field("location"),
+        "iopt": field("iopt"),
+        "idem": _to_int(field("idem")) or 0,
+        "irri": field("irri"),
     }
+
+    start_dt = _parse_project_date(project_row["startdate"])
+    end_dt = _parse_project_date(project_row["enddate"])
+    if start_dt and end_dt:
+        project_row["yearly_sowing_doy"] = extract_yearly_sowing_doy(
+            work_root,
+            project_row,
+            start_dt.year,
+            end_dt.year,
+        )
+
+    return project_row
+
+
+def _parse_project_date(date_value: str) -> Optional[datetime]:
+    """Parse a project date in dd.mm.yyyy format."""
+    try:
+        return datetime.strptime(date_value.strip(), "%d.%m.%Y")
+    except (TypeError, ValueError, AttributeError):
+        return None
+
+
+def _to_int(value) -> Optional[int]:
+    """Best-effort int coercion for mixed CSV values."""
+    if value is None:
+        return None
+    try:
+        return int(str(value).strip())
+    except (TypeError, ValueError):
+        return None
+
+
+def extract_yearly_sowing_doy(
+    work_root: Path,
+    project_row: dict,
+    start_year: int,
+    end_year: int,
+) -> dict[int, int]:
+    """
+    Extract per-year sowing DOY from projectdata CSV files.
+
+    The function prefers explicit `ISOW` values when present. If no per-year
+    values are available, it falls back to a constant sowing DOY derived from
+    `IDEM - 7` to preserve current behavior.
+
+    Args:
+        work_root (Path): Simplace workspace root.
+        project_row (dict): Selected project row metadata.
+        start_year (int): Start year (inclusive).
+        end_year (int): End year (inclusive).
+
+    Returns:
+        dict[int, int]: Mapping year -> sowing DOY.
+    """
+    projectdata_dir = work_root / "SimulationExperimentTemplate" / "data" / "projectdata"
+    if not projectdata_dir.exists():
+        return {}
+
+    location = str(project_row.get("location", "")).strip().lower()
+    iopt = _to_int(project_row.get("iopt"))
+    idem = _to_int(project_row.get("idem"))
+    default_sowing_doy = max(1, (idem or 8) - 7)
+
+    rows: list[dict] = []
+    for project_csv in sorted(projectdata_dir.glob("*.csv")):
+        with project_csv.open(newline="", encoding="utf-8-sig") as f_proj:
+            reader = csv.DictReader(f_proj, delimiter=";")
+            if not reader.fieldnames:
+                continue
+
+            name_to_col = {name.strip().lower(): name for name in reader.fieldnames}
+            col_location = name_to_col.get("location")
+            col_iopt = name_to_col.get("iopt")
+            col_start = name_to_col.get("startdate")
+            col_end = name_to_col.get("enddate")
+            col_isow = name_to_col.get("isow")
+            col_idem = name_to_col.get("idem")
+
+            for raw in reader:
+                row_location = str(raw.get(col_location, "")).strip().lower() if col_location else ""
+                if location and row_location and row_location != location:
+                    continue
+
+                row_iopt = _to_int(raw.get(col_iopt)) if col_iopt else None
+                if iopt is not None and row_iopt is not None and row_iopt != iopt:
+                    continue
+
+                start_dt = _parse_project_date(raw.get(col_start, "")) if col_start else None
+                end_dt = _parse_project_date(raw.get(col_end, "")) if col_end else None
+                if start_dt is None and end_dt is None:
+                    continue
+
+                year = start_dt.year if start_dt is not None else end_dt.year
+                if year < start_year or year > end_year:
+                    continue
+
+                sow_doy = _to_int(raw.get(col_isow)) if col_isow else None
+                if sow_doy is None:
+                    row_idem = _to_int(raw.get(col_idem)) if col_idem else idem
+                    sow_doy = max(1, (row_idem or 8) - 7)
+
+                rows.append(
+                    {
+                        "year": year,
+                        "sowing_doy": sow_doy,
+                        "span_days": ((end_dt - start_dt).days if start_dt and end_dt else 999999),
+                    }
+                )
+
+    # Prefer the most specific row per year (shortest start-end span).
+    yearly_sowing: dict[int, int] = {}
+    for row in sorted(rows, key=lambda x: (x["year"], x["span_days"])):
+        yearly_sowing[row["year"]] = row["sowing_doy"]
+
+    if yearly_sowing:
+        return yearly_sowing
+
+    # Backward-compatible fallback: constant sowing day across all years.
+    return {year: default_sowing_doy for year in range(start_year, end_year + 1)}
 
 
 def export_crop_model_data(output_root: Path, project_row: dict) -> Path:
@@ -234,7 +362,13 @@ def convert_weather(work_root: Path, output_root: Path, location: str) -> Path:
     return weather_dst
 
 
-def build_management(output_root: Path, project_row: dict, crop: str = "wheat", variety: str = "generic") -> Path:
+def build_management(
+    output_root: Path,
+    project_row: dict,
+    crop: str = "wheat",
+    variety: str = "generic",
+    yearly_sowing_doy: Optional[dict[int, int]] = None,
+) -> Path:
     """
     Build and save a management CSV file for FraNchEstYN.
 
@@ -243,13 +377,21 @@ def build_management(output_root: Path, project_row: dict, crop: str = "wheat", 
         project_row (dict): Project row dictionary.
         crop (str, optional): Crop name. Defaults to "wheat".
         variety (str, optional): Variety name. Defaults to "generic".
+        yearly_sowing_doy (dict[int, int] | None, optional): Mapping of
+            simulation year to sowing DOY. If omitted, a single "All" row
+            is written to preserve backward compatibility.
 
     Returns:
         Path: Path to the management CSV file.
     """
-    start_date = datetime.strptime(project_row["startdate"], "%d.%m.%Y")
-    _ = start_date
     sowing_doy = max(1, project_row["idem"] - 7)
+    if yearly_sowing_doy is None:
+        candidate = project_row.get("yearly_sowing_doy") if isinstance(project_row, dict) else None
+        if isinstance(candidate, dict) and candidate:
+            yearly_sowing_doy = {
+                int(year): int(doy)
+                for year, doy in candidate.items()
+            }
 
     management_dst = output_root / "SimulationExperimentTemplate" / "management_franchestyn.csv"
     with management_dst.open("w", newline="", encoding="utf-8") as f_out:
@@ -259,15 +401,27 @@ def build_management(output_root: Path, project_row: dict, crop: str = "wheat", 
             delimiter=",",
         )
         writer.writeheader()
-        writer.writerow(
-            {
-                "site": project_row["location"],
-                "crop": crop,
-                "variety": variety,
-                "year": "All",
-                "sowingDOY": sowing_doy,
-            }
-        )
+        if yearly_sowing_doy:
+            for year in sorted(yearly_sowing_doy):
+                writer.writerow(
+                    {
+                        "site": project_row["location"],
+                        "crop": crop,
+                        "variety": variety,
+                        "year": year,
+                        "sowingDOY": max(1, int(yearly_sowing_doy[year])),
+                    }
+                )
+        else:
+            writer.writerow(
+                {
+                    "site": project_row["location"],
+                    "crop": crop,
+                    "variety": variety,
+                    "year": "All",
+                    "sowingDOY": sowing_doy,
+                }
+            )
 
     return management_dst
 
