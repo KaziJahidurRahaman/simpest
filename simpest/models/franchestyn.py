@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -61,6 +62,21 @@ def _resolve_local_model_file(filename: str) -> str:
     return str(Path(__file__).with_name(filename))
 
 
+def deactivate_calibration(params: dict, disable_list) -> None:
+    """
+    Disable calibration for selected parameter names in a parameter section.
+
+    Args:
+        params (dict): Mapping of parameter name to parameter specification dict.
+        disable_list (Iterable[str]): Parameter names for which calibration
+            should be forced to False.
+    """
+    for param_name in disable_list:
+        if param_name in params:
+            params[param_name]["calibration"] = False
+    return params
+
+
 @dataclass(frozen=True)
 class FranchestynConfig:
     """
@@ -83,6 +99,10 @@ class FranchestynConfig:
         use_gdd (bool): Use growing degree days.
         n_restarts (int): Number of calibration restarts.
         max_iter (int): Maximum calibration iterations.
+        crop_disabled_params (frozenset[str]): Crop parameter names to hard-exclude
+            from calibration.
+        disease_disabled_params (frozenset[str]): Disease parameter names to
+            hard-exclude from calibration.
     """
     param_file: str = ""
     crop_param_file: str = field(default_factory=lambda: _resolve_local_model_file("fr_crop_parameters.json"))
@@ -100,6 +120,8 @@ class FranchestynConfig:
     use_gdd: bool = True
     n_restarts: int = 1
     max_iter: int = 100
+    crop_disabled_params: frozenset[str] = frozenset()
+    disease_disabled_params: frozenset[str] = frozenset()
 
 
 def _outputs_to_records(date_outputs):
@@ -204,11 +226,16 @@ def run_franchestyn(
 
     best_params = {}
     if config.is_calibration:
+        disabled_by_class = {
+            "crop": set(config.crop_disabled_params),
+            "disease": set(config.disease_disabled_params),
+        }
         optimizer = FranchestynOptimizer(
             runner=runner,
             calibration_variable=config.calibration_variable,
             n_restarts=config.n_restarts,
             max_iter=config.max_iter,
+            disabled_by_class=disabled_by_class,
         )
         best_params = optimizer.calibrate()
         date_outputs = runner.run(param_values=best_params)
@@ -359,9 +386,11 @@ def save_calibrated_parameters_csv(
     site: str,
     variety: str,
     filename: str | None = None,
+    config: FranchestynConfig | None = None,
+    r_like: bool = False,
 ) -> Path | None:
     """
-    Save best calibration parameters to a CSV file.
+    Save calibration parameters to a CSV file.
 
     Args:
         best_params (dict): Best parameter values from calibration.
@@ -369,18 +398,86 @@ def save_calibrated_parameters_csv(
         site (str): Site name.
         variety (str): Variety name.
         filename (str|None, optional): Output filename. If None, uses a default pattern.
+        config (FranchestynConfig|None, optional): Configuration used to load
+            parameter metadata when ``r_like=True``.
+        r_like (bool, optional): If True, export an R-style diagnostics table
+            with defaults, bounds, calibration flags, and calibrated values.
 
     Returns:
         Path|None: Path to the saved CSV file, or None if best_params is empty.
     """
-    if not best_params:
-        return None
-
     out_dir = output_root / "SimulationExperimentTemplate" / "calibratedParameters"
     out_dir.mkdir(parents=True, exist_ok=True)
     if filename is None:
         filename = f"calibratedParameters_{site}_{variety}.csv"
     output_file = out_dir / filename
+
+    if r_like:
+        cfg = config or FranchestynConfig(site=site, variety=variety)
+
+        rows = []
+        parameter_file = f"parameters_{site}_{variety}.csv"
+
+        def _load_param_defs(json_path: str, model: str, kind: str):
+            path = Path(json_path)
+            if not path.exists():
+                return
+            data = json.loads(path.read_text(encoding="utf-8"))
+            section = data.get(kind, {})
+            for param, spec in section.items():
+                default_val = spec.get("value", "NA")
+                min_val = spec.get("min", "NA")
+                max_val = spec.get("max", "NA")
+                unit = spec.get("unit", "unitless")
+                calib_enabled = bool(spec.get("calibration", False))
+
+                key = f"{model}_{param}"
+                calibrated_val = best_params.get(key, default_val)
+                value_col = calibrated_val if calib_enabled else "NA"
+                file_col = parameter_file if calib_enabled else "NA"
+
+                rows.append(
+                    {
+                        "Model": model,
+                        "Parameter": param,
+                        "unit": unit,
+                        "min": min_val,
+                        "max": max_val,
+                        "default": default_val,
+                        "calibration": "TRUE" if calib_enabled else "FALSE",
+                        "calibrated": calibrated_val,
+                        "value": value_col,
+                        "file": file_col,
+                        "facet_label": f"{param} ({unit})",
+                    }
+                )
+
+        _load_param_defs(cfg.crop_param_file, "crop", cfg.crop_type)
+        _load_param_defs(cfg.disease_param_file, "disease", cfg.disease_type)
+
+        with output_file.open("w", newline="", encoding="utf-8") as f_out:
+            fieldnames = [
+                "Model",
+                "Parameter",
+                "unit",
+                "min",
+                "max",
+                "default",
+                "calibration",
+                "calibrated",
+                "value",
+                "file",
+                "facet_label",
+            ]
+            writer = csv.DictWriter(f_out, fieldnames=fieldnames, delimiter=",")
+            writer.writeheader()
+            for row in rows:
+                writer.writerow(row)
+
+        return output_file
+
+    if not best_params:
+        return None
 
     with output_file.open("w", newline="", encoding="utf-8") as f_out:
         writer = csv.DictWriter(f_out, fieldnames=["model", "param", "value"], delimiter=",")

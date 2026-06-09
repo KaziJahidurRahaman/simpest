@@ -1,20 +1,35 @@
-model,param,value
-disease,AssimilateSappersDamage,2.6121060546394803
-disease,CyclePercentageOnset,34.30620527712603
-disease,DryCriticalInterruption,23.119344335226682
-disease,HydroThermalTimeOnset,15.230220335734053
-disease,LatencyDuration,17.676626723411864
-disease,LightStealerDamage,1.2106723154237844
-disease,OuterInoculumMax,0.16244997924081805
-disease,OuterInoculumShapeParameter,0.47820863636396493
-disease,PathogenSpread,0.07645095303828597
-disease,RUEreducerDamage,0.38093715352735313
-disease,Rain50Detachment,3.1870470021028563
-disease,RelativeHumidityCritical,60.756132592913744
-disease,RelativeHumidityNotLimiting,87.04075231753286
-disease,SporulationDuration,23.829358097508432
-disease,Tmax,31.029341299197114
-disease,Tmin,8.938717051081278
-disease,Topt,18.2094406347562
-disease,WetnessDurationMinimum,13.765463365494131
-disease,WetnessDurationOptimum,32.679721252143764
+Model,Parameter,unit,min,max,default,calibration,calibrated,value,file,facet_label
+crop,TbaseCrop,°C,-1,5,1,TRUE,1,1,parameters_indiana_Generic.csv,TbaseCrop (°C)
+crop,ToptCrop,°C,20,28,24,FALSE,24,NA,NA,ToptCrop (°C)
+crop,TmaxCrop,°C,32,37,35,FALSE,35,NA,NA,TmaxCrop (°C)
+crop,CycleLength,degree days,800,3000,2500,TRUE,2111.4240521619736,2111.4240521619736,parameters_indiana_Generic.csv,CycleLength (degree days)
+crop,FloweringStart,% crop cycle,50,85,50,TRUE,50,50,parameters_indiana_Generic.csv,FloweringStart (% crop cycle)
+crop,HalfIntGrowth,unitless,20,35,25,TRUE,32.10672970792287,32.10672970792287,parameters_indiana_Generic.csv,HalfIntGrowth (unitless)
+crop,HalfIntSenescence,unitless,50,99,70,TRUE,84.1647979026605,84.1647979026605,parameters_indiana_Generic.csv,HalfIntSenescence (unitless)
+crop,SlopeGrowth,unitless,0.001,0.02,0.01,TRUE,0.004013797937089282,0.004013797937089282,parameters_indiana_Generic.csv,SlopeGrowth (unitless)
+crop,SlopeSenescence,unitless,0.001,0.07,0.01,TRUE,0.02616898930984474,0.02616898930984474,parameters_indiana_Generic.csv,SlopeSenescence (unitless)
+crop,RadiationUseEfficiency,g MJ-1,1,3.5,3,FALSE,3,NA,NA,RadiationUseEfficiency (g MJ-1)
+crop,PartitioningMaximum,unitless,0.8,1,1,TRUE,1,1,parameters_indiana_Generic.csv,PartitioningMaximum (unitless)
+crop,VarietalResistance,unitless,0,1,0,FALSE,0,NA,NA,VarietalResistance (unitless)
+disease,IsSplashBorne,unitless,0,1,1,FALSE,1,NA,NA,IsSplashBorne (unitless)
+disease,OuterInoculumMax,unitless,0.01,0.25,0.01,TRUE,0.2475882988846855,0.2475882988846855,parameters_indiana_Generic.csv,OuterInoculumMax (unitless)
+disease,PathogenSpread,unitless,0.001,0.1,0.04,TRUE,0.04390200723262814,0.04390200723262814,parameters_indiana_Generic.csv,PathogenSpread (unitless)
+disease,WetnessDurationOptimum,hours,24,48,36,TRUE,28.55349875833712,28.55349875833712,parameters_indiana_Generic.csv,WetnessDurationOptimum (hours)
+disease,WetnessDurationMinimum,hours,7,14,10,TRUE,9.237030382963278,9.237030382963278,parameters_indiana_Generic.csv,WetnessDurationMinimum (hours)
+disease,DryCriticalInterruption,hours,15,24,18,TRUE,23.243341804132967,23.243341804132967,parameters_indiana_Generic.csv,DryCriticalInterruption (hours)
+disease,Tmin,°C,5,10,7.5,TRUE,6.295238473597221,6.295238473597221,parameters_indiana_Generic.csv,Tmin (°C)
+disease,Topt,°C,18,24,18,TRUE,20.01445353081888,20.01445353081888,parameters_indiana_Generic.csv,Topt (°C)
+disease,Tmax,°C,29,33,31,TRUE,29.994140872190236,29.994140872190236,parameters_indiana_Generic.csv,Tmax (°C)
+disease,RelativeHumidityCritical,unitless,60,70,60,TRUE,60.10018371127245,60.10018371127245,parameters_indiana_Generic.csv,RelativeHumidityCritical (unitless)
+disease,Rain50Detachment,unitless,0.1,20,10,TRUE,3.140487007844735,3.140487007844735,parameters_indiana_Generic.csv,Rain50Detachment (unitless)
+disease,RelativeHumidityNotLimiting,unitless,80,90,90,TRUE,81.90600630303078,81.90600630303078,parameters_indiana_Generic.csv,RelativeHumidityNotLimiting (unitless)
+disease,HydroThermalTimeOnset,hydrodegree days,1,20,10,TRUE,15.700540128100984,15.700540128100984,parameters_indiana_Generic.csv,HydroThermalTimeOnset (hydrodegree days)
+disease,CyclePercentageOnset,hydrodegree days,15,35,25,TRUE,33.79894600778723,33.79894600778723,parameters_indiana_Generic.csv,CyclePercentageOnset (hydrodegree days)
+disease,LatencyDuration,days,14,25,19.5,TRUE,22.151180948292826,22.151180948292826,parameters_indiana_Generic.csv,LatencyDuration (days)
+disease,SporulationDuration,days,20,30,25,TRUE,28.149770504299312,28.149770504299312,parameters_indiana_Generic.csv,SporulationDuration (days)
+disease,LightStealerDamage,unitless,0.5,2,1,TRUE,1,1,parameters_indiana_Generic.csv,LightStealerDamage (unitless)
+disease,RUEreducerDamage,fraction,0,2,1,TRUE,1,1,parameters_indiana_Generic.csv,RUEreducerDamage (fraction)
+disease,SenescenceAcceleratorDamage,%,0,40,0,FALSE,0,NA,NA,SenescenceAcceleratorDamage (%)
+disease,AssimilateSappersDamage,kg ha-1,0,20,0,TRUE,0,0,parameters_indiana_Generic.csv,AssimilateSappersDamage (kg ha-1)
+disease,OuterInoculumShapeRelease,unitless,0,2,2,FALSE,2,NA,NA,OuterInoculumShapeRelease (unitless)
+disease,OuterInoculumShapeParameter,unitless,0,1,1,TRUE,0.2529957664852742,0.2529957664852742,parameters_indiana_Generic.csv,OuterInoculumShapeParameter (unitless)

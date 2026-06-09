@@ -1,33 +1,32 @@
-"""
-optimizer.py – Nelder-Mead calibration wrapper for FraNchEstYN.
+"""optimizer.py - C#-style MultiStartSimplex calibration for FraNchEstYN.
 
-Wraps FranchestynRunner.compute_rmse() as a scipy.optimize.minimize objective.
-Mirrors the multi-start simplex logic from optimizer.cs:ObjfuncVal().
+This module implements a pure-Python multi-start Nelder-Mead routine to
+mirror the C# optimizer flow (UNIMI MultiStartSimplex usage):
+- `n_restarts` as number of random simplexes,
+- `max_iter` as simplex iteration budget,
+- `ftol` as objective convergence criterion.
 """
 
 from __future__ import annotations
 
 import math
 import sys
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
-from scipy.optimize import minimize, OptimizeResult
 
 from .fr_runner import FranchestynRunner
-from .fr_data import Parameter
-
-
 class FranchestynOptimizer:
     """
-    Nelder-Mead calibration wrapper for FraNchEstYN.
+    C#-style multi-start simplex calibration wrapper for FraNchEstYN.
 
     Args:
         runner (FranchestynRunner): Fully configured runner instance.
         calibration_variable (str): Calibration target scope: "crop",
             "disease", or "all".
-        n_restarts (int): Number of independent Nelder-Mead restarts.
-        max_iter (int): Maximum iterations per restart.
+        n_restarts (int): Number of simplexes (C# ``NofSimplexes`` analogue).
+        max_iter (int): Maximum iterations per simplex (C# ``Itmax`` analogue).
+        ftol (float): Objective convergence tolerance (C# ``Ftol`` analogue).
     """
 
     def __init__(
@@ -36,11 +35,15 @@ class FranchestynOptimizer:
         calibration_variable: str = "all",
         n_restarts: int = 5,
         max_iter: int = 1000,
+        ftol: float = 1e-12,
+        disabled_by_class: Optional[Dict[str, Set[str]]] = None,
     ) -> None:
         self.runner = runner
         self.calibration_variable = calibration_variable.lower()
         self.n_restarts = n_restarts
         self.max_iter = max_iter
+        self.ftol = ftol
+        self.disabled_by_class = disabled_by_class or {}
 
         # Select calibration parameters and record their bounds
         self.calib_keys, self.bounds = self._select_calib_params()
@@ -56,7 +59,7 @@ class FranchestynOptimizer:
 
     def calibrate(self) -> Dict[str, float]:
         """
-        Run multi-start Nelder-Mead and return the best parameter set.
+        Run multi-start simplex and return the best parameter set.
 
         Returns:
             Dict[str, float]: Best-fit parameter values keyed by
@@ -69,44 +72,21 @@ class FranchestynOptimizer:
 
         best_rmse = math.inf
         best_params: Dict[str, float] = {}
-        rng = np.random.default_rng(seed=42)
+        rng = np.random.default_rng()
 
-        print(f'- Calibrating {len(self.calib_keys)} using Nelder-Mead method. \n-Parameters: \n{self.calib_keys}')
+        print(f"- Calibrating {len(self.calib_keys)} using multi-start simplex method.\n"f"- Parameters:\n{self.calib_keys}")
 
         for restart in range(self.n_restarts):
             self._current_restart = restart + 1
             self._iter_in_restart = 0
 
-            # Random starting point within parameter bounds
-            x0 = np.array([
-                rng.uniform(lo, hi)
-                for lo, hi in self.bounds
-            ])
-
-            result: OptimizeResult = minimize(
-                self._objective,
-                x0,
-                method="Nelder-Mead",
-                options={
-                    "maxiter": self.max_iter,
-                    "xatol": 1e-4,
-                    "fatol": 1e-4,
-                    "disp": False,
-                },
-                callback=self._on_iteration,
-                bounds=self.bounds,  # used only to clamp in objective
-            )
-
-            rmse = result.fun
-            # print(
-            #     # f"\nRestart {restart + 1}/{self.n_restarts} complete  "
-            #     f"\nIterations={result.nit}  evals={result.nfev}  RMSE={rmse:.4f}",
-            #     flush=True,
-            # )
+            simplex, fvals, _nit = self._nelder_mead_single_restart(rng)
+            best_idx = int(np.argmin(fvals))
+            rmse = float(fvals[best_idx])
 
             if rmse < best_rmse:
                 best_rmse = rmse
-                best_params = dict(zip(self.calib_keys, result.x))
+                best_params = dict(zip(self.calib_keys, simplex[best_idx]))
 
         print(f"\nBest RMSE: {best_rmse:.4f}")
         return best_params
@@ -142,7 +122,7 @@ class FranchestynOptimizer:
         return rmse
 
     def _on_iteration(self, _xk: np.ndarray) -> None:
-        """Scipy callback called each optimizer iteration."""
+        """Progress callback for each simplex iteration."""
         self._iter_in_restart += 1
         sys.stdout.write(
             f"\rRun {self._current_restart}/{self.n_restarts} Iteration {self._iter_in_restart}/{self.max_iter} CURR RMSE={self._last_rmse:.4f}"
@@ -164,6 +144,11 @@ class FranchestynOptimizer:
             if self.calibration_variable not in ("all", param_class):
                 continue
 
+            # Explicitly exclude user-deactivated parameters by name.
+            param_name = key.split("_", 1)[1] if "_" in key else key
+            if param_name in self.disabled_by_class.get(param_class, set()):
+                continue
+
             # Skip boolean parameters
             if p.is_boolean:
                 continue
@@ -172,3 +157,100 @@ class FranchestynOptimizer:
             bounds.append((p.minimum, p.maximum))
 
         return calib_keys, bounds
+
+    def _random_simplex(self, rng: np.random.Generator) -> np.ndarray:
+        """Create a random initial simplex fully contained in parameter bounds."""
+        dim = len(self.bounds)
+        simplex = np.empty((dim + 1, dim), dtype=float)
+
+        # Anchor vertex
+        simplex[0] = np.array([rng.uniform(lo, hi) for lo, hi in self.bounds], dtype=float)
+
+        # One perturbed vertex per dimension
+        for i in range(dim):
+            v = simplex[0].copy()
+            lo, hi = self.bounds[i]
+            span = hi - lo
+            delta = rng.uniform(0.05 * span, 0.25 * span)
+            direction = -1.0 if rng.random() < 0.5 else 1.0
+            v[i] = np.clip(v[i] + direction * delta, lo, hi)
+            simplex[i + 1] = v
+
+        return simplex
+
+    def _nelder_mead_single_restart(
+        self, rng: np.random.Generator
+    ) -> Tuple[np.ndarray, np.ndarray, int]:
+        """Run one Nelder-Mead restart using standard coefficients."""
+        # Standard Nelder-Mead coefficients
+        alpha = 1.0  # reflection
+        gamma = 2.0  # expansion
+        rho = 0.5    # contraction
+        sigma = 0.5  # shrink
+
+        simplex = self._random_simplex(rng)
+        fvals = np.array([self._objective(v) for v in simplex], dtype=float)
+
+        nit = 0
+        while nit < self.max_iter:
+            order = np.argsort(fvals)
+            simplex = simplex[order]
+            fvals = fvals[order]
+
+            # Convergence check driven by objective spread (C#-style Ftol usage)
+            if np.max(np.abs(fvals - fvals[0])) <= self.ftol:
+                break
+
+            centroid = np.mean(simplex[:-1], axis=0)
+            worst = simplex[-1]
+
+            # Reflection
+            xr = centroid + alpha * (centroid - worst)
+            fr = self._objective(xr)
+
+            if fvals[0] <= fr < fvals[-2]:
+                simplex[-1] = xr
+                fvals[-1] = fr
+            elif fr < fvals[0]:
+                # Expansion
+                xe = centroid + gamma * (xr - centroid)
+                fe = self._objective(xe)
+                if fe < fr:
+                    simplex[-1] = xe
+                    fvals[-1] = fe
+                else:
+                    simplex[-1] = xr
+                    fvals[-1] = fr
+            else:
+                # Contraction
+                if fr < fvals[-1]:
+                    # Outside contraction
+                    xc = centroid + rho * (xr - centroid)
+                    fc = self._objective(xc)
+                    if fc <= fr:
+                        simplex[-1] = xc
+                        fvals[-1] = fc
+                    else:
+                        # Shrink
+                        best = simplex[0].copy()
+                        for i in range(1, len(simplex)):
+                            simplex[i] = best + sigma * (simplex[i] - best)
+                            fvals[i] = self._objective(simplex[i])
+                else:
+                    # Inside contraction
+                    xc = centroid - rho * (centroid - worst)
+                    fc = self._objective(xc)
+                    if fc < fvals[-1]:
+                        simplex[-1] = xc
+                        fvals[-1] = fc
+                    else:
+                        # Shrink
+                        best = simplex[0].copy()
+                        for i in range(1, len(simplex)):
+                            simplex[i] = best + sigma * (simplex[i] - best)
+                            fvals[i] = self._objective(simplex[i])
+
+            nit += 1
+            self._on_iteration(simplex[0])
+
+        return simplex, fvals, nit

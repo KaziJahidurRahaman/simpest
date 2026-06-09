@@ -134,9 +134,9 @@ def read_sowing(
                         pass
             fung_doys = sorted(set(fung_doys))
 
-            print(f'Parsed row: site={row_site}, variety={row_var}, sow_doy={sow_doy}, fung_doys={fung_doys}')
             year_cell = row[year_idx].strip().strip('"') if year_idx >= 0 else ""
-
+            print(f'Parsed row: site={row_site}, year={year_cell}, variety={row_var}, sow_doy={sow_doy}, fung_doys={fung_doys}')
+            
             if year_cell.lower() == "all":
                 all_row = (sow_doy, fung_doys)
             else:
