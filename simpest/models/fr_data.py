@@ -1,9 +1,14 @@
-"""
-data.py – All input, output, and parameter dataclasses for the FraNchEstYN model.
+"""Input, output, and parameter data structures for the FraNchEstYN model.
 
-Translated from:
-  data/data.cs
-  data/simulationUnit.cs
+This module defines the typed containers that carry information through the
+simulation: hourly and daily weather inputs, external crop-model series, the
+crop, disease, and fungicide state written on each simulated day, the parameter
+groups that configure each sub-model, and the per-site simulation unit that
+binds sowing schedule and reference observations together.
+
+All quantities follow the model's canonical units, which are noted inline beside
+each field (temperatures in °C, biomass and yield in kg ha⁻¹, radiation in
+MJ m⁻², light interception as a 0–1 fraction, and so on).
 """
 
 from __future__ import annotations
@@ -61,10 +66,10 @@ class CropModelData:
     yield_: Dict[date, float] = field(default_factory=dict)         # kg ha⁻¹: dynamic crop yield
     agb: Dict[date, float] = field(default_factory=dict)            # kg ha⁻¹: above-ground biomass
     cycle_percentage: Dict[date, float] = field(default_factory=dict)  # %: crop cycle completion
-    # NOTE: gdd is NOT in the original C# cropModelData. It was added in this Python
-    # rewrite to fix a bug where growingDegreeDays was always 0 in the C# code.
-    # Populated from SIMPLACE's TSUM column via reference_reader.read_crop_model_data().
-    gdd: Dict[date, float] = field(default_factory=dict)            # °C·day: growing degree days (TSUM from SIMPLACE)
+    # Growing degree days (thermal time) carried alongside the crop series. It is
+    # populated from the external crop model's thermal-time column and used to
+    # derive cycle progress when GDD-based phenology is enabled.
+    gdd: Dict[date, float] = field(default_factory=dict)            # °C·day: growing degree days
 
 
 # ---------------------------------------------------------------------------
@@ -234,8 +239,13 @@ class Parameters:
 
 @dataclass
 class Parameter:
-    """Represents a single parameter definition (from CSV) with bounds for calibration.
-        Originally defined in parameterReader.cs, but used across the model and optimizer."""
+    """A single parameter definition with calibration bounds.
+
+    Holds the numeric value, the lower and upper bounds used as the calibration
+    search space, and metadata describing the parameter's class and whether it is
+    boolean. Instances are produced by the parameter readers and consumed by both
+    the model runner and the calibration optimizer.
+    """
     minimum: float = 0.0                # Lower bound (e.g., calibration search space)
     maximum: float = 0.0                # Upper bound (e.g., calibration search space)
     value: float = 0.0                  # Current numeric value (e.g., for simulation or optimization)

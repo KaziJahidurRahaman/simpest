@@ -89,14 +89,27 @@ class FranchestynConfig:
         fungicide_param_file (str): Path to fungicide parameter file.
         reference_path (str): Path to reference CSV.
         crop_type (str): Crop type (e.g., 'wheat').
-        disease_type (str): Disease type (e.g., 'septoria').
-        fungicide_type (str|None): Fungicide type (e.g., 'protectant').
+        disease_type (str): Disease type (e.g., 'septoria'). Also the disease
+            on/off switch — ``None`` skips the disease model entirely, giving a
+            crop-only run.
+        fungicide_type (str|None): Fungicide type (e.g., 'protectant'). Also the
+            fungicide on/off switch — ``None`` skips the fungicide model. Set it
+            whenever treatments are scheduled, or they will be ignored.
         site (str): Site name.
         variety (str): Variety name.
         disease (str): Disease name.
         is_calibration (bool): Whether to run calibration.
         calibration_variable (str): Calibration variable ('all', 'crop', 'disease').
-        use_gdd (bool): Use growing degree days.
+        use_gdd (bool): Method for crop cycle completion. ``False`` (default)
+            uses calendar-day interpolation of the external crop-model series;
+            ``True`` uses the thermal-time (GDD) based cycle percentage.
+        use_prev_day_alignment (bool): Day alignment used by the calibration
+            objective. ``True`` (default) compares the previous simulated day to
+            the current reference observation (sim[d-1] vs ref[d]); ``False``
+            uses same-day alignment (sim[d] vs ref[d]).
+        all_row_includes_end_year (bool): Whether an ``"All"`` sowing row covers
+            the final year. ``False`` (default) omits ``end_year``; ``True``
+            includes it. Has no effect for per-year sowing CSVs.
         n_restarts (int): Number of calibration restarts.
         max_iter (int): Maximum calibration iterations.
         crop_disabled_params (frozenset[str]): Crop parameter names to hard-exclude
@@ -117,7 +130,9 @@ class FranchestynConfig:
     disease: str = "thisDisease"
     is_calibration: bool = True
     calibration_variable: str = "all"
-    use_gdd: bool = True
+    use_gdd: bool = False
+    use_prev_day_alignment: bool = True
+    all_row_includes_end_year: bool = False
     n_restarts: int = 1
     max_iter: int = 100
     crop_disabled_params: frozenset[str] = frozenset()
@@ -139,6 +154,7 @@ def _outputs_to_records(date_outputs):
         records.append(
             {
                 "Date": dt.strftime("%d/%m/%Y"),
+                "GrowingSeason": out.crop.growing_season,
                 "DaysAfterSowing": out.crop.day_after_sowing,
                 "GrowingDegreeDays": out.crop.growing_degree_days,
                 "CycleCompletionPercentage": out.crop.cycle_completion_percentage,
@@ -216,6 +232,8 @@ def run_franchestyn(
         calibration_variable=config.calibration_variable,
         is_calibration=config.is_calibration,
         use_gdd=config.use_gdd,
+        use_prev_day_alignment=config.use_prev_day_alignment,
+        all_row_includes_end_year=config.all_row_includes_end_year,
         crop_type=config.crop_type,
         crop_param_file=crop_param_file,
         disease_param_file=disease_param_file,
@@ -283,16 +301,30 @@ def save_simulation_results_csv(res_ot_simulation, output_root: Path, filename: 
 
 
 def build_season_summary(df: pd.DataFrame, site: str, variety: str) -> pd.DataFrame:
-    """
-    Build a season summary DataFrame from simulation results.
+    """Aggregate daily simulation results into a per-season summary.
+
+    Rows are grouped by growing season (sowing year) and, for each season, the
+    function reports the epidemic and yield outcomes:
+
+    - **AUDPC** (area under the disease progress curve) is the time integral of
+      disease severity (expressed as a percentage) over the season, computed by
+      the trapezoidal rule against the calendar date.
+    - **Yield loss** is the gap between attainable and actual yield, reported
+      both in absolute terms and as a percentage,
+      ``(attainable − actual) / attainable × 100``.
+    - Peak attainable and actual yield and above-ground biomass, peak disease
+      severity, and season-level weather aggregates (mean temperatures and
+      humidity, total precipitation, radiation, and leaf wetness) are also
+      included where the corresponding columns are present.
 
     Args:
-        df (pd.DataFrame): Simulation results DataFrame.
-        site (str): Site name.
-        variety (str): Variety name.
+        df (pd.DataFrame): Daily simulation results.
+        site (str): Site name written to each summary row.
+        variety (str): Variety name written to each summary row.
 
     Returns:
-        pd.DataFrame: Season summary DataFrame.
+        pd.DataFrame: One row per growing season; empty if the input has no
+        valid post-sowing days.
     """
     if df.empty:
         return pd.DataFrame()
@@ -306,8 +338,14 @@ def build_season_summary(df: pd.DataFrame, site: str, variety: str) -> pd.DataFr
     if d.empty:
         return pd.DataFrame()
 
+    # Group by the crop's growing season (= sowing year). Fall back to the
+    # calendar year only where the season label is missing or unset (0), so
+    # seasons that cross 1 January are not split across two summary rows.
     if "GrowingSeason" not in d.columns:
         d["GrowingSeason"] = d["Date"].dt.year
+    else:
+        season = pd.to_numeric(d["GrowingSeason"], errors="coerce")
+        d["GrowingSeason"] = season.where(season > 0, d["Date"].dt.year)
 
     rows = []
     for season, g in d.groupby("GrowingSeason"):
@@ -400,8 +438,9 @@ def save_calibrated_parameters_csv(
         filename (str|None, optional): Output filename. If None, uses a default pattern.
         config (FranchestynConfig|None, optional): Configuration used to load
             parameter metadata when ``r_like=True``.
-        r_like (bool, optional): If True, export an R-style diagnostics table
-            with defaults, bounds, calibration flags, and calibrated values.
+        r_like (bool, optional): If True, export an extended diagnostics table
+            that includes each parameter's default, bounds, unit, calibration
+            flag, and calibrated value, in addition to the calibrated values.
 
     Returns:
         Path|None: Path to the saved CSV file, or None if best_params is empty.

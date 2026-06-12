@@ -1,10 +1,21 @@
-"""optimizer.py - C#-style MultiStartSimplex calibration for FraNchEstYN.
+"""Multi-start Nelder–Mead calibration for the FraNchEstYN model.
 
-This module implements a pure-Python multi-start Nelder-Mead routine to
-mirror the C# optimizer flow (UNIMI MultiStartSimplex usage):
-- `n_restarts` as number of random simplexes,
-- `max_iter` as simplex iteration budget,
-- `ftol` as objective convergence criterion.
+This module estimates model parameters by minimising the run's root-mean-square
+error against reference observations. It uses a self-contained, pure-Python
+multi-start Nelder–Mead (downhill simplex) search: several simplexes are each
+optimised from a random starting configuration and the best result across all
+restarts is returned. Multiple restarts reduce the chance of settling in a poor
+local minimum of the objective surface.
+
+The objective is the runner's :meth:`~simpest.models.fr_runner.FranchestynRunner.compute_rmse`,
+and candidate parameter sets that fall outside their bounds receive a large
+penalty so the search remains in the feasible region. The search is controlled
+by three knobs: ``n_restarts`` (number of independent simplexes), ``max_iter``
+(iterations per simplex), and ``ftol`` (objective-spread convergence tolerance).
+
+Because the initial simplex is drawn at random, results vary from run to run
+unless a fixed ``seed`` is supplied. For deterministic, fixed-parameter
+validation, run the model directly rather than through calibration.
 """
 
 from __future__ import annotations
@@ -17,16 +28,25 @@ import numpy as np
 
 from .fr_runner import FranchestynRunner
 class FranchestynOptimizer:
-    """
-    C#-style multi-start simplex calibration wrapper for FraNchEstYN.
+    """Multi-start Nelder–Mead calibration for the FraNchEstYN model.
+
+    Wraps a configured runner and searches for the parameter set that minimises
+    the run's RMSE against reference data. Only parameters flagged for
+    calibration (and not explicitly disabled) within the requested scope are
+    optimised; all others are held at their default values.
 
     Args:
         runner (FranchestynRunner): Fully configured runner instance.
-        calibration_variable (str): Calibration target scope: "crop",
-            "disease", or "all".
-        n_restarts (int): Number of simplexes (C# ``NofSimplexes`` analogue).
-        max_iter (int): Maximum iterations per simplex (C# ``Itmax`` analogue).
-        ftol (float): Objective convergence tolerance (C# ``Ftol`` analogue).
+        calibration_variable (str): Calibration target scope: ``"crop"``,
+            ``"disease"``, or ``"all"``.
+        n_restarts (int): Number of independent simplexes (random restarts).
+        max_iter (int): Maximum iterations per simplex.
+        ftol (float): Convergence tolerance on the objective spread across the
+            simplex vertices.
+        disabled_by_class (Optional[Dict[str, Set[str]]]): Parameter names to
+            exclude from calibration, keyed by parameter class.
+        seed (Optional[int]): Seed for the random number generator, giving
+            reproducible restarts. ``None`` (default) is non-deterministic.
     """
 
     def __init__(
@@ -37,6 +57,7 @@ class FranchestynOptimizer:
         max_iter: int = 1000,
         ftol: float = 1e-12,
         disabled_by_class: Optional[Dict[str, Set[str]]] = None,
+        seed: Optional[int] = None,
     ) -> None:
         self.runner = runner
         self.calibration_variable = calibration_variable.lower()
@@ -44,6 +65,8 @@ class FranchestynOptimizer:
         self.max_iter = max_iter
         self.ftol = ftol
         self.disabled_by_class = disabled_by_class or {}
+        # Optional RNG seed making the multi-start search reproducible.
+        self.seed = seed
 
         # Select calibration parameters and record their bounds
         self.calib_keys, self.bounds = self._select_calib_params()
@@ -72,7 +95,7 @@ class FranchestynOptimizer:
 
         best_rmse = math.inf
         best_params: Dict[str, float] = {}
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(self.seed)
 
         print(f"- Calibrating {len(self.calib_keys)} using multi-start simplex method.\n"f"- Parameters:\n{self.calib_keys}")
 
@@ -96,10 +119,16 @@ class FranchestynOptimizer:
     # -----------------------------------------------------------------------
 
     def _objective(self, x: np.ndarray) -> float:
-        """RMSE objective function for scipy.optimize.minimize."""
+        """Evaluate the calibration objective at parameter vector ``x``.
+
+        Runs the model with the candidate parameters and returns the resulting
+        RMSE. Candidates that violate the parameter bounds, or that raise during
+        the run, return a large penalty (``1e300``) so the search avoids the
+        infeasible region.
+        """
         self._n_eval += 1
 
-        # Penalise out-of-bounds (mirrors C# behaviour)
+        # Penalise out-of-bounds candidates with a large finite objective value
         for val, (lo, hi) in zip(x, self.bounds):
             if val <= lo or val > hi:
                 return 1e300
@@ -197,7 +226,7 @@ class FranchestynOptimizer:
             simplex = simplex[order]
             fvals = fvals[order]
 
-            # Convergence check driven by objective spread (C#-style Ftol usage)
+            # Convergence check driven by the objective spread across vertices
             if np.max(np.abs(fvals - fvals[0])) <= self.ftol:
                 break
 

@@ -1,0 +1,32 @@
+==============================================================================
+MATCHED DUAL RUN — C# FraNchEstYN vs Python simpest (Indiana, validation)
+generated: 2026-06-11T09:21:28
+years: 1973-1990   site: indiana   variety: Generic
+C# rows: 4563   Python rows: 4563   matched (year,doy): 4563
+flags: use_gdd=False, use_prev_day_alignment=True, disease=on, fungicide=off
+==============================================================================
+column                 n     max|diff|    mean|diff|    corr
+------------------------------------------------------------
+CyclePct            4563   9.77444e-06   1.53392e-06  1.0000
+LightIntAtt         4563   5.61844e-08   7.80041e-09  1.0000
+LightIntHealthy     4563    0.00221078   3.93103e-05  1.0000
+AGBatt              4563    0.00046529   3.89678e-05  1.0000
+AGBact              4563       55.5442      0.805915  1.0000
+YieldAtt            4563   0.000217977   8.79653e-06  1.0000
+YieldAct            4563       21.1444      0.211444  1.0000
+HTtimeR             4563   2.58983e-07   1.43573e-08  1.0000
+HTtimeS             4563   3.75887e-05   4.43837e-06  1.0000
+Susceptible         4563      0.652388    0.00167828  0.9970
+Latent              4563    0.00554365   3.28764e-05  0.9999
+Sporulating         4563    0.00446041   2.24862e-05  1.0000
+Dead                4563    0.00340748   6.93287e-05  1.0000
+Affected            4563    0.00554365   0.000124678  1.0000
+DiseaseSev          4563    0.00446041   9.18136e-05  1.0000
+Tmax                4563         3e-06   1.49446e-07  1.0000
+Tmin                4563   2.99994e-06   2.33734e-07  1.0000
+Prec                4563   3.41401e-06   9.00393e-08  1.0000
+Rad                 4563         3e-06   1.44076e-07  1.0000
+DaysAfterSowing*    4563           269       127.367     nan
+GDD*                4563             0             0     nan
+------------------------------------------------------------
+* DaysAfterSowing / GDD differ by design in the external-crop branch (F7).

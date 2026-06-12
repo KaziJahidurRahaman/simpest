@@ -1,0 +1,51 @@
+======================================================================================
+CALIBRATION COMPARISON - C# FraNchEstYN vs Python simpest (Indiana, disease)
+generated: 2026-06-11T15:10:21
+years: 1973-1990   calibration_variable: disease   py(restarts=1,iters=150,seed=0) cs(simplexes=3,iters=150)
+RMSE column = Python objective (compute_rmse, C#-parity alignment) = common yardstick
+======================================================================================
+
+RMSE summary (all via the Python objective - the common yardstick):
+  default params (CSV)            : 31.668
+  C# calibrated params           : 22.882
+  Python calibrated params       : 24.932
+
+  Both calibrations beat the default (31.668); they land in a
+  comparable region (gap 2.050). C# reached the lower
+  value here - Python typically under-converges at modest restarts/iters on
+  this 18-dim problem; raise --restarts/--iters to close the gap.
+
+Objective-parity check at C#'s calibrated optimum (same-day alignment):
+  C# output-derived RMSE   : 23.03
+  Python compute_rmse      : 23.01
+  |difference|             : 0.0200   (MATCH)
+  => the Python objective reproduces C#'s own RMSE at the same params,
+     confirming objective replication at a non-trivial parameter point
+     (complements run_dual.py's fixed-default-param severity check).
+  (prev-day alignment gives 22.882; the F3 choice is immaterial here.)
+Note: C#'s stdout progress min (~31.884) is an unreliable artifact - its
+  console progress does not capture the returned optimum; use the check above.
+
+disease param                       min      max    default          C#      Python
+-----------------------------------------------------------------------------------
+OuterInoculumMax                  0.001     0.14       0.07     0.11057     0.08267
+PathogenSpread                     0.01      0.5       0.04     0.38851     0.14071
+WetnessDurationOptimum               10       20         16      13.441      11.328
+WetnessDurationMinimum                3       10          5       6.759      3.1414
+DryCriticalInterruption               8       48          8      30.635      41.256
+Tmin                                  0       12          3       9.658      11.168
+Topt                                 10       22         18      19.958      21.416
+Tmax                                 22       34         36      27.532       30.58
+RelativeHumidityCritical             50       70         60      62.509      60.895
+Rain50Detachment                    0.1       20         10      13.326      18.808
+RelativeHumidityNotLimiting          70       95         70      81.479      89.341
+HydroThermalTimeOnset                20       45          0      20.178      20.063
+CyclePercentageOnset                 25       55          0      50.364      47.671
+LatencyDuration                       7       17          6      13.409       7.991
+SporulationDuration                  15       35         15       26.62      29.858
+LightStealerDamage                  0.2        2          1      1.0708     0.51865
+RUEreducerDamage                      0      0.5          2     0.14513     0.41602
+OuterInoculumShapeParameter           0        1          1      0.4066     0.51899
+-----------------------------------------------------------------------------------
+Note: parameter VALUES are not expected to match (different optimiser; F9).
+The objective-parity check and comparable RMSEs are the meaningful results.

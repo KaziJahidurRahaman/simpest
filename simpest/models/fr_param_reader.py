@@ -1,24 +1,25 @@
-"""
-param_reader.py – Reads FraNchEstYN parameter CSV files.
+"""Readers for model parameter definitions.
 
-Translated from readers/paramReader.cs.
+Parameters can be supplied either as a flat CSV table or as modular JSON files
+organised by crop, disease, and fungicide type. Each reader returns a dictionary
+keyed by ``"Class_ParamName"`` (for example ``"crop_TbaseCrop"``) whose values
+are :class:`~simpest.models.fr_data.Parameter` objects carrying the numeric
+value together with the calibration bounds.
 
-CSV format (franchestynParameters.csv):
-  col 0: Name
-  col 1: Class
-  col 2: Description   (ignored)
-  col 3: Unit          (ignored)
-  col 4: Min
-  col 5: Max
-  col 6: Value
-  col 7: CalibrationSubset
+Parameter definition CSV columns:
 
-Dictionary key: "Name_Class"
+| Column | Field             | Notes                          |
+|--------|-------------------|--------------------------------|
+| 0      | Name              | Parameter class                |
+| 1      | Class             | Parameter name                 |
+| 2      | Description       | Ignored                        |
+| 3      | Unit              | Ignored                        |
+| 4      | Min               | Lower calibration bound        |
+| 5      | Max               | Upper calibration bound        |
+| 6      | Value             | Default value                  |
+| 7      | CalibrationSubset | Calibration inclusion tag      |
 
-Calibrated output CSV format:
-  col 0: Name
-  col 1: Class
-  col 2: Value
+Calibrated-output CSV columns are ``Name``, ``Class``, and ``Value``.
 """
 
 from __future__ import annotations
@@ -91,8 +92,8 @@ def calibrated_read(file: str | Path) -> Dict[str, float]:
     """Read a calibrated output CSV and return a dict keyed 'Name_Class'.
 
     Args:
-        file: Path to the calibrated parameters CSV.  If the file does not
-              exist, an empty dict is returned (matching C# behaviour).
+        file: Path to the calibrated parameters CSV. If the file does not
+              exist, an empty dict is returned.
 
     Returns:
         Dictionary mapping 'ParamName_ClassName' → calibrated float value.

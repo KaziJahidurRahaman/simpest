@@ -1,0 +1,19 @@
+model, param, value
+disease,OuterInoculumMax,0.11057123166114977
+disease,PathogenSpread,0.38851143058115223
+disease,WetnessDurationOptimum,13.440894152451952
+disease,WetnessDurationMinimum,6.758992771050086
+disease,DryCriticalInterruption,30.635178496759373
+disease,Tmin,9.657979338526944
+disease,Topt,19.957604588233256
+disease,Tmax,27.532111796227753
+disease,RelativeHumidityCritical,62.50873413205349
+disease,Rain50Detachment,13.32581505669196
+disease,RelativeHumidityNotLimiting,81.47864476576288
+disease,HydroThermalTimeOnset,20.178156025911036
+disease,CyclePercentageOnset,50.364218879711395
+disease,LatencyDuration,13.4090553570773
+disease,SporulationDuration,26.619700382175846
+disease,LightStealerDamage,1.0707950582214143
+disease,RUEreducerDamage,0.1451261576745168
+disease,OuterInoculumShapeParameter,0.40659846623936846

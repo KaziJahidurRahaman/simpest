@@ -1,14 +1,9 @@
-"""
-utilities.py – Biophysical helper functions for the FraNchEstYN model.
+"""Biophysical helper functions shared across the model.
 
-Translated from utilities.cs.
-
-ReadFileOrExitsParameters was intentionally skipped in utilities.py. The C# ReadFileOrExitsParameters 
-in utilities.cs is just a thin wrapper: In the Python rewrite, calibrated_read() was translated 
-directly into param_reader.py:87 as a standalone function. Since the wrapper added no logic 
-(the variety argument was even noted as "currently unused"), there was no need to reproduce 
-it in utilities.py.
-
+This module provides small, stateless functions that encode reusable
+biophysical relationships, such as the cardinal-temperature response used by
+both the crop and disease sub-models and the rainfall-driven spore detachment
+index used by the disease model.
 """
 
 from __future__ import annotations
@@ -16,17 +11,28 @@ import math
 
 
 def t_response(t_ave: float, t_base: float, t_opt: float, t_max: float) -> float:
-    """Beta-shaped temperature response function.
+    """Beta-shaped cardinal-temperature response function.
 
-    Returns a dimensionless efficiency in [0, 1] as a function of the average
-    temperature *t_ave* relative to the cardinal temperatures *t_base*
-    (minimum), *t_opt* (optimum), and *t_max* (maximum).
+    Returns a dimensionless growth or development efficiency in the range
+    ``[0, 1]`` that peaks at the optimum temperature and falls to zero at the
+    base and maximum temperatures. For ``t_base < t_ave < t_max`` the response is
 
-    Formula (when t_base < t_ave < t_max):
-        f = ((t_max - t_ave) / (t_max - t_opt))
-            * ((t_ave - t_base) / (t_opt - t_base)) ** ((t_opt - t_base) / (t_max - t_opt))
+    $$
+    f = \\frac{t_{max} - t_{ave}}{t_{max} - t_{opt}}
+        \\left(\\frac{t_{ave} - t_{base}}{t_{opt} - t_{base}}\\right)
+        ^{\\frac{t_{opt} - t_{base}}{t_{max} - t_{opt}}}
+    $$
 
-    Returns 0 outside [t_base, t_max].
+    and ``0`` outside the interval ``[t_base, t_max]``.
+
+    Args:
+        t_ave (float): Average temperature for the step (°C).
+        t_base (float): Base (minimum) cardinal temperature (°C).
+        t_opt (float): Optimum cardinal temperature (°C).
+        t_max (float): Maximum cardinal temperature (°C).
+
+    Returns:
+        float: Temperature response factor in ``[0, 1]``.
     """
     if t_ave <= t_base or t_ave >= t_max:
         return 0.0
@@ -39,19 +45,25 @@ def t_response(t_ave: float, t_base: float, t_opt: float, t_max: float) -> float
 
 
 def rain_detachment(rainfall: float, rain50: float, f_int: float) -> float:
-    """Rain-driven spore detachment index (dimensionless, 0–1).
+    """Rain-driven spore detachment index.
 
-    Saturates as rainfall increases relative to the capacity term (rain50 × fInt).
+    Returns a dimensionless index in ``[0, 1]`` that saturates as rainfall
+    increases relative to the canopy-scaled half-saturation term:
 
-    Formula:
-        detachment = rainfall / (rain50 * f_int + rainfall)
+    $$
+    \\text{detachment} = \\frac{\\text{rainfall}}
+                              {\\text{rain50} \\cdot f_{int} + \\text{rainfall}}
+    $$
 
     Args:
-        rainfall:  precipitation (mm) over the time step
-        rain50:    half-saturation parameter (mm) – rainfall giving ~0.5 when fInt = 1
-        f_int:     light interception fraction
+        rainfall (float): Precipitation over the time step (mm).
+        rain50 (float): Half-saturation parameter (mm); the rainfall that yields
+            an index of about 0.5 at full canopy (``f_int = 1``).
+        f_int (float): Light interception fraction in ``[0, 1]``.
 
-    Returns 0.0 when rainfall is 0 or denominator is 0.
+    Returns:
+        float: Detachment index in ``[0, 1]``; ``0.0`` when rainfall is zero or
+        the denominator is zero.
     """
     denominator = (rain50 * f_int) + rainfall
     if denominator == 0.0:

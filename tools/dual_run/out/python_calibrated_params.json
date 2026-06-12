@@ -1,0 +1,20 @@
+{
+  "disease_OuterInoculumMax": 0.08267034115751745,
+  "disease_PathogenSpread": 0.14071128529245486,
+  "disease_WetnessDurationOptimum": 11.327998206535085,
+  "disease_WetnessDurationMinimum": 3.1413570498560315,
+  "disease_DryCriticalInterruption": 41.25617652572289,
+  "disease_Tmin": 11.167788917096484,
+  "disease_Topt": 21.416212465172187,
+  "disease_Tmax": 30.580396740910036,
+  "disease_RelativeHumidityCritical": 60.89494791420783,
+  "disease_Rain50Detachment": 18.80763831636436,
+  "disease_RelativeHumidityNotLimiting": 89.34086345566183,
+  "disease_HydroThermalTimeOnset": 20.062766814932225,
+  "disease_CyclePercentageOnset": 47.671148747051376,
+  "disease_LatencyDuration": 7.9910423089135065,
+  "disease_SporulationDuration": 29.858205634238324,
+  "disease_LightStealerDamage": 0.5186505244010694,
+  "disease_RUEreducerDamage": 0.41601757391740557,
+  "disease_OuterInoculumShapeParameter": 0.5189932425245891
+}

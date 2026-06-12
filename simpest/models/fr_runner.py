@@ -1,14 +1,19 @@
-"""
-runner.py – Main simulation runner for FraNchEstYN.
+"""Main simulation runner for the FraNchEstYN model.
 
-Replaces pestipy.FranchestynModel.  Translates the core model loop from
-optimizer.cs:oneShot() and optimizer.cs:modelCall().
+The runner orchestrates a full simulation: it loads parameters, weather, the
+sowing schedule, reference observations, and any external crop-model series,
+then drives the hourly–daily model loop across the configured years. Each
+simulated day couples the crop, disease, and fungicide sub-models and records a
+complete output bundle. The runner also exposes the calibration objective used
+to score a run against reference data.
 
-Usage
------
-    from franchestyn.runner import FranchestynRunner
+Example:
+    ```python
+    from simpest.models.fr_runner import FranchestynRunner
+
     runner = FranchestynRunner(...)
-    date_outputs = runner.run(param_values={})   # {param_key: value} override dict
+    date_outputs = runner.run(param_values={})  # optional {param_key: value} overrides
+    ```
 """
 
 from __future__ import annotations
@@ -62,11 +67,30 @@ class FranchestynRunner:
         crop_type (Optional[str]): Crop type for modular parameter loading.
         crop_param_file (Optional[str]): Crop parameter JSON path.
         disease_param_file (Optional[str]): Disease parameter JSON path.
-        disease_type (Optional[str]): Disease type key for modular loading.
+        disease_type (Optional[str]): Disease type key for modular loading. Also
+            acts as the on/off switch for the disease model: when ``None`` the
+            SEIR disease step (hourly and daily) is skipped entirely, so disease
+            severity stays 0 and there is no disease impact (a crop-only run).
+            Provide a ``disease_type`` to enable the epidemiological model.
         fungicide_param_file (Optional[str]): Fungicide parameter JSON path.
         fungicide_type (Optional[str]): Fungicide type key for modular loading.
-        use_gdd (bool): Whether to compute cycle percentage from GDD when
-            available.
+            Also the on/off switch for the fungicide model: when ``None`` the
+            fungicide step is skipped. The step is a no-op unless a treatment has
+            been scheduled, so it only needs to be enabled when fungicide
+            treatments are present (otherwise they would be ignored).
+        use_gdd (bool): How crop cycle completion is derived. Defaults to
+            ``False`` (calendar-day interpolation of the external crop-model
+            series); set ``True`` to use the thermal-time (GDD) based cycle
+            percentage, which ties phenology more directly to accumulated heat.
+        use_prev_day_alignment (bool): Day alignment used by the calibration
+            objective. Defaults to ``True``, which compares the previous day's
+            simulated output to the current day's reference observation
+            (sim[d-1] vs ref[d]). Set ``False`` for same-day alignment
+            (sim[d] vs ref[d]), which matches the daily output table.
+        all_row_includes_end_year (bool): How far an ``"All"`` sowing row is
+            applied. Defaults to ``False`` (the final year is omitted); set
+            ``True`` to apply it through ``end_year`` inclusive. Has no effect
+            for per-year sowing CSVs.
     """
 
     def __init__(
@@ -91,7 +115,9 @@ class FranchestynRunner:
         disease_type: Optional[str] = None,
         fungicide_param_file: Optional[str] = None,
         fungicide_type: Optional[str] = None,
-        use_gdd: bool = True,
+        use_gdd: bool = False,
+        use_prev_day_alignment: bool = True,
+        all_row_includes_end_year: bool = False,
     ) -> None:
         self.weather_dir = weather_dir
         self.param_file = param_file
@@ -110,6 +136,8 @@ class FranchestynRunner:
         self.disease_type = disease_type
         self.fungicide_type = fungicide_type
         self.use_gdd = use_gdd
+        self.use_prev_day_alignment = use_prev_day_alignment
+        self.all_row_includes_end_year = all_row_includes_end_year
 
         # Read parameter definitions (bounds, defaults)
         # Three modular loading scenarios:
@@ -142,7 +170,8 @@ class FranchestynRunner:
 
         # Read sowing + reference data
         self.sim_unit: SimulationUnit = read_sowing(
-            sowing_file, site, variety, start_year, end_year
+            sowing_file, site, variety, start_year, end_year,
+            all_row_includes_end_year=all_row_includes_end_year,
         )
         self.sim_unit = read_reference(
             ref_dir, sowing_file, site, variety,
@@ -178,7 +207,7 @@ class FranchestynRunner:
 
         date_outputs: Dict[datetime, Outputs] = {}
 
-        # Per-hour accumulators (replicated from optimizer.modelCall)
+        # Per-hour accumulators aggregated into the daily input each day
         hourly_temps:  List[float] = []
         hourly_rads:   List[float] = []
         hourly_precip: List[float] = []
@@ -229,8 +258,8 @@ class FranchestynRunner:
                 hourly_rhs.append(hourly_rec.relative_humidity)
                 hourly_lw.append(hourly_rec.leaf_wetness)
 
-                # C# parity: skip hourly disease only for crop-only calibration runs.
-                # But also skip if disease_type was not provided (optional disease)
+                # Skip the hourly disease step when disease is disabled, and also
+                # for crop-only calibration runs where disease plays no role.
                 if self.disease_type and (self.calibration_variable != "crop" or not self.is_calibration):
                     disease_model.run_hourly(hourly_rec, parameters, output, output_t1)
 
@@ -268,7 +297,10 @@ class FranchestynRunner:
                     input_daily.date_treatment_last = hourly_rec.date_treatment_last
                     input_daily.crop_model_data = self.crop_model_data
 
-                    # Run daily sub-models
+                    # Run the daily sub-models. The crop step always runs; the
+                    # fungicide and disease steps are optional and gated on their
+                    # respective *_type (None skips the step, giving a crop-only
+                    # or no-fungicide run).
                     crop_run(input_daily, parameters, output, output_t1)
                     if self.fungicide_type:
                         fungicide_run(input_daily, parameters, output, output_t1)
@@ -304,9 +336,28 @@ class FranchestynRunner:
         include_crop: bool = True,
         include_disease: bool = True,
     ) -> float:
-        """Compute the root mean square error against reference data.
+        """Compute the root-mean-square error against reference data.
 
-        Mirrors the objective function in optimizer.cs:ObjfuncVal().
+        This is the calibration objective. For each simulated day that has a
+        matching reference observation, it accumulates the squared, scaled
+        errors of the selected variables — above-ground biomass, attainable and
+        actual yield, light interception, and disease severity — and returns the
+        root mean of those per-day error sums. Two penalty rules sharpen the
+        objective: a zero simulated yield at maturity where the reference is
+        positive, and a near-zero simulated light interception during the
+        growing season, are both heavily penalised.
+
+        Args:
+            date_outputs (Dict[datetime, Outputs]): Daily outputs produced by
+                :meth:`run`.
+            include_crop (bool): Include the crop-related error terms (biomass,
+                attainable yield, light interception).
+            include_disease (bool): Include the disease-related error terms
+                (severity and actual yield).
+
+        Returns:
+            float: The root-mean-square error, rounded to three decimals; ``0.0``
+            when no reference observations overlap the simulated days.
         """
         errors: List[float] = []
         ref = self.sim_unit.reference_data
@@ -315,37 +366,46 @@ class FranchestynRunner:
         for hour_dt, out in date_outputs.items():
             if hour_dt.hour != 23:
                 continue
-            # Reference keys are datetime.date; convert for lookup
-            day_key: date_type = hour_dt.date()
+            # Reference keys are datetime.date; convert for lookup.
+            sim_day: date_type = hour_dt.date()
+            # Day alignment between simulated output and reference data.
+            #   Previous-day alignment (default): compare this simulated day to
+            #   the next day's reference, i.e. sim[d] vs ref[d+1], which is
+            #   equivalent to sim[d-1] vs ref[d].
+            #   Same-day alignment: sim[d] vs ref[d], matching the daily table.
+            ref_key: date_type = (
+                sim_day + timedelta(days=1)
+                if self.use_prev_day_alignment else sim_day
+            )
             total_err = 0.0
             has_ref = False
 
-            # Infer crop state for penalty multipliers (mirrors C# isMatured / isPlanted)
+            # Infer crop state for the penalty multipliers below
             is_matured = out.crop.cycle_completion_percentage >= 100.0
             is_planted = out.crop.day_after_sowing > 0 and not is_matured
 
             if include_crop:
                 agb_err = 0.0
-                if day_key in ref.date_agb:
+                if ref_key in ref.date_agb:
                     sim_agb = out.crop.agb_attainable
-                    agb_err = ((ref.date_agb[day_key] - sim_agb) / 200.0) ** 2
+                    agb_err = ((ref.date_agb[ref_key] - sim_agb) / 200.0) ** 2
                     has_ref = True
 
                 yield_err = 0.0
-                if day_key in ref.date_yield_attainable:
+                if ref_key in ref.date_yield_attainable:
                     sim_y = out.crop.yield_attainable
-                    yield_ref = ref.date_yield_attainable[day_key]
+                    yield_ref = ref.date_yield_attainable[ref_key]
                     yield_err = ((yield_ref - sim_y) / 100.0) ** 2
-                    # C# penalty: heavily penalise zero yield at maturity when ref > 0
+                    # Penalty: heavily penalise zero yield at maturity when ref > 0
                     if sim_y == 0.0 and yield_ref > 0.0 and is_matured:
                         yield_err *= 1000.0
                     has_ref = True
 
                 fint_err = 0.0
-                if day_key in ref.date_fint:
+                if ref_key in ref.date_fint:
                     sim_fi = out.crop.light_interception_attainable * 100.0
-                    fint_err = (ref.date_fint[day_key] * 100.0 - sim_fi) ** 2
-                    # C# penalty: heavily penalise near-zero fint during the growing season
+                    fint_err = (ref.date_fint[ref_key] * 100.0 - sim_fi) ** 2
+                    # Penalty: heavily penalise near-zero interception during the season
                     if sim_fi < 0.1 and is_planted:
                         fint_err *= 1000.0
                     has_ref = True
@@ -355,17 +415,17 @@ class FranchestynRunner:
             if include_disease:
                 dis_err = 0.0
                 by_date = ref.disease_date_disease_sev.get(self.disease, {})
-                if day_key in by_date:
+                if ref_key in by_date:
                     sim_ds = out.disease.disease_severity * 100.0
-                    dis_err = (by_date[day_key] - sim_ds) ** 2
+                    dis_err = (by_date[ref_key] - sim_ds) ** 2
                     has_ref = True
 
                 yield_err2 = 0.0
-                if day_key in ref.date_yield_actual:
+                if ref_key in ref.date_yield_actual:
                     sim_ya = out.crop.yield_actual
-                    yield_ref2 = ref.date_yield_actual[day_key]
+                    yield_ref2 = ref.date_yield_actual[ref_key]
                     yield_err2 = ((yield_ref2 - sim_ya) / 100.0) ** 2
-                    # C# penalty: heavily penalise zero actual yield at maturity when ref > 0
+                    # Penalty: heavily penalise zero actual yield at maturity when ref > 0
                     if sim_ya == 0.0 and yield_ref2 > 0.0 and is_matured:
                         yield_err2 *= 1000.0
                     has_ref = True
@@ -449,8 +509,18 @@ def _set_param(parameters: Parameters, param_class: str, param_name: str, value)
     if sub_obj is None:
         return
 
-    # Convert CamelCase param_name → snake_case field name
+    # Convert CamelCase param_name → snake_case field name. The regex-based
+    # conversion mishandles embedded acronyms (e.g. "RUEreducerDamage" →
+    # "ru_ereducer_damage"), so fall back to a normalized match that strips
+    # underscores and lowercases both sides ("ruereducerdamage" ==
+    # "rue_reducer_damage"). Without this, such parameters are silently dropped.
     snake = _camel_to_snake(param_name)
+    if not hasattr(sub_obj, snake):
+        target = param_name.replace("_", "").lower()
+        snake = next(
+            (f for f in vars(sub_obj) if f.replace("_", "").lower() == target),
+            snake,
+        )
     if hasattr(sub_obj, snake):
         field_type = type(getattr(sub_obj, snake))
         try:

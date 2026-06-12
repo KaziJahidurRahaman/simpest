@@ -1,10 +1,29 @@
+"""Daily crop growth step and disease damage mechanisms.
+
+This module computes one day of crop growth together with the four disease
+damage mechanisms that couple the epidemiological state to crop performance:
+
+- **light stealers** reduce intercepted radiation,
+- **RUE reducers** lower radiation use efficiency,
+- **assimilate sappers** drain fixed carbon, and
+- **senescence accelerators** shorten the green-canopy duration.
+
+Crop growth is computed through one of two branches:
+
+- **Internal growth model.** When no external crop-model series is supplied,
+  the canopy, biomass, and yield are simulated from thermal time using logistic
+  light-interception curves and a radiation-use-efficiency biomass model.
+- **External growth model.** When a daily crop-model series is supplied, the
+  attainable light interception, biomass, and yield are taken from that series,
+  and the damage mechanisms are applied to the daily increments to obtain the
+  actual (disease-limited) trajectories.
+
+In the external branch, ``day_after_sowing`` is incremented each simulated day
+so that the runner's maturity/safety stop and the calibration objective's
+"is-planted" logic operate correctly, and ``growing_degree_days`` is carried
+from the external series. These fields therefore reflect the simulated crop
+calendar rather than being left unset.
 """
-crop_model.py – Daily crop growth step and damage mechanisms.
-"""
-# Translated from models/crop.cs with two bug fixes applied to the external-model branch:
-#   FIX 1 – day_after_sowing is now incremented each day (was never set in C#)
-#   FIX 2 – growing_degree_days is now populated from the GDD column of the crop
-#            model CSV (was always left as 0 in C#)
 
 from __future__ import annotations
 import math
@@ -20,14 +39,22 @@ from .fr_utilities import t_response
 
 def run(input_: InputsDaily, parameters: Parameters,
         output: Outputs, output1: Outputs) -> None:
-    """
-    Compute one daily crop growth step.
+    """Compute one daily crop growth step.
+
+    The four disease damage mechanisms are derived first from the current
+    severity, then crop growth is advanced through either the internal growth
+    model (logistic light interception plus a radiation-use-efficiency biomass
+    model) or the external crop-model branch, depending on whether a daily
+    crop-model series is attached to ``input_``. In both branches the attainable
+    (disease-free) and actual (disease-limited) light interception, biomass, and
+    yield are written to ``output1``.
 
     Args:
-        input_ (InputsDaily): Today's daily inputs, including optional external
-            crop model data.
-        parameters (Parameters): Model parameters.
-        output (Outputs): Previous day's output state used as input state.
+        input_ (InputsDaily): Today's daily inputs, including the optional
+            external crop-model series.
+        parameters (Parameters): Model parameters, including the crop and disease
+            groups.
+        output (Outputs): Previous day's output state, used as the starting state.
         output1 (Outputs): Today's output state, updated in place.
 
     Returns:
@@ -58,7 +85,7 @@ def run(input_: InputsDaily, parameters: Parameters,
     cmd = input_.crop_model_data
 
     # -----------------------------------------------------------------------
-    # Branch A: FraNchEstYN internal crop model (no external crop model data)
+    # Branch A: internal crop growth model (no external crop-model series)
     # -----------------------------------------------------------------------
     if cmd is None or len(cmd.f_int) == 0:
         t_ave = (input_.tmin + input_.tmax) / 2.0
@@ -229,10 +256,13 @@ def run(input_: InputsDaily, parameters: Parameters,
             # Cycle completion from external model
             output1.crop.cycle_completion_percentage = cmd.cycle_percentage.get(today, 0.0)
 
-            # --- FIX 1: increment day_after_sowing (never done in C# external branch) ---
+            # Track the crop calendar: increment days-after-sowing so the
+            # maturity/safety stop and the calibration objective's is-planted
+            # logic operate correctly (see the module docstring).
             output1.crop.day_after_sowing = output.crop.day_after_sowing + 1
 
-            # --- FIX 2: set GDD from external model (never done in C# external branch) ---
+            # Carry thermal time from the external series. This is reporting-only
+            # when use_gdd=False and drives cycle completion when use_gdd=True.
             output1.crop.growing_degree_days = cmd.gdd.get(today, 0.0)
 
         else:
@@ -242,7 +272,7 @@ def run(input_: InputsDaily, parameters: Parameters,
 
 
 # ---------------------------------------------------------------------------
-# Helper functions (translated directly from crop.cs)
+# Helper functions
 # ---------------------------------------------------------------------------
 
 def _light_stealers_fn(severity: float, damage: float) -> float:

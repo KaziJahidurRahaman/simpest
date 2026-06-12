@@ -38,7 +38,16 @@ theme:
 
 plugins:
     - search
-    - mkdocstrings
+    - mkdocstrings:
+          handlers:
+              python:
+                  options:
+                      docstring_style: google
+                      docstring_section_style: table
+                      show_root_heading: true
+                      show_source: true
+                      separate_signature: true
+                      merge_init_into_class: true
     - git-revision-date
     - git-revision-date-localized:
           enable_creation_date: true
@@ -60,11 +69,17 @@ markdown_extensions:
     - footnotes
     - meta
     - md_in_html
+    - pymdownx.arithmatex:
+          generic: true
     - pymdownx.superfences
     - pymdownx.highlight:
           linenums: true
     - toc:
           permalink: true
+
+extra_javascript:
+    - javascripts/mathjax.js
+    - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
 
 # extra:
 #     analytics:

@@ -1,0 +1,26 @@
+{
+  "settings": {
+    "startYear": 1973,
+    "endYear": 1990,
+    "sites": [
+      "indiana"
+    ],
+    "isCalibration": "false",
+    "calibrationVariable": "all",
+    "varieties": [
+      "Generic"
+    ],
+    "cropModel": "yes",
+    "simplexes": 1,
+    "disease": "thisDisease",
+    "iterations": 1,
+    "weatherTimeStep": "daily"
+  },
+  "paths": {
+    "weatherDir": "C:\\ParamVC\\Research\\simpest\\tools\\dual_run\\inputs\\weather",
+    "referenceFilePaths": "C:\\ParamVC\\Research\\simpest\\tools\\dual_run\\inputs\\reference",
+    "paramFile": "C:\\ParamVC\\Research\\simpest\\tools\\dual_run\\inputs\\parameters\\franchestynParameters.csv",
+    "sowingFile": "C:\\ParamVC\\Research\\simpest\\tools\\dual_run\\inputs\\management\\sowing.csv",
+    "cropModelFile": "C:\\ParamVC\\Research\\simpest\\tools\\dual_run\\inputs\\cropModel"
+  }
+}

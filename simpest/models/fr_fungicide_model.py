@@ -1,7 +1,10 @@
-"""
-fungicide_model.py – Daily fungicide degradation, tenacity, and efficacy.
+"""Daily fungicide degradation, tenacity, and efficacy.
 
-Translated from models/fungicide.cs.
+This module advances the fungicide state by one day. After an application, the
+active ingredient decays through two mechanisms: first-order chemical
+degradation over time and rainfall-driven wash-off (tenacity). The resulting
+effective dose is mapped to a protective efficacy through a logistic response,
+and the treatment is retired after a fixed persistence window.
 """
 
 from __future__ import annotations
@@ -20,17 +23,32 @@ def run(
     output: Outputs,
     output1: Outputs,
 ) -> None:
-    """
-    Compute one daily fungicide step.
+    """Advance the fungicide state by one day.
 
-    This function updates concentration, tenacity, degradation, and efficacy
-    for the current day. If no treatment has been applied yet
-    (``date_treatment_last.year <= 1``), it is a no-op.
+    Updates the concentration factor, tenacity, degradation, and protective
+    efficacy for the current day. The calculation proceeds in stages:
+
+    1. **Concentration.** On the application day the concentration factor is
+       reset to 1; thereafter it decays exponentially with the previous day's
+       effective degradation.
+    2. **Potential degradation.** First-order decay of the initial dose,
+       ``initial_dose · exp(-degradation_rate · days)``.
+    3. **Tenacity.** Rainfall wash-off reduces the retained fraction by
+       ``exp(-tenacity_factor · concentration · √precipitation)``, applied
+       cumulatively across days.
+    4. **Effective degradation.** The product of tenacity and potential
+       degradation, i.e. the dose still active on the canopy.
+    5. **Efficacy.** A logistic response of the effective degradation, scaled by
+       the initial efficacy.
+
+    If no treatment has yet been applied (``date_treatment_last.year <= 1``) the
+    call is a no-op. All state is cleared once the persistence window of
+    ``_MAX_DAYS`` days has elapsed.
 
     Args:
         input_ (InputsDaily): Daily inputs, including date, precipitation, and
-            last treatment date.
-        parameters (Parameters): Model parameters containing fungicide settings.
+            the last treatment date.
+        parameters (Parameters): Model parameters, including the fungicide group.
         output (Outputs): Previous day's output state.
         output1 (Outputs): Current day's output state, updated in place.
 

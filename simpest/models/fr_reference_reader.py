@@ -1,10 +1,15 @@
-"""
-reference_reader.py – Reads sowing schedules, reference data, and external crop model
-                      data for the FraNchEstYN model.
+"""Readers for sowing schedules, reference observations, and crop-model series.
 
-Translated from readers/referenceReader.cs with the following key fixes:
-  - read_crop_model_data() now reads the GDD column.
-  - cycle_percentage is computed from GDD (not calendar days).
+This module loads the non-weather inputs that drive and constrain a run:
+
+- the per-site sowing schedule and fungicide treatment dates,
+- field reference observations used to score the model during calibration, and
+- a daily crop-model series (light interception, biomass, yield, and optional
+  thermal time) supplied by an external crop growth model.
+
+Each reader populates the appropriate fields of a
+:class:`~simpest.models.fr_data.SimulationUnit` or returns a
+:class:`~simpest.models.fr_data.CropModelData` container.
 """
 
 from __future__ import annotations
@@ -59,6 +64,7 @@ def read_sowing(
     variety: str,
     start_year: int,
     end_year: int,
+    all_row_includes_end_year: bool = False,
 ) -> SimulationUnit:
     """Read sowing.csv and build the SimulationUnit for one site × variety.
 
@@ -72,6 +78,14 @@ def read_sowing(
         variety:     Variety identifier to filter on (e.g., "Generic").
         start_year:  First simulation year (inclusive).
         end_year:    Last simulation year (inclusive).
+        all_row_includes_end_year: How far an ``"All"`` sowing row is applied.
+            When ``False`` (default) the ``"All"`` row is applied to the half-open
+            range ``[start_year, end_year - 1]`` and therefore omits the final
+            year; when ``True`` it is applied through ``end_year`` inclusive. This
+            setting affects only ``"All"`` rows; explicit per-year rows are always
+            honoured for every year, so it has no effect when sowing is specified
+            per year (for example the CSV written by
+            :func:`simpest.models.simplace.build_management`).
 
     Returns:
         Populated SimulationUnit (year_sowing_doy, fungicide_treatment_schedule).
@@ -146,9 +160,11 @@ def read_sowing(
                 except ValueError:
                     pass
 
-    # Apply "All" row to every year in range
+    # Apply the "All" row to every year in range. By default the final year is
+    # excluded (half-open range); see ``all_row_includes_end_year``.
+    all_end = end_year + 1 if all_row_includes_end_year else end_year
     if all_row is not None:
-        for y in range(start_year, end_year + 1):
+        for y in range(start_year, all_end):
             _apply_row(sim, y, all_row[0], all_row[1])
 
     # Override with per-year entries
@@ -249,7 +265,7 @@ def read_reference(
                 except ValueError:
                     pass
             if obs_date is None:
-                obs_date = datetime.min.date()  # C# parity: store under sentinel date(1,1,1)
+                obs_date = datetime.min.date()  # sentinel date for undated observations
 
             # FINT
             if fint_col >= 0:
@@ -279,33 +295,36 @@ def read_reference(
     return sim_unit
 
 
-def read_crop_model_data(crop_model_file: str | Path, use_gdd: bool = True) -> CropModelData:
-    """Read cropModelData.csv and return a CropModelData object.
+def read_crop_model_data(crop_model_file: str | Path, use_gdd: bool = False) -> CropModelData:
+    """Read an external crop-model series and compute cycle progress.
 
-    Reads external crop-model data and computes cycle progress.
+    Loads the daily crop-model output (light interception, biomass, yield, and
+    optionally thermal time) and segments it into growing cycles, computing the
+    cycle-completion percentage for each day.
 
-    If ``use_gdd`` is True, cycle percentage is computed from GDD when
-    available. If False, cycle percentage uses calendar interpolation to
-    match C# behavior.
+    Expected CSV columns (matched case-insensitively against common aliases):
+    ``year``, ``doy``, ``fint``, ``agb``, ``yield``, and optionally ``gdd``.
 
-    Expected CSV columns (case-insensitive aliases):
-        year, doy, fint, agb, yield, gdd(optional)
+    A new cycle is detected when the day-of-year steps backwards without a
+    year boundary (a new sowing) or when yield resets from above to at or below
+    the 100 kg ha⁻¹ harvest threshold.
 
-    Cycle detection:
-        A new cycle starts when DOY goes backwards (non-year-wrap) OR
-        when yield resets from >100 to ≤100.
+    Cycle completion is computed as follows:
 
-    ``cycle_percentage`` computation:
-        If use_gdd=True and GDD is available: ``gdd[date] / max_gdd_in_cycle * 100``.
-        Otherwise: calendar-day interpolation (C# behavior).
+    - When ``use_gdd`` is ``True`` and thermal time is available, progress within
+      a cycle is ``gdd[date] / max_gdd_in_cycle * 100``, which ties phenology to
+      accumulated thermal time.
+    - Otherwise, progress is interpolated linearly over calendar days between the
+      first and last day of the cycle.
 
     Args:
-        crop_model_file: Path to the directory containing cropModelData.csv,
-                         or the path to the CSV file itself.
-        use_gdd: Whether to compute cycle percentage from GDD.
+        crop_model_file: Path to the directory containing ``cropModelData.csv``,
+            or the path to the CSV file itself.
+        use_gdd: Whether to derive cycle completion from thermal time rather than
+            calendar days.
 
     Returns:
-        Populated CropModelData.
+        Populated :class:`~simpest.models.fr_data.CropModelData`.
     """
     cmd = CropModelData()
     path = Path(crop_model_file)
@@ -372,7 +391,7 @@ def read_crop_model_data(crop_model_file: str | Path, use_gdd: bool = True) -> C
     if not date_order:
         return cmd
 
-    # --- Cycle detection (same logic as C# reader) ---
+    # --- Cycle detection ---
     date_order_sorted = sorted(set(date_order))
     dates_d = [dt.date() for dt in date_order_sorted]
 
@@ -409,12 +428,12 @@ def read_crop_model_data(crop_model_file: str | Path, use_gdd: bool = True) -> C
             gdd_max = max(gdd_values)
 
         if use_gdd and gdd_max > 0.0:
-            # Python mode: GDD-based cycle percentage
+            # Thermal-time progression: scale by the cycle's maximum GDD
             for d in cycle_dates:
                 gdd_d = cmd.gdd.get(d, 0.0)
                 cmd.cycle_percentage[d] = min(100.0, gdd_d / gdd_max * 100.0)
         else:
-            # C# mode: calendar-day interpolation
+            # Calendar-day interpolation between cycle start and end
             total_days = (end - start).days
             if total_days <= 0:
                 continue

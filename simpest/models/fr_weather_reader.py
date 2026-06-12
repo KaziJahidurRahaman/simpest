@@ -1,16 +1,24 @@
-"""
-weather_reader.py – Reads daily or hourly weather CSV files and synthesizes
-                    an hourly time series for the FraNchEstYN model.
+"""Weather readers that build an hourly forcing series for the model.
 
-Translated from readers/weatherReader.cs.
+The disease sub-model operates on an hourly time step, so these readers ingest
+either daily or hourly weather CSV files and return a complete hourly series.
+When the input is daily, a physically based diurnal synthesis fills in the 24
+hourly records for each day.
 
 Key behaviour:
-- Robust header parsing: multiple aliases for common column names.
-- Flexible date columns: single Date/Datetime OR separate Year/Month/Day (+ Hour).
-- Radiation: uses measured values when available; otherwise estimates via
-  Hargreaves-like formula from Tmax/Tmin and distributes over hours via
-  clear-sky (extraterrestrial) fractions.
-- Humidity: from RHx/RHn daily extrema (cosine curve) or dew-point method.
+
+- **Header parsing.** Column names are matched case-insensitively against a set
+  of common aliases, so files from different sources are accepted without
+  renaming.
+- **Date columns.** A single ``Date``/``Datetime`` column or separate
+  ``Year``/``Month``/``Day`` (plus ``Hour`` for hourly files) are both accepted.
+- **Radiation.** Measured radiation is used when present; otherwise daily global
+  solar radiation is estimated with the Hargreaves–Samani relationship from the
+  daily temperature range and distributed over the day by clear-sky
+  (extraterrestrial) fractions.
+- **Humidity.** Relative humidity is reconstructed from daily ``RHx``/``RHn``
+  extrema with a cosine diurnal curve, or estimated from a dew-point relation
+  when extrema are absent.
 """
 
 from __future__ import annotations
@@ -379,8 +387,22 @@ def _pf(row: list[str], idx: int) -> float:
 
 
 def _dew_point(tmax: float, tmin: float) -> float:
-    """Empirical dew point estimate from daily max/min temperature."""
-    return 0.38 * tmax - ((0.018 * (tmax ** 2)) + ((1.4 * tmin) - 5.0))
+    """Empirical dew-point estimate from daily extremes.
+
+    Uses the regression
+
+    $$
+    T_{dew} = 0.38\\,T_{max} - 0.018\\,T_{max}^2 + 1.4\\,T_{min} - 5
+    $$
+
+    Args:
+        tmax (float): Daily maximum temperature (°C).
+        tmin (float): Daily minimum temperature (°C).
+
+    Returns:
+        float: Estimated dew-point temperature (°C).
+    """
+    return 0.38 * tmax - 0.018 * (tmax ** 2) + 1.4 * tmin - 5.0
 
 
 def _estimate_hourly_rh(rh_min: float, rh_max: float, hour: int) -> float:
@@ -472,10 +494,25 @@ def _estimate_hourly(
 ) -> Dict[datetime, InputsHourly]:
     """Synthesize 24 hourly InputsHourly records from a daily InputsDaily.
 
-    Temperature: cosine diurnal cycle, peak at 15:00.
-    RH: from RHx/RHn cosine curve, or dew-point estimate.
-    Precipitation: uniform split across 24 hours.
-    Radiation: distributed by ETR fraction (requires latitude) or uniform split.
+    The synthesis applies the following diurnal models:
+
+    - **Temperature:** cosine diurnal cycle peaking at 15:00.
+    - **Relative humidity:** cosine interpolation between the daily ``RHx`` and
+      ``RHn`` extrema, or a dew-point based estimate when extrema are absent.
+    - **Precipitation:** split uniformly across the 24 hours.
+    - **Radiation:** split uniformly across the 24 hours (``rad_daily / 24``),
+      which preserves the measured or estimated daily total. The intra-day shape
+      does not affect downstream results because the runner re-aggregates hourly
+      radiation into the daily total before it is consumed.
+
+    Args:
+        input_daily (InputsDaily): Daily record to expand.
+        day_date (date): Calendar date of the day being synthesised.
+        lat_deg (float): Site latitude in decimal degrees.
+
+    Returns:
+        Dict[datetime, InputsHourly]: The 24 synthesised hourly records keyed by
+        timestamp.
     """
     records: Dict[datetime, InputsHourly] = {}
     tmax = input_daily.tmax
@@ -487,14 +524,6 @@ def _estimate_hourly(
     rad_daily = input_daily.rad
     rhx = input_daily.rhx    # 0.0 means absent
     rhn = input_daily.rhn
-
-    # Pre-compute hourly radiation fractions via solar geometry when lat available
-    rd = None
-    if lat_deg and lat_deg != 0.0:
-        try:
-            rd = _day_length(day_date, lat_deg, tmax, tmin)
-        except Exception:
-            pass
 
     for hr in range(24):
         ts = datetime(day_date.year, day_date.month, day_date.day, hr)
@@ -510,11 +539,8 @@ def _estimate_hourly(
             ea = 0.61121 * math.exp((17.502 * dew) / (240.97 + dew))
             rh_h = min(100.0, ea / es * 100.0) if es > 0.0 else 0.0
 
-        # Radiation
-        if rd is not None and rd["etr"] > 0.0:
-            rad_h = rd["gsr_hourly"][hr]
-        else:
-            rad_h = rad_daily / 24.0
+        # Radiation: uniform split across the day, preserving the daily total
+        rad_h = rad_daily / 24.0
 
         # Precipitation (uniform split)
         prec_h = rain / 24.0

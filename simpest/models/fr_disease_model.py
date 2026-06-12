@@ -1,11 +1,16 @@
-"""
-disease_model.py – Hourly accumulation and daily SEIR tissue progression.
+"""Hourly infection accumulation and daily SEIR tissue progression.
 
-Translated from models/disease.cs.
+This module implements the epidemiological core of the model. Infection
+pressure is accumulated at an hourly time step from temperature and leaf-wetness
+suitability; once per day the accumulated pressure drives new infections and the
+progression of existing lesions through a compartmental SEIR scheme
+(susceptible → latent → sporulating → dead).
 
-The DiseaseModel class must be instantiated once per growing season (the runner
-resets it at sowing).  Call run_hourly() for every hour, then at hour 23 the
-runner swaps output/output1 and calls run_daily() with the daily aggregates.
+The :class:`DiseaseModel` is stateful and must be instantiated once per growing
+season (the runner creates a fresh instance at sowing). Within a day,
+:meth:`DiseaseModel.run_hourly` is called for every hour; at the end of the day
+the runner advances the daily state and calls :meth:`DiseaseModel.run_daily`
+with the aggregated weather.
 """
 
 from __future__ import annotations
@@ -50,13 +55,24 @@ class DiseaseModel:
     ) -> None:
         """Process one hour of weather data.
 
-        During hours 0–22 this accumulates the hydro-thermal time rate and the
-        RH suitability function.  At hour 23 it finalises the daily infection
-        metrics and clears the hourly buffers.
+        During hours 0–22 this accumulates the hydro-thermal time rate (the
+        product of temperature and relative-humidity suitability) and tracks the
+        dry-spell counter. At hour 23 it finalises the daily infection and
+        sporulation efficiencies, normalises the accumulated rate, records the
+        daily weather summary, and clears the hourly buffers.
 
-        Note: output1 is the SAME object across all 24 hours of a day (the
-        runner does NOT replace it between hours).  The runner swaps
-        output ↔ output1 only AFTER hour 23's run_hourly() returns.
+        The same ``output1`` object is shared across all 24 hours of a day; the
+        daily state advance happens only after the hour-23 call returns.
+
+        Args:
+            input_ (InputsHourly): The current hour's weather record.
+            parameters (Parameters): Model parameters, including the disease group.
+            output (Outputs): Previous day's output state, used to carry forward
+                the accumulated hydro-thermal time state.
+            output1 (Outputs): Current day's output state, updated in place.
+
+        Returns:
+            None: The function mutates ``output1`` in place.
         """
         par = parameters.par_disease
 
@@ -157,12 +173,29 @@ class DiseaseModel:
     ) -> None:
         """Run the daily SEIR tissue progression.
 
-        At entry:
-          output  – the hourly-accumulated state from hours 0–23 of today
-          output1 – fresh daily output, with season-persistent fields pre-set
-                    by the runner (growing_season, f_int_peak,
-                    is_primary_inoculum_started, first_seasonal_infection,
-                    cycle_percentage_first_infection)
+        Given the day's accumulated infection pressure, this step (1) creates a
+        new latent tissue cohort when onset conditions are met, combining
+        external (primary) and internal (secondary) infection sources scaled by
+        susceptible tissue, host resistance, and fungicide efficacy; (2) advances
+        every existing cohort through the latent → sporulating → dead transitions
+        according to thermal time; and (3) aggregates the compartment fractions
+        into the daily latent, sporulating, dead, affected, and severity outputs,
+        and updates the susceptible fraction for the following day.
+
+        At entry, ``output`` holds the hourly-accumulated state for the day and
+        ``output1`` is a fresh daily output whose season-persistent fields
+        (growing season, peak interception, and first-infection markers) have
+        already been carried forward by the runner.
+
+        Args:
+            input_ (InputsDaily): The day's aggregated inputs.
+            parameters (Parameters): Model parameters, including the disease and
+                crop groups.
+            output (Outputs): Previous (hourly-accumulated) state for the day.
+            output1 (Outputs): Current day's output state, updated in place.
+
+        Returns:
+            None: The function mutates ``output1`` and the cohort list in place.
         """
         par = parameters.par_disease
         pc  = parameters.par_crop
