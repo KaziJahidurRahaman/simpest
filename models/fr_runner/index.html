@@ -955,31 +955,15 @@
   <a href="#simpest.models.fr_runner" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_runner
+        fr_runner
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="simpest.models.fr_runner">
+    <nav class="md-nav" aria-label="fr_runner">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#simpest.models.fr_runner--usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Usage
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#simpest.models.fr_runner.FranchestynRunner" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1010,6 +994,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1212,31 +1201,15 @@
   <a href="#simpest.models.fr_runner" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_runner
+        fr_runner
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="simpest.models.fr_runner">
+    <nav class="md-nav" aria-label="fr_runner">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#simpest.models.fr_runner--usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Usage
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#simpest.models.fr_runner.FranchestynRunner" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1274,6 +1247,11 @@
     </nav>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
     </ul>
   
@@ -1303,18 +1281,33 @@
 
   <div class="doc doc-object doc-module">
 
-<a id="simpest.models.fr_runner"></a>
+
+
+<h2 id="simpest.models.fr_runner" class="doc doc-heading">
+        <code>simpest.models.fr_runner</code>
+
+
+
+<a href="#simpest.models.fr_runner" class="headerlink" title="Permanent link">&para;</a></h2>
+
     <div class="doc doc-contents first">
 
-      <p>runner.py – Main simulation runner for FraNchEstYN.</p>
-<p>Replaces pestipy.FranchestynModel.  Translates the core model loop from
-optimizer.cs:oneShot() and optimizer.cs:modelCall().</p>
-<h3 id="simpest.models.fr_runner--usage">Usage<a class="headerlink" href="#simpest.models.fr_runner--usage" title="Permanent link">&para;</a></h3>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+      <p>Main simulation runner for the FraNchEstYN model.</p>
+<p>The runner orchestrates a full simulation: it loads parameters, weather, the
+sowing schedule, reference observations, and any external crop-model series,
+then drives the hourly–daily model loop across the configured years. Each
+simulated day couples the crop, disease, and fungicide sub-models and records a
+complete output bundle. The runner also exposes the calibration objective used
+to score a run against reference data.</p>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>from franchestyn.runner import FranchestynRunner
-runner = FranchestynRunner(...)
-date_outputs = runner.run(param_values={})   # {param_key: value} override dict
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">simpest.models.fr_runner</span><span class="w"> </span><span class="kn">import</span> <span class="n">FranchestynRunner</span>
+
+<span class="n">runner</span> <span class="o">=</span> <span class="n">FranchestynRunner</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">date_outputs</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">param_values</span><span class="o">=</span><span class="p">{})</span>  <span class="c1"># optional {param_key: value} overrides</span>
 </code></pre></div></td></tr></table></div>
 
 
@@ -1331,13 +1324,13 @@ date_outputs = runner.run(param_values={})   # {param_key: value} override dict
 
 
 
-<h2 id="simpest.models.fr_runner.FranchestynRunner" class="doc doc-heading">
+<h3 id="simpest.models.fr_runner.FranchestynRunner" class="doc doc-heading">
         <code>
 FranchestynRunner        </code>
 
 
 
-<a href="#simpest.models.fr_runner.FranchestynRunner" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_runner.FranchestynRunner" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
@@ -1461,7 +1454,11 @@ crop model data. If <code>None</code>, the internal crop model is used.</p></td>
       <tr>
         <td><code>disease_type</code></td>
         <td><code>Optional[str]</code></td>
-        <td><p>Disease type key for modular loading.</p></td>
+        <td><p>Disease type key for modular loading. Also
+acts as the on/off switch for the disease model: when <code>None</code> the
+SEIR disease step (hourly and daily) is skipped entirely, so disease
+severity stays 0 and there is no disease impact (a crop-only run).
+Provide a <code>disease_type</code> to enable the epidemiological model.</p></td>
         <td><code>None</code></td>
       </tr>
       <tr>
@@ -1473,15 +1470,40 @@ crop model data. If <code>None</code>, the internal crop model is used.</p></td>
       <tr>
         <td><code>fungicide_type</code></td>
         <td><code>Optional[str]</code></td>
-        <td><p>Fungicide type key for modular loading.</p></td>
+        <td><p>Fungicide type key for modular loading.
+Also the on/off switch for the fungicide model: when <code>None</code> the
+fungicide step is skipped. The step is a no-op unless a treatment has
+been scheduled, so it only needs to be enabled when fungicide
+treatments are present (otherwise they would be ignored).</p></td>
         <td><code>None</code></td>
       </tr>
       <tr>
         <td><code>use_gdd</code></td>
         <td><code>bool</code></td>
-        <td><p>Whether to compute cycle percentage from GDD when
-available.</p></td>
+        <td><p>How crop cycle completion is derived. Defaults to
+<code>False</code> (calendar-day interpolation of the external crop-model
+series); set <code>True</code> to use the thermal-time (GDD) based cycle
+percentage, which ties phenology more directly to accumulated heat.</p></td>
+        <td><code>False</code></td>
+      </tr>
+      <tr>
+        <td><code>use_prev_day_alignment</code></td>
+        <td><code>bool</code></td>
+        <td><p>Day alignment used by the calibration
+objective. Defaults to <code>True</code>, which compares the previous day's
+simulated output to the current day's reference observation
+(sim[d-1] vs ref[d]). Set <code>False</code> for same-day alignment
+(sim[d] vs ref[d]), which matches the daily output table.</p></td>
         <td><code>True</code></td>
+      </tr>
+      <tr>
+        <td><code>all_row_includes_end_year</code></td>
+        <td><code>bool</code></td>
+        <td><p>How far an <code>"All"</code> sowing row is
+applied. Defaults to <code>False</code> (the final year is omitted); set
+<code>True</code> to apply it through <code>end_year</code> inclusive. Has no effect
+for per-year sowing CSVs.</p></td>
+        <td><code>False</code></td>
       </tr>
   </tbody>
 </table>
@@ -1511,11 +1533,30 @@ available.</p></td>
 <span class="sd">        crop_type (Optional[str]): Crop type for modular parameter loading.</span>
 <span class="sd">        crop_param_file (Optional[str]): Crop parameter JSON path.</span>
 <span class="sd">        disease_param_file (Optional[str]): Disease parameter JSON path.</span>
-<span class="sd">        disease_type (Optional[str]): Disease type key for modular loading.</span>
+<span class="sd">        disease_type (Optional[str]): Disease type key for modular loading. Also</span>
+<span class="sd">            acts as the on/off switch for the disease model: when ``None`` the</span>
+<span class="sd">            SEIR disease step (hourly and daily) is skipped entirely, so disease</span>
+<span class="sd">            severity stays 0 and there is no disease impact (a crop-only run).</span>
+<span class="sd">            Provide a ``disease_type`` to enable the epidemiological model.</span>
 <span class="sd">        fungicide_param_file (Optional[str]): Fungicide parameter JSON path.</span>
 <span class="sd">        fungicide_type (Optional[str]): Fungicide type key for modular loading.</span>
-<span class="sd">        use_gdd (bool): Whether to compute cycle percentage from GDD when</span>
-<span class="sd">            available.</span>
+<span class="sd">            Also the on/off switch for the fungicide model: when ``None`` the</span>
+<span class="sd">            fungicide step is skipped. The step is a no-op unless a treatment has</span>
+<span class="sd">            been scheduled, so it only needs to be enabled when fungicide</span>
+<span class="sd">            treatments are present (otherwise they would be ignored).</span>
+<span class="sd">        use_gdd (bool): How crop cycle completion is derived. Defaults to</span>
+<span class="sd">            ``False`` (calendar-day interpolation of the external crop-model</span>
+<span class="sd">            series); set ``True`` to use the thermal-time (GDD) based cycle</span>
+<span class="sd">            percentage, which ties phenology more directly to accumulated heat.</span>
+<span class="sd">        use_prev_day_alignment (bool): Day alignment used by the calibration</span>
+<span class="sd">            objective. Defaults to ``True``, which compares the previous day&#39;s</span>
+<span class="sd">            simulated output to the current day&#39;s reference observation</span>
+<span class="sd">            (sim[d-1] vs ref[d]). Set ``False`` for same-day alignment</span>
+<span class="sd">            (sim[d] vs ref[d]), which matches the daily output table.</span>
+<span class="sd">        all_row_includes_end_year (bool): How far an ``&quot;All&quot;`` sowing row is</span>
+<span class="sd">            applied. Defaults to ``False`` (the final year is omitted); set</span>
+<span class="sd">            ``True`` to apply it through ``end_year`` inclusive. Has no effect</span>
+<span class="sd">            for per-year sowing CSVs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -1540,7 +1581,9 @@ available.</p></td>
         <span class="n">disease_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fungicide_param_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fungicide_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">use_gdd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">use_gdd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">use_prev_day_alignment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">all_row_includes_end_year</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">weather_dir</span> <span class="o">=</span> <span class="n">weather_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param_file</span> <span class="o">=</span> <span class="n">param_file</span>
@@ -1559,6 +1602,8 @@ available.</p></td>
         <span class="bp">self</span><span class="o">.</span><span class="n">disease_type</span> <span class="o">=</span> <span class="n">disease_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fungicide_type</span> <span class="o">=</span> <span class="n">fungicide_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_gdd</span> <span class="o">=</span> <span class="n">use_gdd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_prev_day_alignment</span> <span class="o">=</span> <span class="n">use_prev_day_alignment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_row_includes_end_year</span> <span class="o">=</span> <span class="n">all_row_includes_end_year</span>
 
         <span class="c1"># Read parameter definitions (bounds, defaults)</span>
         <span class="c1"># Three modular loading scenarios:</span>
@@ -1591,7 +1636,8 @@ available.</p></td>
 
         <span class="c1"># Read sowing + reference data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span><span class="p">:</span> <span class="n">SimulationUnit</span> <span class="o">=</span> <span class="n">read_sowing</span><span class="p">(</span>
-            <span class="n">sowing_file</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">variety</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span>
+            <span class="n">sowing_file</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">variety</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span>
+            <span class="n">all_row_includes_end_year</span><span class="o">=</span><span class="n">all_row_includes_end_year</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span> <span class="o">=</span> <span class="n">read_reference</span><span class="p">(</span>
             <span class="n">ref_dir</span><span class="p">,</span> <span class="n">sowing_file</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">variety</span><span class="p">,</span>
@@ -1627,7 +1673,7 @@ available.</p></td>
 
         <span class="n">date_outputs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">Outputs</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="c1"># Per-hour accumulators (replicated from optimizer.modelCall)</span>
+        <span class="c1"># Per-hour accumulators aggregated into the daily input each day</span>
         <span class="n">hourly_temps</span><span class="p">:</span>  <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">hourly_rads</span><span class="p">:</span>   <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">hourly_precip</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1678,8 +1724,8 @@ available.</p></td>
                 <span class="n">hourly_rhs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hourly_rec</span><span class="o">.</span><span class="n">relative_humidity</span><span class="p">)</span>
                 <span class="n">hourly_lw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hourly_rec</span><span class="o">.</span><span class="n">leaf_wetness</span><span class="p">)</span>
 
-                <span class="c1"># C# parity: skip hourly disease only for crop-only calibration runs.</span>
-                <span class="c1"># But also skip if disease_type was not provided (optional disease)</span>
+                <span class="c1"># Skip the hourly disease step when disease is disabled, and also</span>
+                <span class="c1"># for crop-only calibration runs where disease plays no role.</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_type</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="o">!=</span> <span class="s2">&quot;crop&quot;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_calibration</span><span class="p">):</span>
                     <span class="n">disease_model</span><span class="o">.</span><span class="n">run_hourly</span><span class="p">(</span><span class="n">hourly_rec</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">output_t1</span><span class="p">)</span>
 
@@ -1717,7 +1763,10 @@ available.</p></td>
                     <span class="n">input_daily</span><span class="o">.</span><span class="n">date_treatment_last</span> <span class="o">=</span> <span class="n">hourly_rec</span><span class="o">.</span><span class="n">date_treatment_last</span>
                     <span class="n">input_daily</span><span class="o">.</span><span class="n">crop_model_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_model_data</span>
 
-                    <span class="c1"># Run daily sub-models</span>
+                    <span class="c1"># Run the daily sub-models. The crop step always runs; the</span>
+                    <span class="c1"># fungicide and disease steps are optional and gated on their</span>
+                    <span class="c1"># respective *_type (None skips the step, giving a crop-only</span>
+                    <span class="c1"># or no-fungicide run).</span>
                     <span class="n">crop_run</span><span class="p">(</span><span class="n">input_daily</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">output_t1</span><span class="p">)</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fungicide_type</span><span class="p">:</span>
                         <span class="n">fungicide_run</span><span class="p">(</span><span class="n">input_daily</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">output_t1</span><span class="p">)</span>
@@ -1753,9 +1802,28 @@ available.</p></td>
         <span class="n">include_crop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">include_disease</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the root mean square error against reference data.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the root-mean-square error against reference data.</span>
 
-<span class="sd">        Mirrors the objective function in optimizer.cs:ObjfuncVal().</span>
+<span class="sd">        This is the calibration objective. For each simulated day that has a</span>
+<span class="sd">        matching reference observation, it accumulates the squared, scaled</span>
+<span class="sd">        errors of the selected variables — above-ground biomass, attainable and</span>
+<span class="sd">        actual yield, light interception, and disease severity — and returns the</span>
+<span class="sd">        root mean of those per-day error sums. Two penalty rules sharpen the</span>
+<span class="sd">        objective: a zero simulated yield at maturity where the reference is</span>
+<span class="sd">        positive, and a near-zero simulated light interception during the</span>
+<span class="sd">        growing season, are both heavily penalised.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            date_outputs (Dict[datetime, Outputs]): Daily outputs produced by</span>
+<span class="sd">                :meth:`run`.</span>
+<span class="sd">            include_crop (bool): Include the crop-related error terms (biomass,</span>
+<span class="sd">                attainable yield, light interception).</span>
+<span class="sd">            include_disease (bool): Include the disease-related error terms</span>
+<span class="sd">                (severity and actual yield).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The root-mean-square error, rounded to three decimals; ``0.0``</span>
+<span class="sd">            when no reference observations overlap the simulated days.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">errors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span><span class="o">.</span><span class="n">reference_data</span>
@@ -1764,37 +1832,46 @@ available.</p></td>
         <span class="k">for</span> <span class="n">hour_dt</span><span class="p">,</span> <span class="n">out</span> <span class="ow">in</span> <span class="n">date_outputs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">hour_dt</span><span class="o">.</span><span class="n">hour</span> <span class="o">!=</span> <span class="mi">23</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="c1"># Reference keys are datetime.date; convert for lookup</span>
-            <span class="n">day_key</span><span class="p">:</span> <span class="n">date_type</span> <span class="o">=</span> <span class="n">hour_dt</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+            <span class="c1"># Reference keys are datetime.date; convert for lookup.</span>
+            <span class="n">sim_day</span><span class="p">:</span> <span class="n">date_type</span> <span class="o">=</span> <span class="n">hour_dt</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+            <span class="c1"># Day alignment between simulated output and reference data.</span>
+            <span class="c1">#   Previous-day alignment (default): compare this simulated day to</span>
+            <span class="c1">#   the next day&#39;s reference, i.e. sim[d] vs ref[d+1], which is</span>
+            <span class="c1">#   equivalent to sim[d-1] vs ref[d].</span>
+            <span class="c1">#   Same-day alignment: sim[d] vs ref[d], matching the daily table.</span>
+            <span class="n">ref_key</span><span class="p">:</span> <span class="n">date_type</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">sim_day</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_prev_day_alignment</span> <span class="k">else</span> <span class="n">sim_day</span>
+            <span class="p">)</span>
             <span class="n">total_err</span> <span class="o">=</span> <span class="mf">0.0</span>
             <span class="n">has_ref</span> <span class="o">=</span> <span class="kc">False</span>
 
-            <span class="c1"># Infer crop state for penalty multipliers (mirrors C# isMatured / isPlanted)</span>
+            <span class="c1"># Infer crop state for the penalty multipliers below</span>
             <span class="n">is_matured</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">cycle_completion_percentage</span> <span class="o">&gt;=</span> <span class="mf">100.0</span>
             <span class="n">is_planted</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">day_after_sowing</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_matured</span>
 
             <span class="k">if</span> <span class="n">include_crop</span><span class="p">:</span>
                 <span class="n">agb_err</span> <span class="o">=</span> <span class="mf">0.0</span>
-                <span class="k">if</span> <span class="n">day_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_agb</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ref_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_agb</span><span class="p">:</span>
                     <span class="n">sim_agb</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">agb_attainable</span>
-                    <span class="n">agb_err</span> <span class="o">=</span> <span class="p">((</span><span class="n">ref</span><span class="o">.</span><span class="n">date_agb</span><span class="p">[</span><span class="n">day_key</span><span class="p">]</span> <span class="o">-</span> <span class="n">sim_agb</span><span class="p">)</span> <span class="o">/</span> <span class="mf">200.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+                    <span class="n">agb_err</span> <span class="o">=</span> <span class="p">((</span><span class="n">ref</span><span class="o">.</span><span class="n">date_agb</span><span class="p">[</span><span class="n">ref_key</span><span class="p">]</span> <span class="o">-</span> <span class="n">sim_agb</span><span class="p">)</span> <span class="o">/</span> <span class="mf">200.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
                     <span class="n">has_ref</span> <span class="o">=</span> <span class="kc">True</span>
 
                 <span class="n">yield_err</span> <span class="o">=</span> <span class="mf">0.0</span>
-                <span class="k">if</span> <span class="n">day_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_attainable</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ref_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_attainable</span><span class="p">:</span>
                     <span class="n">sim_y</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">yield_attainable</span>
-                    <span class="n">yield_ref</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_attainable</span><span class="p">[</span><span class="n">day_key</span><span class="p">]</span>
+                    <span class="n">yield_ref</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_attainable</span><span class="p">[</span><span class="n">ref_key</span><span class="p">]</span>
                     <span class="n">yield_err</span> <span class="o">=</span> <span class="p">((</span><span class="n">yield_ref</span> <span class="o">-</span> <span class="n">sim_y</span><span class="p">)</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-                    <span class="c1"># C# penalty: heavily penalise zero yield at maturity when ref &gt; 0</span>
+                    <span class="c1"># Penalty: heavily penalise zero yield at maturity when ref &gt; 0</span>
                     <span class="k">if</span> <span class="n">sim_y</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">yield_ref</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">is_matured</span><span class="p">:</span>
                         <span class="n">yield_err</span> <span class="o">*=</span> <span class="mf">1000.0</span>
                     <span class="n">has_ref</span> <span class="o">=</span> <span class="kc">True</span>
 
                 <span class="n">fint_err</span> <span class="o">=</span> <span class="mf">0.0</span>
-                <span class="k">if</span> <span class="n">day_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_fint</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ref_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_fint</span><span class="p">:</span>
                     <span class="n">sim_fi</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">light_interception_attainable</span> <span class="o">*</span> <span class="mf">100.0</span>
-                    <span class="n">fint_err</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">date_fint</span><span class="p">[</span><span class="n">day_key</span><span class="p">]</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">-</span> <span class="n">sim_fi</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-                    <span class="c1"># C# penalty: heavily penalise near-zero fint during the growing season</span>
+                    <span class="n">fint_err</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">date_fint</span><span class="p">[</span><span class="n">ref_key</span><span class="p">]</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">-</span> <span class="n">sim_fi</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+                    <span class="c1"># Penalty: heavily penalise near-zero interception during the season</span>
                     <span class="k">if</span> <span class="n">sim_fi</span> <span class="o">&lt;</span> <span class="mf">0.1</span> <span class="ow">and</span> <span class="n">is_planted</span><span class="p">:</span>
                         <span class="n">fint_err</span> <span class="o">*=</span> <span class="mf">1000.0</span>
                     <span class="n">has_ref</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1804,17 +1881,17 @@ available.</p></td>
             <span class="k">if</span> <span class="n">include_disease</span><span class="p">:</span>
                 <span class="n">dis_err</span> <span class="o">=</span> <span class="mf">0.0</span>
                 <span class="n">by_date</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">disease_date_disease_sev</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disease</span><span class="p">,</span> <span class="p">{})</span>
-                <span class="k">if</span> <span class="n">day_key</span> <span class="ow">in</span> <span class="n">by_date</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ref_key</span> <span class="ow">in</span> <span class="n">by_date</span><span class="p">:</span>
                     <span class="n">sim_ds</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">disease</span><span class="o">.</span><span class="n">disease_severity</span> <span class="o">*</span> <span class="mf">100.0</span>
-                    <span class="n">dis_err</span> <span class="o">=</span> <span class="p">(</span><span class="n">by_date</span><span class="p">[</span><span class="n">day_key</span><span class="p">]</span> <span class="o">-</span> <span class="n">sim_ds</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+                    <span class="n">dis_err</span> <span class="o">=</span> <span class="p">(</span><span class="n">by_date</span><span class="p">[</span><span class="n">ref_key</span><span class="p">]</span> <span class="o">-</span> <span class="n">sim_ds</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
                     <span class="n">has_ref</span> <span class="o">=</span> <span class="kc">True</span>
 
                 <span class="n">yield_err2</span> <span class="o">=</span> <span class="mf">0.0</span>
-                <span class="k">if</span> <span class="n">day_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_actual</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ref_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_actual</span><span class="p">:</span>
                     <span class="n">sim_ya</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">yield_actual</span>
-                    <span class="n">yield_ref2</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_actual</span><span class="p">[</span><span class="n">day_key</span><span class="p">]</span>
+                    <span class="n">yield_ref2</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_actual</span><span class="p">[</span><span class="n">ref_key</span><span class="p">]</span>
                     <span class="n">yield_err2</span> <span class="o">=</span> <span class="p">((</span><span class="n">yield_ref2</span> <span class="o">-</span> <span class="n">sim_ya</span><span class="p">)</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-                    <span class="c1"># C# penalty: heavily penalise zero actual yield at maturity when ref &gt; 0</span>
+                    <span class="c1"># Penalty: heavily penalise zero actual yield at maturity when ref &gt; 0</span>
                     <span class="k">if</span> <span class="n">sim_ya</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">yield_ref2</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">is_matured</span><span class="p">:</span>
                         <span class="n">yield_err2</span> <span class="o">*=</span> <span class="mf">1000.0</span>
                     <span class="n">has_ref</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1900,17 +1977,74 @@ available.</p></td>
 
 
 
-<h3 id="simpest.models.fr_runner.FranchestynRunner.compute_rmse" class="doc doc-heading">
+<h4 id="simpest.models.fr_runner.FranchestynRunner.compute_rmse" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">compute_rmse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date_outputs</span><span class="p">,</span> <span class="n">include_crop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_disease</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_runner.FranchestynRunner.compute_rmse" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#simpest.models.fr_runner.FranchestynRunner.compute_rmse" class="headerlink" title="Permanent link">&para;</a></h4>
 
     <div class="doc doc-contents ">
 
-      <p>Compute the root mean square error against reference data.</p>
-<p>Mirrors the objective function in optimizer.cs:ObjfuncVal().</p>
+      <p>Compute the root-mean-square error against reference data.</p>
+<p>This is the calibration objective. For each simulated day that has a
+matching reference observation, it accumulates the squared, scaled
+errors of the selected variables — above-ground biomass, attainable and
+actual yield, light interception, and disease severity — and returns the
+root mean of those per-day error sums. Two penalty rules sharpen the
+objective: a zero simulated yield at maturity where the reference is
+positive, and a near-zero simulated light interception during the
+growing season, are both heavily penalised.</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>date_outputs</code></td>
+        <td><code>Dict[datetime, Outputs]</code></td>
+        <td><p>Daily outputs produced by
+:meth:<code>run</code>.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>include_crop</code></td>
+        <td><code>bool</code></td>
+        <td><p>Include the crop-related error terms (biomass,
+attainable yield, light interception).</p></td>
+        <td><code>True</code></td>
+      </tr>
+      <tr>
+        <td><code>include_disease</code></td>
+        <td><code>bool</code></td>
+        <td><p>Include the disease-related error terms
+(severity and actual yield).</p></td>
+        <td><code>True</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>float</code></td>
+      <td><p>The root-mean-square error, rounded to three decimals; <code>0.0</code>
+when no reference observations overlap the simulated days.</p></td>
+    </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_runner.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_rmse</span><span class="p">(</span>
@@ -1919,9 +2053,28 @@ available.</p></td>
     <span class="n">include_crop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">include_disease</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the root mean square error against reference data.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the root-mean-square error against reference data.</span>
 
-<span class="sd">    Mirrors the objective function in optimizer.cs:ObjfuncVal().</span>
+<span class="sd">    This is the calibration objective. For each simulated day that has a</span>
+<span class="sd">    matching reference observation, it accumulates the squared, scaled</span>
+<span class="sd">    errors of the selected variables — above-ground biomass, attainable and</span>
+<span class="sd">    actual yield, light interception, and disease severity — and returns the</span>
+<span class="sd">    root mean of those per-day error sums. Two penalty rules sharpen the</span>
+<span class="sd">    objective: a zero simulated yield at maturity where the reference is</span>
+<span class="sd">    positive, and a near-zero simulated light interception during the</span>
+<span class="sd">    growing season, are both heavily penalised.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        date_outputs (Dict[datetime, Outputs]): Daily outputs produced by</span>
+<span class="sd">            :meth:`run`.</span>
+<span class="sd">        include_crop (bool): Include the crop-related error terms (biomass,</span>
+<span class="sd">            attainable yield, light interception).</span>
+<span class="sd">        include_disease (bool): Include the disease-related error terms</span>
+<span class="sd">            (severity and actual yield).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: The root-mean-square error, rounded to three decimals; ``0.0``</span>
+<span class="sd">        when no reference observations overlap the simulated days.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">errors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span><span class="o">.</span><span class="n">reference_data</span>
@@ -1930,37 +2083,46 @@ available.</p></td>
     <span class="k">for</span> <span class="n">hour_dt</span><span class="p">,</span> <span class="n">out</span> <span class="ow">in</span> <span class="n">date_outputs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">hour_dt</span><span class="o">.</span><span class="n">hour</span> <span class="o">!=</span> <span class="mi">23</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="c1"># Reference keys are datetime.date; convert for lookup</span>
-        <span class="n">day_key</span><span class="p">:</span> <span class="n">date_type</span> <span class="o">=</span> <span class="n">hour_dt</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+        <span class="c1"># Reference keys are datetime.date; convert for lookup.</span>
+        <span class="n">sim_day</span><span class="p">:</span> <span class="n">date_type</span> <span class="o">=</span> <span class="n">hour_dt</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+        <span class="c1"># Day alignment between simulated output and reference data.</span>
+        <span class="c1">#   Previous-day alignment (default): compare this simulated day to</span>
+        <span class="c1">#   the next day&#39;s reference, i.e. sim[d] vs ref[d+1], which is</span>
+        <span class="c1">#   equivalent to sim[d-1] vs ref[d].</span>
+        <span class="c1">#   Same-day alignment: sim[d] vs ref[d], matching the daily table.</span>
+        <span class="n">ref_key</span><span class="p">:</span> <span class="n">date_type</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">sim_day</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_prev_day_alignment</span> <span class="k">else</span> <span class="n">sim_day</span>
+        <span class="p">)</span>
         <span class="n">total_err</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="n">has_ref</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="c1"># Infer crop state for penalty multipliers (mirrors C# isMatured / isPlanted)</span>
+        <span class="c1"># Infer crop state for the penalty multipliers below</span>
         <span class="n">is_matured</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">cycle_completion_percentage</span> <span class="o">&gt;=</span> <span class="mf">100.0</span>
         <span class="n">is_planted</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">day_after_sowing</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_matured</span>
 
         <span class="k">if</span> <span class="n">include_crop</span><span class="p">:</span>
             <span class="n">agb_err</span> <span class="o">=</span> <span class="mf">0.0</span>
-            <span class="k">if</span> <span class="n">day_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_agb</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ref_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_agb</span><span class="p">:</span>
                 <span class="n">sim_agb</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">agb_attainable</span>
-                <span class="n">agb_err</span> <span class="o">=</span> <span class="p">((</span><span class="n">ref</span><span class="o">.</span><span class="n">date_agb</span><span class="p">[</span><span class="n">day_key</span><span class="p">]</span> <span class="o">-</span> <span class="n">sim_agb</span><span class="p">)</span> <span class="o">/</span> <span class="mf">200.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+                <span class="n">agb_err</span> <span class="o">=</span> <span class="p">((</span><span class="n">ref</span><span class="o">.</span><span class="n">date_agb</span><span class="p">[</span><span class="n">ref_key</span><span class="p">]</span> <span class="o">-</span> <span class="n">sim_agb</span><span class="p">)</span> <span class="o">/</span> <span class="mf">200.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
                 <span class="n">has_ref</span> <span class="o">=</span> <span class="kc">True</span>
 
             <span class="n">yield_err</span> <span class="o">=</span> <span class="mf">0.0</span>
-            <span class="k">if</span> <span class="n">day_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_attainable</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ref_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_attainable</span><span class="p">:</span>
                 <span class="n">sim_y</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">yield_attainable</span>
-                <span class="n">yield_ref</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_attainable</span><span class="p">[</span><span class="n">day_key</span><span class="p">]</span>
+                <span class="n">yield_ref</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_attainable</span><span class="p">[</span><span class="n">ref_key</span><span class="p">]</span>
                 <span class="n">yield_err</span> <span class="o">=</span> <span class="p">((</span><span class="n">yield_ref</span> <span class="o">-</span> <span class="n">sim_y</span><span class="p">)</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-                <span class="c1"># C# penalty: heavily penalise zero yield at maturity when ref &gt; 0</span>
+                <span class="c1"># Penalty: heavily penalise zero yield at maturity when ref &gt; 0</span>
                 <span class="k">if</span> <span class="n">sim_y</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">yield_ref</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">is_matured</span><span class="p">:</span>
                     <span class="n">yield_err</span> <span class="o">*=</span> <span class="mf">1000.0</span>
                 <span class="n">has_ref</span> <span class="o">=</span> <span class="kc">True</span>
 
             <span class="n">fint_err</span> <span class="o">=</span> <span class="mf">0.0</span>
-            <span class="k">if</span> <span class="n">day_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_fint</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ref_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_fint</span><span class="p">:</span>
                 <span class="n">sim_fi</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">light_interception_attainable</span> <span class="o">*</span> <span class="mf">100.0</span>
-                <span class="n">fint_err</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">date_fint</span><span class="p">[</span><span class="n">day_key</span><span class="p">]</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">-</span> <span class="n">sim_fi</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-                <span class="c1"># C# penalty: heavily penalise near-zero fint during the growing season</span>
+                <span class="n">fint_err</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">date_fint</span><span class="p">[</span><span class="n">ref_key</span><span class="p">]</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">-</span> <span class="n">sim_fi</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+                <span class="c1"># Penalty: heavily penalise near-zero interception during the season</span>
                 <span class="k">if</span> <span class="n">sim_fi</span> <span class="o">&lt;</span> <span class="mf">0.1</span> <span class="ow">and</span> <span class="n">is_planted</span><span class="p">:</span>
                     <span class="n">fint_err</span> <span class="o">*=</span> <span class="mf">1000.0</span>
                 <span class="n">has_ref</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1970,17 +2132,17 @@ available.</p></td>
         <span class="k">if</span> <span class="n">include_disease</span><span class="p">:</span>
             <span class="n">dis_err</span> <span class="o">=</span> <span class="mf">0.0</span>
             <span class="n">by_date</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">disease_date_disease_sev</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disease</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="k">if</span> <span class="n">day_key</span> <span class="ow">in</span> <span class="n">by_date</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ref_key</span> <span class="ow">in</span> <span class="n">by_date</span><span class="p">:</span>
                 <span class="n">sim_ds</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">disease</span><span class="o">.</span><span class="n">disease_severity</span> <span class="o">*</span> <span class="mf">100.0</span>
-                <span class="n">dis_err</span> <span class="o">=</span> <span class="p">(</span><span class="n">by_date</span><span class="p">[</span><span class="n">day_key</span><span class="p">]</span> <span class="o">-</span> <span class="n">sim_ds</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+                <span class="n">dis_err</span> <span class="o">=</span> <span class="p">(</span><span class="n">by_date</span><span class="p">[</span><span class="n">ref_key</span><span class="p">]</span> <span class="o">-</span> <span class="n">sim_ds</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
                 <span class="n">has_ref</span> <span class="o">=</span> <span class="kc">True</span>
 
             <span class="n">yield_err2</span> <span class="o">=</span> <span class="mf">0.0</span>
-            <span class="k">if</span> <span class="n">day_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_actual</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ref_key</span> <span class="ow">in</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_actual</span><span class="p">:</span>
                 <span class="n">sim_ya</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">yield_actual</span>
-                <span class="n">yield_ref2</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_actual</span><span class="p">[</span><span class="n">day_key</span><span class="p">]</span>
+                <span class="n">yield_ref2</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">date_yield_actual</span><span class="p">[</span><span class="n">ref_key</span><span class="p">]</span>
                 <span class="n">yield_err2</span> <span class="o">=</span> <span class="p">((</span><span class="n">yield_ref2</span> <span class="o">-</span> <span class="n">sim_ya</span><span class="p">)</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-                <span class="c1"># C# penalty: heavily penalise zero actual yield at maturity when ref &gt; 0</span>
+                <span class="c1"># Penalty: heavily penalise zero actual yield at maturity when ref &gt; 0</span>
                 <span class="k">if</span> <span class="n">sim_ya</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">yield_ref2</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">is_matured</span><span class="p">:</span>
                     <span class="n">yield_err2</span> <span class="o">*=</span> <span class="mf">1000.0</span>
                 <span class="n">has_ref</span> <span class="o">=</span> <span class="kc">True</span>
@@ -2005,11 +2167,11 @@ available.</p></td>
 
 
 
-<h3 id="simpest.models.fr_runner.FranchestynRunner.run" class="doc doc-heading">
+<h4 id="simpest.models.fr_runner.FranchestynRunner.run" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_values</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_runner.FranchestynRunner.run" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#simpest.models.fr_runner.FranchestynRunner.run" class="headerlink" title="Permanent link">&para;</a></h4>
 
     <div class="doc doc-contents ">
 
@@ -2073,7 +2235,7 @@ outputs.</p></td>
 
     <span class="n">date_outputs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">Outputs</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="c1"># Per-hour accumulators (replicated from optimizer.modelCall)</span>
+    <span class="c1"># Per-hour accumulators aggregated into the daily input each day</span>
     <span class="n">hourly_temps</span><span class="p">:</span>  <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">hourly_rads</span><span class="p">:</span>   <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">hourly_precip</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2124,8 +2286,8 @@ outputs.</p></td>
             <span class="n">hourly_rhs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hourly_rec</span><span class="o">.</span><span class="n">relative_humidity</span><span class="p">)</span>
             <span class="n">hourly_lw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hourly_rec</span><span class="o">.</span><span class="n">leaf_wetness</span><span class="p">)</span>
 
-            <span class="c1"># C# parity: skip hourly disease only for crop-only calibration runs.</span>
-            <span class="c1"># But also skip if disease_type was not provided (optional disease)</span>
+            <span class="c1"># Skip the hourly disease step when disease is disabled, and also</span>
+            <span class="c1"># for crop-only calibration runs where disease plays no role.</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_type</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="o">!=</span> <span class="s2">&quot;crop&quot;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_calibration</span><span class="p">):</span>
                 <span class="n">disease_model</span><span class="o">.</span><span class="n">run_hourly</span><span class="p">(</span><span class="n">hourly_rec</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">output_t1</span><span class="p">)</span>
 
@@ -2163,7 +2325,10 @@ outputs.</p></td>
                 <span class="n">input_daily</span><span class="o">.</span><span class="n">date_treatment_last</span> <span class="o">=</span> <span class="n">hourly_rec</span><span class="o">.</span><span class="n">date_treatment_last</span>
                 <span class="n">input_daily</span><span class="o">.</span><span class="n">crop_model_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_model_data</span>
 
-                <span class="c1"># Run daily sub-models</span>
+                <span class="c1"># Run the daily sub-models. The crop step always runs; the</span>
+                <span class="c1"># fungicide and disease steps are optional and gated on their</span>
+                <span class="c1"># respective *_type (None skips the step, giving a crop-only</span>
+                <span class="c1"># or no-fungicide run).</span>
                 <span class="n">crop_run</span><span class="p">(</span><span class="n">input_daily</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">output_t1</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fungicide_type</span><span class="p">:</span>
                     <span class="n">fungicide_run</span><span class="p">(</span><span class="n">input_daily</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">output_t1</span><span class="p">)</span>
@@ -2319,6 +2484,10 @@ outputs.</p></td>
         <script src="../../js/timeago.min.js"></script>
       
         <script src="../../js/timeago_mkdocs_material.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>

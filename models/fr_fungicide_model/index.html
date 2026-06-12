@@ -899,14 +899,15 @@
   <a href="#simpest.models.fr_fungicide_model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_fungicide_model
+        fr_fungicide_model
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="fr_fungicide_model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_fungicide_model.run" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -914,6 +915,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1167,14 +1173,15 @@
   <a href="#simpest.models.fr_fungicide_model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_fungicide_model
+        fr_fungicide_model
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="fr_fungicide_model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_fungicide_model.run" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1182,6 +1189,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1213,11 +1225,23 @@
 
   <div class="doc doc-object doc-module">
 
-<a id="simpest.models.fr_fungicide_model"></a>
+
+
+<h2 id="simpest.models.fr_fungicide_model" class="doc doc-heading">
+        <code>simpest.models.fr_fungicide_model</code>
+
+
+
+<a href="#simpest.models.fr_fungicide_model" class="headerlink" title="Permanent link">&para;</a></h2>
+
     <div class="doc doc-contents first">
 
-      <p>fungicide_model.py – Daily fungicide degradation, tenacity, and efficacy.</p>
-<p>Translated from models/fungicide.cs.</p>
+      <p>Daily fungicide degradation, tenacity, and efficacy.</p>
+<p>This module advances the fungicide state by one day. After an application, the
+active ingredient decays through two mechanisms: first-order chemical
+degradation over time and rainfall-driven wash-off (tenacity). The resulting
+effective dose is mapped to a protective efficacy through a logistic response,
+and the treatment is retired after a fixed persistence window.</p>
 
 
 
@@ -1234,18 +1258,34 @@
 
 
 
-<h2 id="simpest.models.fr_fungicide_model.run" class="doc doc-heading">
+<h3 id="simpest.models.fr_fungicide_model.run" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="n">input_</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">output1</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_fungicide_model.run" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_fungicide_model.run" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
-      <p>Compute one daily fungicide step.</p>
-<p>This function updates concentration, tenacity, degradation, and efficacy
-for the current day. If no treatment has been applied yet
-(<code>date_treatment_last.year &lt;= 1</code>), it is a no-op.</p>
+      <p>Advance the fungicide state by one day.</p>
+<p>Updates the concentration factor, tenacity, degradation, and protective
+efficacy for the current day. The calculation proceeds in stages:</p>
+<ol>
+<li><strong>Concentration.</strong> On the application day the concentration factor is
+   reset to 1; thereafter it decays exponentially with the previous day's
+   effective degradation.</li>
+<li><strong>Potential degradation.</strong> First-order decay of the initial dose,
+   <code>initial_dose · exp(-degradation_rate · days)</code>.</li>
+<li><strong>Tenacity.</strong> Rainfall wash-off reduces the retained fraction by
+   <code>exp(-tenacity_factor · concentration · √precipitation)</code>, applied
+   cumulatively across days.</li>
+<li><strong>Effective degradation.</strong> The product of tenacity and potential
+   degradation, i.e. the dose still active on the canopy.</li>
+<li><strong>Efficacy.</strong> A logistic response of the effective degradation, scaled by
+   the initial efficacy.</li>
+</ol>
+<p>If no treatment has yet been applied (<code>date_treatment_last.year &lt;= 1</code>) the
+call is a no-op. All state is cleared once the persistence window of
+<code>_MAX_DAYS</code> days has elapsed.</p>
 
 <p><strong>Parameters:</strong></p>
 <table>
@@ -1262,13 +1302,13 @@ for the current day. If no treatment has been applied yet
         <td><code>input_</code></td>
         <td><code>InputsDaily</code></td>
         <td><p>Daily inputs, including date, precipitation, and
-last treatment date.</p></td>
+the last treatment date.</p></td>
         <td><em>required</em></td>
       </tr>
       <tr>
         <td><code>parameters</code></td>
         <td><code>Parameters</code></td>
-        <td><p>Model parameters containing fungicide settings.</p></td>
+        <td><p>Model parameters, including the fungicide group.</p></td>
         <td><em>required</em></td>
       </tr>
       <tr>
@@ -1308,17 +1348,32 @@ last treatment date.</p></td>
     <span class="n">output</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">,</span>
     <span class="n">output1</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute one daily fungicide step.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Advance the fungicide state by one day.</span>
 
-<span class="sd">    This function updates concentration, tenacity, degradation, and efficacy</span>
-<span class="sd">    for the current day. If no treatment has been applied yet</span>
-<span class="sd">    (``date_treatment_last.year &lt;= 1``), it is a no-op.</span>
+<span class="sd">    Updates the concentration factor, tenacity, degradation, and protective</span>
+<span class="sd">    efficacy for the current day. The calculation proceeds in stages:</span>
+
+<span class="sd">    1. **Concentration.** On the application day the concentration factor is</span>
+<span class="sd">       reset to 1; thereafter it decays exponentially with the previous day&#39;s</span>
+<span class="sd">       effective degradation.</span>
+<span class="sd">    2. **Potential degradation.** First-order decay of the initial dose,</span>
+<span class="sd">       ``initial_dose · exp(-degradation_rate · days)``.</span>
+<span class="sd">    3. **Tenacity.** Rainfall wash-off reduces the retained fraction by</span>
+<span class="sd">       ``exp(-tenacity_factor · concentration · √precipitation)``, applied</span>
+<span class="sd">       cumulatively across days.</span>
+<span class="sd">    4. **Effective degradation.** The product of tenacity and potential</span>
+<span class="sd">       degradation, i.e. the dose still active on the canopy.</span>
+<span class="sd">    5. **Efficacy.** A logistic response of the effective degradation, scaled by</span>
+<span class="sd">       the initial efficacy.</span>
+
+<span class="sd">    If no treatment has yet been applied (``date_treatment_last.year &lt;= 1``) the</span>
+<span class="sd">    call is a no-op. All state is cleared once the persistence window of</span>
+<span class="sd">    ``_MAX_DAYS`` days has elapsed.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        input_ (InputsDaily): Daily inputs, including date, precipitation, and</span>
-<span class="sd">            last treatment date.</span>
-<span class="sd">        parameters (Parameters): Model parameters containing fungicide settings.</span>
+<span class="sd">            the last treatment date.</span>
+<span class="sd">        parameters (Parameters): Model parameters, including the fungicide group.</span>
 <span class="sd">        output (Outputs): Previous day&#39;s output state.</span>
 <span class="sd">        output1 (Outputs): Current day&#39;s output state, updated in place.</span>
 
@@ -1510,6 +1565,10 @@ last treatment date.</p></td>
         <script src="../../js/timeago.min.js"></script>
       
         <script src="../../js/timeago_mkdocs_material.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>

@@ -682,14 +682,15 @@
   <a href="#simpest.simpest" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.simpest
+        simpest
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="simpest">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.simpest.run_pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -697,6 +698,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1165,14 +1171,15 @@
   <a href="#simpest.simpest" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.simpest
+        simpest
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="simpest">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.simpest.run_pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1180,6 +1187,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1211,7 +1223,15 @@
 
   <div class="doc doc-object doc-module">
 
-<a id="simpest.simpest"></a>
+
+
+<h2 id="simpest.simpest" class="doc doc-heading">
+        <code>simpest.simpest</code>
+
+
+
+<a href="#simpest.simpest" class="headerlink" title="Permanent link">&para;</a></h2>
+
     <div class="doc doc-contents first">
 
       <p>Main module.</p>
@@ -1231,11 +1251,11 @@
 
 
 
-<h2 id="simpest.simpest.run_pipeline" class="doc doc-heading">
+<h3 id="simpest.simpest.run_pipeline" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">run_pipeline</span><span class="p">(</span><span class="n">implace_config</span><span class="p">,</span> <span class="n">franchestyn_config</span><span class="p">,</span> <span class="n">project_lines</span><span class="p">,</span> <span class="n">shutdown_simplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 
-<a href="#simpest.simpest.run_pipeline" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.simpest.run_pipeline" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
@@ -1369,12 +1389,22 @@ and final results to disk and returns paths and results for further analysis.</p
         <span class="n">selected_line</span> <span class="o">=</span> <span class="n">project_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">project_row</span> <span class="o">=</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">get_project_row</span><span class="p">(</span><span class="n">work_root</span><span class="p">,</span> <span class="n">selected_line</span><span class="o">=</span><span class="n">selected_line</span><span class="p">)</span>
 
-        <span class="n">crop_model_path</span> <span class="o">=</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">export_crop_model_data</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">)</span>
-        <span class="n">weather_path</span> <span class="o">=</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">convert_weather</span><span class="p">(</span><span class="n">work_root</span><span class="p">,</span> <span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">])</span>
-        <span class="n">management_path</span> <span class="o">=</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">build_management</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">)</span>
-
         <span class="n">start_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">project_row</span><span class="p">[</span><span class="s2">&quot;startdate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">end_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">project_row</span><span class="p">[</span><span class="s2">&quot;enddate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">yearly_sowing_doy</span> <span class="o">=</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">extract_yearly_sowing_doy</span><span class="p">(</span>
+            <span class="n">work_root</span><span class="p">,</span>
+            <span class="n">project_row</span><span class="p">,</span>
+            <span class="n">start_year</span><span class="p">,</span>
+            <span class="n">end_year</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">crop_model_path</span> <span class="o">=</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">export_crop_model_data</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">)</span>
+        <span class="n">weather_path</span> <span class="o">=</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">convert_weather</span><span class="p">(</span><span class="n">work_root</span><span class="p">,</span> <span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">])</span>
+        <span class="n">management_path</span> <span class="o">=</span> <span class="n">simplace_mod</span><span class="o">.</span><span class="n">build_management</span><span class="p">(</span>
+            <span class="n">output_root</span><span class="p">,</span>
+            <span class="n">project_row</span><span class="p">,</span>
+            <span class="n">yearly_sowing_doy</span><span class="o">=</span><span class="n">yearly_sowing_doy</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="n">franchestyn_mod</span><span class="o">.</span><span class="n">run_franchestyn</span><span class="p">(</span>
             <span class="n">weather_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">weather_path</span><span class="p">),</span>
@@ -1538,6 +1568,10 @@ and final results to disk and returns paths and results for further analysis.</p
         <script src="../js/timeago.min.js"></script>
       
         <script src="../js/timeago_mkdocs_material.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>

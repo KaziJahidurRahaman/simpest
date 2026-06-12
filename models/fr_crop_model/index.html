@@ -843,14 +843,15 @@
   <a href="#simpest.models.fr_crop_model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_crop_model
+        fr_crop_model
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="fr_crop_model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_crop_model.run" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -858,6 +859,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1167,14 +1173,15 @@
   <a href="#simpest.models.fr_crop_model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_crop_model
+        fr_crop_model
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="fr_crop_model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_crop_model.run" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1182,6 +1189,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1213,10 +1225,41 @@
 
   <div class="doc doc-object doc-module">
 
-<a id="simpest.models.fr_crop_model"></a>
+
+
+<h2 id="simpest.models.fr_crop_model" class="doc doc-heading">
+        <code>simpest.models.fr_crop_model</code>
+
+
+
+<a href="#simpest.models.fr_crop_model" class="headerlink" title="Permanent link">&para;</a></h2>
+
     <div class="doc doc-contents first">
 
-      <p>crop_model.py – Daily crop growth step and damage mechanisms.</p>
+      <p>Daily crop growth step and disease damage mechanisms.</p>
+<p>This module computes one day of crop growth together with the four disease
+damage mechanisms that couple the epidemiological state to crop performance:</p>
+<ul>
+<li><strong>light stealers</strong> reduce intercepted radiation,</li>
+<li><strong>RUE reducers</strong> lower radiation use efficiency,</li>
+<li><strong>assimilate sappers</strong> drain fixed carbon, and</li>
+<li><strong>senescence accelerators</strong> shorten the green-canopy duration.</li>
+</ul>
+<p>Crop growth is computed through one of two branches:</p>
+<ul>
+<li><strong>Internal growth model.</strong> When no external crop-model series is supplied,
+  the canopy, biomass, and yield are simulated from thermal time using logistic
+  light-interception curves and a radiation-use-efficiency biomass model.</li>
+<li><strong>External growth model.</strong> When a daily crop-model series is supplied, the
+  attainable light interception, biomass, and yield are taken from that series,
+  and the damage mechanisms are applied to the daily increments to obtain the
+  actual (disease-limited) trajectories.</li>
+</ul>
+<p>In the external branch, <code>day_after_sowing</code> is incremented each simulated day
+so that the runner's maturity/safety stop and the calibration objective's
+"is-planted" logic operate correctly, and <code>growing_degree_days</code> is carried
+from the external series. These fields therefore reflect the simulated crop
+calendar rather than being left unset.</p>
 
 
 
@@ -1233,15 +1276,22 @@
 
 
 
-<h2 id="simpest.models.fr_crop_model.run" class="doc doc-heading">
+<h3 id="simpest.models.fr_crop_model.run" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="n">input_</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">output1</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_crop_model.run" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_crop_model.run" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
       <p>Compute one daily crop growth step.</p>
+<p>The four disease damage mechanisms are derived first from the current
+severity, then crop growth is advanced through either the internal growth
+model (logistic light interception plus a radiation-use-efficiency biomass
+model) or the external crop-model branch, depending on whether a daily
+crop-model series is attached to <code>input_</code>. In both branches the attainable
+(disease-free) and actual (disease-limited) light interception, biomass, and
+yield are written to <code>output1</code>.</p>
 
 <p><strong>Parameters:</strong></p>
 <table>
@@ -1257,20 +1307,21 @@
       <tr>
         <td><code>input_</code></td>
         <td><code>InputsDaily</code></td>
-        <td><p>Today's daily inputs, including optional external
-crop model data.</p></td>
+        <td><p>Today's daily inputs, including the optional
+external crop-model series.</p></td>
         <td><em>required</em></td>
       </tr>
       <tr>
         <td><code>parameters</code></td>
         <td><code>Parameters</code></td>
-        <td><p>Model parameters.</p></td>
+        <td><p>Model parameters, including the crop and disease
+groups.</p></td>
         <td><em>required</em></td>
       </tr>
       <tr>
         <td><code>output</code></td>
         <td><code>Outputs</code></td>
-        <td><p>Previous day's output state used as input state.</p></td>
+        <td><p>Previous day's output state, used as the starting state.</p></td>
         <td><em>required</em></td>
       </tr>
       <tr>
@@ -1300,14 +1351,22 @@ crop model data.</p></td>
           <summary>Source code in <code>simpest/models/fr_crop_model.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">input_</span><span class="p">:</span> <span class="n">InputsDaily</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">Parameters</span><span class="p">,</span>
         <span class="n">output</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">,</span> <span class="n">output1</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute one daily crop growth step.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute one daily crop growth step.</span>
+
+<span class="sd">    The four disease damage mechanisms are derived first from the current</span>
+<span class="sd">    severity, then crop growth is advanced through either the internal growth</span>
+<span class="sd">    model (logistic light interception plus a radiation-use-efficiency biomass</span>
+<span class="sd">    model) or the external crop-model branch, depending on whether a daily</span>
+<span class="sd">    crop-model series is attached to ``input_``. In both branches the attainable</span>
+<span class="sd">    (disease-free) and actual (disease-limited) light interception, biomass, and</span>
+<span class="sd">    yield are written to ``output1``.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        input_ (InputsDaily): Today&#39;s daily inputs, including optional external</span>
-<span class="sd">            crop model data.</span>
-<span class="sd">        parameters (Parameters): Model parameters.</span>
-<span class="sd">        output (Outputs): Previous day&#39;s output state used as input state.</span>
+<span class="sd">        input_ (InputsDaily): Today&#39;s daily inputs, including the optional</span>
+<span class="sd">            external crop-model series.</span>
+<span class="sd">        parameters (Parameters): Model parameters, including the crop and disease</span>
+<span class="sd">            groups.</span>
+<span class="sd">        output (Outputs): Previous day&#39;s output state, used as the starting state.</span>
 <span class="sd">        output1 (Outputs): Today&#39;s output state, updated in place.</span>
 
 <span class="sd">    Returns:</span>
@@ -1338,7 +1397,7 @@ crop model data.</p></td>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">input_</span><span class="o">.</span><span class="n">crop_model_data</span>
 
     <span class="c1"># -----------------------------------------------------------------------</span>
-    <span class="c1"># Branch A: FraNchEstYN internal crop model (no external crop model data)</span>
+    <span class="c1"># Branch A: internal crop growth model (no external crop-model series)</span>
     <span class="c1"># -----------------------------------------------------------------------</span>
     <span class="k">if</span> <span class="n">cmd</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">f_int</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">t_ave</span> <span class="o">=</span> <span class="p">(</span><span class="n">input_</span><span class="o">.</span><span class="n">tmin</span> <span class="o">+</span> <span class="n">input_</span><span class="o">.</span><span class="n">tmax</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
@@ -1509,10 +1568,13 @@ crop model data.</p></td>
             <span class="c1"># Cycle completion from external model</span>
             <span class="n">output1</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">cycle_completion_percentage</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">cycle_percentage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 
-            <span class="c1"># --- FIX 1: increment day_after_sowing (never done in C# external branch) ---</span>
+            <span class="c1"># Track the crop calendar: increment days-after-sowing so the</span>
+            <span class="c1"># maturity/safety stop and the calibration objective&#39;s is-planted</span>
+            <span class="c1"># logic operate correctly (see the module docstring).</span>
             <span class="n">output1</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">day_after_sowing</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">day_after_sowing</span> <span class="o">+</span> <span class="mi">1</span>
 
-            <span class="c1"># --- FIX 2: set GDD from external model (never done in C# external branch) ---</span>
+            <span class="c1"># Carry thermal time from the external series. This is reporting-only</span>
+            <span class="c1"># when use_gdd=False and drives cycle completion when use_gdd=True.</span>
             <span class="n">output1</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">growing_degree_days</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">gdd</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
@@ -1635,6 +1697,10 @@ crop model data.</p></td>
         <script src="../../js/timeago.min.js"></script>
       
         <script src="../../js/timeago_mkdocs_material.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>

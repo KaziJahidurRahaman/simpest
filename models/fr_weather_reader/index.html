@@ -1093,14 +1093,15 @@
   <a href="#simpest.models.fr_weather_reader" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_weather_reader
+        fr_weather_reader
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="fr_weather_reader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_weather_reader.read_daily" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1110,8 +1111,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_weather_reader.read_hourly" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1119,6 +1120,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1176,14 +1182,15 @@
   <a href="#simpest.models.fr_weather_reader" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_weather_reader
+        fr_weather_reader
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="fr_weather_reader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_weather_reader.read_daily" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1193,8 +1200,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_weather_reader.read_hourly" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1202,6 +1209,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1233,19 +1245,37 @@
 
   <div class="doc doc-object doc-module">
 
-<a id="simpest.models.fr_weather_reader"></a>
+
+
+<h2 id="simpest.models.fr_weather_reader" class="doc doc-heading">
+        <code>simpest.models.fr_weather_reader</code>
+
+
+
+<a href="#simpest.models.fr_weather_reader" class="headerlink" title="Permanent link">&para;</a></h2>
+
     <div class="doc doc-contents first">
 
-      <p>weather_reader.py – Reads daily or hourly weather CSV files and synthesizes
-                    an hourly time series for the FraNchEstYN model.</p>
-<p>Translated from readers/weatherReader.cs.</p>
-<p>Key behaviour:
-- Robust header parsing: multiple aliases for common column names.
-- Flexible date columns: single Date/Datetime OR separate Year/Month/Day (+ Hour).
-- Radiation: uses measured values when available; otherwise estimates via
-  Hargreaves-like formula from Tmax/Tmin and distributes over hours via
-  clear-sky (extraterrestrial) fractions.
-- Humidity: from RHx/RHn daily extrema (cosine curve) or dew-point method.</p>
+      <p>Weather readers that build an hourly forcing series for the model.</p>
+<p>The disease sub-model operates on an hourly time step, so these readers ingest
+either daily or hourly weather CSV files and return a complete hourly series.
+When the input is daily, a physically based diurnal synthesis fills in the 24
+hourly records for each day.</p>
+<p>Key behaviour:</p>
+<ul>
+<li><strong>Header parsing.</strong> Column names are matched case-insensitively against a set
+  of common aliases, so files from different sources are accepted without
+  renaming.</li>
+<li><strong>Date columns.</strong> A single <code>Date</code>/<code>Datetime</code> column or separate
+  <code>Year</code>/<code>Month</code>/<code>Day</code> (plus <code>Hour</code> for hourly files) are both accepted.</li>
+<li><strong>Radiation.</strong> Measured radiation is used when present; otherwise daily global
+  solar radiation is estimated with the Hargreaves–Samani relationship from the
+  daily temperature range and distributed over the day by clear-sky
+  (extraterrestrial) fractions.</li>
+<li><strong>Humidity.</strong> Relative humidity is reconstructed from daily <code>RHx</code>/<code>RHn</code>
+  extrema with a cosine diurnal curve, or estimated from a dew-point relation
+  when extrema are absent.</li>
+</ul>
 
 
 
@@ -1262,11 +1292,11 @@
 
 
 
-<h2 id="simpest.models.fr_weather_reader.read_daily" class="doc doc-heading">
+<h3 id="simpest.models.fr_weather_reader.read_daily" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">read_daily</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">latitude</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_weather_reader.read_daily" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_weather_reader.read_daily" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
@@ -1489,11 +1519,11 @@ Radiation is estimated when absent (Hargreaves-Samani) if latitude is known.</p>
 
 
 
-<h2 id="simpest.models.fr_weather_reader.read_hourly" class="doc doc-heading">
+<h3 id="simpest.models.fr_weather_reader.read_hourly" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">read_hourly</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">site</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">latitude</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_weather_reader.read_hourly" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_weather_reader.read_hourly" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
@@ -1838,6 +1868,10 @@ distributed via clear-sky (ETR) fractions.</p>
         <script src="../../js/timeago.min.js"></script>
       
         <script src="../../js/timeago_mkdocs_material.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>

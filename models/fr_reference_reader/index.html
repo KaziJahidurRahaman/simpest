@@ -1067,14 +1067,15 @@
   <a href="#simpest.models.fr_reference_reader" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_reference_reader
+        fr_reference_reader
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="fr_reference_reader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_reference_reader.read_crop_model_data" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1084,8 +1085,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_reference_reader.read_reference" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1095,8 +1096,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_reference_reader.read_sowing" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1104,6 +1105,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1189,14 +1195,15 @@
   <a href="#simpest.models.fr_reference_reader" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_reference_reader
+        fr_reference_reader
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="fr_reference_reader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_reference_reader.read_crop_model_data" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1206,8 +1213,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_reference_reader.read_reference" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1217,8 +1224,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_reference_reader.read_sowing" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1226,6 +1233,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1257,14 +1269,28 @@
 
   <div class="doc doc-object doc-module">
 
-<a id="simpest.models.fr_reference_reader"></a>
+
+
+<h2 id="simpest.models.fr_reference_reader" class="doc doc-heading">
+        <code>simpest.models.fr_reference_reader</code>
+
+
+
+<a href="#simpest.models.fr_reference_reader" class="headerlink" title="Permanent link">&para;</a></h2>
+
     <div class="doc doc-contents first">
 
-      <p>reference_reader.py – Reads sowing schedules, reference data, and external crop model
-                      data for the FraNchEstYN model.</p>
-<p>Translated from readers/referenceReader.cs with the following key fixes:
-  - read_crop_model_data() now reads the GDD column.
-  - cycle_percentage is computed from GDD (not calendar days).</p>
+      <p>Readers for sowing schedules, reference observations, and crop-model series.</p>
+<p>This module loads the non-weather inputs that drive and constrain a run:</p>
+<ul>
+<li>the per-site sowing schedule and fungicide treatment dates,</li>
+<li>field reference observations used to score the model during calibration, and</li>
+<li>a daily crop-model series (light interception, biomass, yield, and optional
+  thermal time) supplied by an external crop growth model.</li>
+</ul>
+<p>Each reader populates the appropriate fields of a
+:class:<code>~simpest.models.fr_data.SimulationUnit</code> or returns a
+:class:<code>~simpest.models.fr_data.CropModelData</code> container.</p>
 
 
 
@@ -1281,27 +1307,31 @@
 
 
 
-<h2 id="simpest.models.fr_reference_reader.read_crop_model_data" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">read_crop_model_data</span><span class="p">(</span><span class="n">crop_model_file</span><span class="p">,</span> <span class="n">use_gdd</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+<h3 id="simpest.models.fr_reference_reader.read_crop_model_data" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">read_crop_model_data</span><span class="p">(</span><span class="n">crop_model_file</span><span class="p">,</span> <span class="n">use_gdd</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_reference_reader.read_crop_model_data" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_reference_reader.read_crop_model_data" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
-      <p>Read cropModelData.csv and return a CropModelData object.</p>
-<p>Reads external crop-model data and computes cycle progress.</p>
-<p>If <code>use_gdd</code> is True, cycle percentage is computed from GDD when
-available. If False, cycle percentage uses calendar interpolation to
-match C# behavior.</p>
-<p>Expected CSV columns (case-insensitive aliases):
-    year, doy, fint, agb, yield, gdd(optional)</p>
-<p>Cycle detection:
-    A new cycle starts when DOY goes backwards (non-year-wrap) OR
-    when yield resets from &gt;100 to ≤100.</p>
-<p><code>cycle_percentage</code> computation:
-    If use_gdd=True and GDD is available: <code>gdd[date] / max_gdd_in_cycle * 100</code>.
-    Otherwise: calendar-day interpolation (C# behavior).</p>
+      <p>Read an external crop-model series and compute cycle progress.</p>
+<p>Loads the daily crop-model output (light interception, biomass, yield, and
+optionally thermal time) and segments it into growing cycles, computing the
+cycle-completion percentage for each day.</p>
+<p>Expected CSV columns (matched case-insensitively against common aliases):
+<code>year</code>, <code>doy</code>, <code>fint</code>, <code>agb</code>, <code>yield</code>, and optionally <code>gdd</code>.</p>
+<p>A new cycle is detected when the day-of-year steps backwards without a
+year boundary (a new sowing) or when yield resets from above to at or below
+the 100 kg ha⁻¹ harvest threshold.</p>
+<p>Cycle completion is computed as follows:</p>
+<ul>
+<li>When <code>use_gdd</code> is <code>True</code> and thermal time is available, progress within
+  a cycle is <code>gdd[date] / max_gdd_in_cycle * 100</code>, which ties phenology to
+  accumulated thermal time.</li>
+<li>Otherwise, progress is interpolated linearly over calendar days between the
+  first and last day of the cycle.</li>
+</ul>
 
 <p><strong>Parameters:</strong></p>
 <table>
@@ -1317,15 +1347,16 @@ match C# behavior.</p>
       <tr>
         <td><code>crop_model_file</code></td>
         <td><code>str | Path</code></td>
-        <td><p>Path to the directory containing cropModelData.csv,
-             or the path to the CSV file itself.</p></td>
+        <td><p>Path to the directory containing <code>cropModelData.csv</code>,
+or the path to the CSV file itself.</p></td>
         <td><em>required</em></td>
       </tr>
       <tr>
         <td><code>use_gdd</code></td>
         <td><code>bool</code></td>
-        <td><p>Whether to compute cycle percentage from GDD.</p></td>
-        <td><code>True</code></td>
+        <td><p>Whether to derive cycle completion from thermal time rather than
+calendar days.</p></td>
+        <td><code>False</code></td>
       </tr>
   </tbody>
 </table>
@@ -1339,40 +1370,43 @@ match C# behavior.</p>
   </thead>
   <tbody>
     <tr>
-      <td><code>CropModelData</code></td>
-      <td><p>Populated CropModelData.</p></td>
+      <td><code>Populated </code></td>
+      <td></td>
     </tr>
   </tbody>
 </table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_reference_reader.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">read_crop_model_data</span><span class="p">(</span><span class="n">crop_model_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">use_gdd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CropModelData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read cropModelData.csv and return a CropModelData object.</span>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">read_crop_model_data</span><span class="p">(</span><span class="n">crop_model_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">use_gdd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CropModelData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read an external crop-model series and compute cycle progress.</span>
 
-<span class="sd">    Reads external crop-model data and computes cycle progress.</span>
+<span class="sd">    Loads the daily crop-model output (light interception, biomass, yield, and</span>
+<span class="sd">    optionally thermal time) and segments it into growing cycles, computing the</span>
+<span class="sd">    cycle-completion percentage for each day.</span>
 
-<span class="sd">    If ``use_gdd`` is True, cycle percentage is computed from GDD when</span>
-<span class="sd">    available. If False, cycle percentage uses calendar interpolation to</span>
-<span class="sd">    match C# behavior.</span>
+<span class="sd">    Expected CSV columns (matched case-insensitively against common aliases):</span>
+<span class="sd">    ``year``, ``doy``, ``fint``, ``agb``, ``yield``, and optionally ``gdd``.</span>
 
-<span class="sd">    Expected CSV columns (case-insensitive aliases):</span>
-<span class="sd">        year, doy, fint, agb, yield, gdd(optional)</span>
+<span class="sd">    A new cycle is detected when the day-of-year steps backwards without a</span>
+<span class="sd">    year boundary (a new sowing) or when yield resets from above to at or below</span>
+<span class="sd">    the 100 kg ha⁻¹ harvest threshold.</span>
 
-<span class="sd">    Cycle detection:</span>
-<span class="sd">        A new cycle starts when DOY goes backwards (non-year-wrap) OR</span>
-<span class="sd">        when yield resets from &gt;100 to ≤100.</span>
+<span class="sd">    Cycle completion is computed as follows:</span>
 
-<span class="sd">    ``cycle_percentage`` computation:</span>
-<span class="sd">        If use_gdd=True and GDD is available: ``gdd[date] / max_gdd_in_cycle * 100``.</span>
-<span class="sd">        Otherwise: calendar-day interpolation (C# behavior).</span>
+<span class="sd">    - When ``use_gdd`` is ``True`` and thermal time is available, progress within</span>
+<span class="sd">      a cycle is ``gdd[date] / max_gdd_in_cycle * 100``, which ties phenology to</span>
+<span class="sd">      accumulated thermal time.</span>
+<span class="sd">    - Otherwise, progress is interpolated linearly over calendar days between the</span>
+<span class="sd">      first and last day of the cycle.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        crop_model_file: Path to the directory containing cropModelData.csv,</span>
-<span class="sd">                         or the path to the CSV file itself.</span>
-<span class="sd">        use_gdd: Whether to compute cycle percentage from GDD.</span>
+<span class="sd">        crop_model_file: Path to the directory containing ``cropModelData.csv``,</span>
+<span class="sd">            or the path to the CSV file itself.</span>
+<span class="sd">        use_gdd: Whether to derive cycle completion from thermal time rather than</span>
+<span class="sd">            calendar days.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Populated CropModelData.</span>
+<span class="sd">        Populated :class:`~simpest.models.fr_data.CropModelData`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">CropModelData</span><span class="p">()</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">crop_model_file</span><span class="p">)</span>
@@ -1439,7 +1473,7 @@ match C# behavior.</p>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">date_order</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">cmd</span>
 
-    <span class="c1"># --- Cycle detection (same logic as C# reader) ---</span>
+    <span class="c1"># --- Cycle detection ---</span>
     <span class="n">date_order_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">date_order</span><span class="p">))</span>
     <span class="n">dates_d</span> <span class="o">=</span> <span class="p">[</span><span class="n">dt</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="n">date_order_sorted</span><span class="p">]</span>
 
@@ -1476,12 +1510,12 @@ match C# behavior.</p>
             <span class="n">gdd_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">gdd_values</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">use_gdd</span> <span class="ow">and</span> <span class="n">gdd_max</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="c1"># Python mode: GDD-based cycle percentage</span>
+            <span class="c1"># Thermal-time progression: scale by the cycle&#39;s maximum GDD</span>
             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">cycle_dates</span><span class="p">:</span>
                 <span class="n">gdd_d</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">gdd</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
                 <span class="n">cmd</span><span class="o">.</span><span class="n">cycle_percentage</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">gdd_d</span> <span class="o">/</span> <span class="n">gdd_max</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># C# mode: calendar-day interpolation</span>
+            <span class="c1"># Calendar-day interpolation between cycle start and end</span>
             <span class="n">total_days</span> <span class="o">=</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">days</span>
             <span class="k">if</span> <span class="n">total_days</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">continue</span>
@@ -1502,11 +1536,11 @@ match C# behavior.</p>
 
 
 
-<h2 id="simpest.models.fr_reference_reader.read_reference" class="doc doc-heading">
+<h3 id="simpest.models.fr_reference_reader.read_reference" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">read_reference</span><span class="p">(</span><span class="n">ref_dir</span><span class="p">,</span> <span class="n">sowing_file</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">variety</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">sim_unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">disease</span><span class="o">=</span><span class="s1">&#39;thisDisease&#39;</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_reference_reader.read_reference" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_reference_reader.read_reference" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
@@ -1670,7 +1704,7 @@ match C# behavior.</p>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">pass</span>
             <span class="k">if</span> <span class="n">obs_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">obs_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">min</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>  <span class="c1"># C# parity: store under sentinel date(1,1,1)</span>
+                <span class="n">obs_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">min</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>  <span class="c1"># sentinel date for undated observations</span>
 
             <span class="c1"># FINT</span>
             <span class="k">if</span> <span class="n">fint_col</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -1710,11 +1744,11 @@ match C# behavior.</p>
 
 
 
-<h2 id="simpest.models.fr_reference_reader.read_sowing" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">read_sowing</span><span class="p">(</span><span class="n">sowing_file</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">variety</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">)</span></code>
+<h3 id="simpest.models.fr_reference_reader.read_sowing" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">read_sowing</span><span class="p">(</span><span class="n">sowing_file</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">variety</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">all_row_includes_end_year</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_reference_reader.read_sowing" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_reference_reader.read_sowing" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
@@ -1764,6 +1798,19 @@ match C# behavior.</p>
         <td><p>Last simulation year (inclusive).</p></td>
         <td><em>required</em></td>
       </tr>
+      <tr>
+        <td><code>all_row_includes_end_year</code></td>
+        <td><code>bool</code></td>
+        <td><p>How far an <code>"All"</code> sowing row is applied.
+When <code>False</code> (default) the <code>"All"</code> row is applied to the half-open
+range <code>[start_year, end_year - 1]</code> and therefore omits the final
+year; when <code>True</code> it is applied through <code>end_year</code> inclusive. This
+setting affects only <code>"All"</code> rows; explicit per-year rows are always
+honoured for every year, so it has no effect when sowing is specified
+per year (for example the CSV written by
+:func:<code>simpest.models.simplace.build_management</code>).</p></td>
+        <td><code>False</code></td>
+      </tr>
   </tbody>
 </table>
 <p><strong>Returns:</strong></p>
@@ -1789,6 +1836,7 @@ match C# behavior.</p>
     <span class="n">variety</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">start_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">end_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">all_row_includes_end_year</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SimulationUnit</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Read sowing.csv and build the SimulationUnit for one site × variety.</span>
 
@@ -1802,6 +1850,14 @@ match C# behavior.</p>
 <span class="sd">        variety:     Variety identifier to filter on (e.g., &quot;Generic&quot;).</span>
 <span class="sd">        start_year:  First simulation year (inclusive).</span>
 <span class="sd">        end_year:    Last simulation year (inclusive).</span>
+<span class="sd">        all_row_includes_end_year: How far an ``&quot;All&quot;`` sowing row is applied.</span>
+<span class="sd">            When ``False`` (default) the ``&quot;All&quot;`` row is applied to the half-open</span>
+<span class="sd">            range ``[start_year, end_year - 1]`` and therefore omits the final</span>
+<span class="sd">            year; when ``True`` it is applied through ``end_year`` inclusive. This</span>
+<span class="sd">            setting affects only ``&quot;All&quot;`` rows; explicit per-year rows are always</span>
+<span class="sd">            honoured for every year, so it has no effect when sowing is specified</span>
+<span class="sd">            per year (for example the CSV written by</span>
+<span class="sd">            :func:`simpest.models.simplace.build_management`).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Populated SimulationUnit (year_sowing_doy, fungicide_treatment_schedule).</span>
@@ -1864,8 +1920,8 @@ match C# behavior.</p>
                         <span class="k">pass</span>
             <span class="n">fung_doys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">fung_doys</span><span class="p">))</span>
 
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Parsed row: site=</span><span class="si">{</span><span class="n">row_site</span><span class="si">}</span><span class="s1">, variety=</span><span class="si">{</span><span class="n">row_var</span><span class="si">}</span><span class="s1">, sow_doy=</span><span class="si">{</span><span class="n">sow_doy</span><span class="si">}</span><span class="s1">, fung_doys=</span><span class="si">{</span><span class="n">fung_doys</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">year_cell</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">year_idx</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">year_idx</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Parsed row: site=</span><span class="si">{</span><span class="n">row_site</span><span class="si">}</span><span class="s1">, year=</span><span class="si">{</span><span class="n">year_cell</span><span class="si">}</span><span class="s1">, variety=</span><span class="si">{</span><span class="n">row_var</span><span class="si">}</span><span class="s1">, sow_doy=</span><span class="si">{</span><span class="n">sow_doy</span><span class="si">}</span><span class="s1">, fung_doys=</span><span class="si">{</span><span class="n">fung_doys</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">year_cell</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
                 <span class="n">all_row</span> <span class="o">=</span> <span class="p">(</span><span class="n">sow_doy</span><span class="p">,</span> <span class="n">fung_doys</span><span class="p">)</span>
@@ -1876,9 +1932,11 @@ match C# behavior.</p>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">pass</span>
 
-    <span class="c1"># Apply &quot;All&quot; row to every year in range</span>
+    <span class="c1"># Apply the &quot;All&quot; row to every year in range. By default the final year is</span>
+    <span class="c1"># excluded (half-open range); see ``all_row_includes_end_year``.</span>
+    <span class="n">all_end</span> <span class="o">=</span> <span class="n">end_year</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">all_row_includes_end_year</span> <span class="k">else</span> <span class="n">end_year</span>
     <span class="k">if</span> <span class="n">all_row</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_year</span><span class="p">,</span> <span class="n">all_end</span><span class="p">):</span>
             <span class="n">_apply_row</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">all_row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">all_row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="c1"># Override with per-year entries</span>
@@ -2002,6 +2060,10 @@ match C# behavior.</p>
         <script src="../../js/timeago.min.js"></script>
       
         <script src="../../js/timeago_mkdocs_material.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>

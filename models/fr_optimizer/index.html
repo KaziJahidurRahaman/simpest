@@ -927,14 +927,15 @@
   <a href="#simpest.models.fr_optimizer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_optimizer
+        fr_optimizer
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="fr_optimizer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_optimizer.FranchestynOptimizer" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -954,6 +955,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1184,14 +1190,15 @@
   <a href="#simpest.models.fr_optimizer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_optimizer
+        fr_optimizer
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="fr_optimizer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_optimizer.FranchestynOptimizer" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1211,6 +1218,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1247,12 +1259,32 @@
 
   <div class="doc doc-object doc-module">
 
-<a id="simpest.models.fr_optimizer"></a>
+
+
+<h2 id="simpest.models.fr_optimizer" class="doc doc-heading">
+        <code>simpest.models.fr_optimizer</code>
+
+
+
+<a href="#simpest.models.fr_optimizer" class="headerlink" title="Permanent link">&para;</a></h2>
+
     <div class="doc doc-contents first">
 
-      <p>optimizer.py – Nelder-Mead calibration wrapper for FraNchEstYN.</p>
-<p>Wraps FranchestynRunner.compute_rmse() as a scipy.optimize.minimize objective.
-Mirrors the multi-start simplex logic from optimizer.cs:ObjfuncVal().</p>
+      <p>Multi-start Nelder–Mead calibration for the FraNchEstYN model.</p>
+<p>This module estimates model parameters by minimising the run's root-mean-square
+error against reference observations. It uses a self-contained, pure-Python
+multi-start Nelder–Mead (downhill simplex) search: several simplexes are each
+optimised from a random starting configuration and the best result across all
+restarts is returned. Multiple restarts reduce the chance of settling in a poor
+local minimum of the objective surface.</p>
+<p>The objective is the runner's :meth:<code>~simpest.models.fr_runner.FranchestynRunner.compute_rmse</code>,
+and candidate parameter sets that fall outside their bounds receive a large
+penalty so the search remains in the feasible region. The search is controlled
+by three knobs: <code>n_restarts</code> (number of independent simplexes), <code>max_iter</code>
+(iterations per simplex), and <code>ftol</code> (objective-spread convergence tolerance).</p>
+<p>Because the initial simplex is drawn at random, results vary from run to run
+unless a fixed <code>seed</code> is supplied. For deterministic, fixed-parameter
+validation, run the model directly rather than through calibration.</p>
 
 
 
@@ -1268,17 +1300,21 @@ Mirrors the multi-start simplex logic from optimizer.cs:ObjfuncVal().</p>
 
 
 
-<h2 id="simpest.models.fr_optimizer.FranchestynOptimizer" class="doc doc-heading">
+<h3 id="simpest.models.fr_optimizer.FranchestynOptimizer" class="doc doc-heading">
         <code>
 FranchestynOptimizer        </code>
 
 
 
-<a href="#simpest.models.fr_optimizer.FranchestynOptimizer" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_optimizer.FranchestynOptimizer" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
-      <p>Nelder-Mead calibration wrapper for FraNchEstYN.</p>
+      <p>Multi-start Nelder–Mead calibration for the FraNchEstYN model.</p>
+<p>Wraps a configured runner and searches for the parameter set that minimises
+the run's RMSE against reference data. Only parameters flagged for
+calibration (and not explicitly disabled) within the requested scope are
+optimised; all others are held at their default values.</p>
 
 <p><strong>Parameters:</strong></p>
 <table>
@@ -1300,36 +1336,67 @@ FranchestynOptimizer        </code>
       <tr>
         <td><code>calibration_variable</code></td>
         <td><code>str</code></td>
-        <td><p>Calibration target scope: "crop",
-"disease", or "all".</p></td>
+        <td><p>Calibration target scope: <code>"crop"</code>,
+<code>"disease"</code>, or <code>"all"</code>.</p></td>
         <td><code>&#39;all&#39;</code></td>
       </tr>
       <tr>
         <td><code>n_restarts</code></td>
         <td><code>int</code></td>
-        <td><p>Number of independent Nelder-Mead restarts.</p></td>
+        <td><p>Number of independent simplexes (random restarts).</p></td>
         <td><code>5</code></td>
       </tr>
       <tr>
         <td><code>max_iter</code></td>
         <td><code>int</code></td>
-        <td><p>Maximum iterations per restart.</p></td>
+        <td><p>Maximum iterations per simplex.</p></td>
         <td><code>1000</code></td>
+      </tr>
+      <tr>
+        <td><code>ftol</code></td>
+        <td><code>float</code></td>
+        <td><p>Convergence tolerance on the objective spread across the
+simplex vertices.</p></td>
+        <td><code>1e-12</code></td>
+      </tr>
+      <tr>
+        <td><code>disabled_by_class</code></td>
+        <td><code>Optional[Dict[str, Set[str]]]</code></td>
+        <td><p>Parameter names to
+exclude from calibration, keyed by parameter class.</p></td>
+        <td><code>None</code></td>
+      </tr>
+      <tr>
+        <td><code>seed</code></td>
+        <td><code>Optional[int]</code></td>
+        <td><p>Seed for the random number generator, giving
+reproducible restarts. <code>None</code> (default) is non-deterministic.</p></td>
+        <td><code>None</code></td>
       </tr>
   </tbody>
 </table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_optimizer.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FranchestynOptimizer</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Nelder-Mead calibration wrapper for FraNchEstYN.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Multi-start Nelder–Mead calibration for the FraNchEstYN model.</span>
+
+<span class="sd">    Wraps a configured runner and searches for the parameter set that minimises</span>
+<span class="sd">    the run&#39;s RMSE against reference data. Only parameters flagged for</span>
+<span class="sd">    calibration (and not explicitly disabled) within the requested scope are</span>
+<span class="sd">    optimised; all others are held at their default values.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        runner (FranchestynRunner): Fully configured runner instance.</span>
-<span class="sd">        calibration_variable (str): Calibration target scope: &quot;crop&quot;,</span>
-<span class="sd">            &quot;disease&quot;, or &quot;all&quot;.</span>
-<span class="sd">        n_restarts (int): Number of independent Nelder-Mead restarts.</span>
-<span class="sd">        max_iter (int): Maximum iterations per restart.</span>
+<span class="sd">        calibration_variable (str): Calibration target scope: ``&quot;crop&quot;``,</span>
+<span class="sd">            ``&quot;disease&quot;``, or ``&quot;all&quot;``.</span>
+<span class="sd">        n_restarts (int): Number of independent simplexes (random restarts).</span>
+<span class="sd">        max_iter (int): Maximum iterations per simplex.</span>
+<span class="sd">        ftol (float): Convergence tolerance on the objective spread across the</span>
+<span class="sd">            simplex vertices.</span>
+<span class="sd">        disabled_by_class (Optional[Dict[str, Set[str]]]): Parameter names to</span>
+<span class="sd">            exclude from calibration, keyed by parameter class.</span>
+<span class="sd">        seed (Optional[int]): Seed for the random number generator, giving</span>
+<span class="sd">            reproducible restarts. ``None`` (default) is non-deterministic.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -1338,11 +1405,18 @@ FranchestynOptimizer        </code>
         <span class="n">calibration_variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span>
         <span class="n">n_restarts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">ftol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="n">disabled_by_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">runner</span> <span class="o">=</span> <span class="n">runner</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="o">=</span> <span class="n">calibration_variable</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_restarts</span> <span class="o">=</span> <span class="n">n_restarts</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span> <span class="o">=</span> <span class="n">max_iter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ftol</span> <span class="o">=</span> <span class="n">ftol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disabled_by_class</span> <span class="o">=</span> <span class="n">disabled_by_class</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="c1"># Optional RNG seed making the multi-start search reproducible.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
 
         <span class="c1"># Select calibration parameters and record their bounds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_calib_params</span><span class="p">()</span>
@@ -1358,7 +1432,7 @@ FranchestynOptimizer        </code>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Run multi-start Nelder-Mead and return the best parameter set.</span>
+<span class="sd">        Run multi-start simplex and return the best parameter set.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Dict[str, float]: Best-fit parameter values keyed by</span>
@@ -1371,44 +1445,21 @@ FranchestynOptimizer        </code>
 
         <span class="n">best_rmse</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
         <span class="n">best_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+        <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;- Calibrating </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">)</span><span class="si">}</span><span class="s1"> using Nelder-Mead method. </span><span class="se">\n</span><span class="s1">-Parameters: </span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Calibrating </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">)</span><span class="si">}</span><span class="s2"> using multi-start simplex method.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="sa">f</span><span class="s2">&quot;- Parameters:</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">restart</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_restarts</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_current_restart</span> <span class="o">=</span> <span class="n">restart</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_iter_in_restart</span> <span class="o">=</span> <span class="mi">0</span>
 
-            <span class="c1"># Random starting point within parameter bounds</span>
-            <span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
-                <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span>
-            <span class="p">])</span>
-
-            <span class="n">result</span><span class="p">:</span> <span class="n">OptimizeResult</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span><span class="p">,</span>
-                <span class="n">x0</span><span class="p">,</span>
-                <span class="n">method</span><span class="o">=</span><span class="s2">&quot;Nelder-Mead&quot;</span><span class="p">,</span>
-                <span class="n">options</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span><span class="p">,</span>
-                    <span class="s2">&quot;xatol&quot;</span><span class="p">:</span> <span class="mf">1e-4</span><span class="p">,</span>
-                    <span class="s2">&quot;fatol&quot;</span><span class="p">:</span> <span class="mf">1e-4</span><span class="p">,</span>
-                    <span class="s2">&quot;disp&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="p">},</span>
-                <span class="n">callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_iteration</span><span class="p">,</span>
-                <span class="n">bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>  <span class="c1"># used only to clamp in objective</span>
-            <span class="p">)</span>
-
-            <span class="n">rmse</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">fun</span>
-            <span class="c1"># print(</span>
-            <span class="c1">#     # f&quot;\nRestart {restart + 1}/{self.n_restarts} complete  &quot;</span>
-            <span class="c1">#     f&quot;\nIterations={result.nit}  evals={result.nfev}  RMSE={rmse:.4f}&quot;,</span>
-            <span class="c1">#     flush=True,</span>
-            <span class="c1"># )</span>
+            <span class="n">simplex</span><span class="p">,</span> <span class="n">fvals</span><span class="p">,</span> <span class="n">_nit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nelder_mead_single_restart</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+            <span class="n">best_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">fvals</span><span class="p">))</span>
+            <span class="n">rmse</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fvals</span><span class="p">[</span><span class="n">best_idx</span><span class="p">])</span>
 
             <span class="k">if</span> <span class="n">rmse</span> <span class="o">&lt;</span> <span class="n">best_rmse</span><span class="p">:</span>
                 <span class="n">best_rmse</span> <span class="o">=</span> <span class="n">rmse</span>
-                <span class="n">best_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="p">))</span>
+                <span class="n">best_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">,</span> <span class="n">simplex</span><span class="p">[</span><span class="n">best_idx</span><span class="p">]))</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Best RMSE: </span><span class="si">{</span><span class="n">best_rmse</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">best_params</span>
@@ -1418,10 +1469,16 @@ FranchestynOptimizer        </code>
     <span class="c1"># -----------------------------------------------------------------------</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_objective</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;RMSE objective function for scipy.optimize.minimize.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the calibration objective at parameter vector ``x``.</span>
+
+<span class="sd">        Runs the model with the candidate parameters and returns the resulting</span>
+<span class="sd">        RMSE. Candidates that violate the parameter bounds, or that raise during</span>
+<span class="sd">        the run, return a large penalty (``1e300``) so the search avoids the</span>
+<span class="sd">        infeasible region.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_n_eval</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="c1"># Penalise out-of-bounds (mirrors C# behaviour)</span>
+        <span class="c1"># Penalise out-of-bounds candidates with a large finite objective value</span>
         <span class="k">for</span> <span class="n">val</span><span class="p">,</span> <span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">val</span> <span class="o">&lt;=</span> <span class="n">lo</span> <span class="ow">or</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="n">hi</span><span class="p">:</span>
                 <span class="k">return</span> <span class="mf">1e300</span>
@@ -1444,7 +1501,7 @@ FranchestynOptimizer        </code>
         <span class="k">return</span> <span class="n">rmse</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_on_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_xk</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Scipy callback called each optimizer iteration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Progress callback for each simplex iteration.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_iter_in_restart</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">Run </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_restart</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_restarts</span><span class="si">}</span><span class="s2"> Iteration </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_iter_in_restart</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span><span class="si">}</span><span class="s2"> CURR RMSE=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_rmse</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -1466,6 +1523,11 @@ FranchestynOptimizer        </code>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">param_class</span><span class="p">):</span>
                 <span class="k">continue</span>
 
+            <span class="c1"># Explicitly exclude user-deactivated parameters by name.</span>
+            <span class="n">param_name</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">key</span> <span class="k">else</span> <span class="n">key</span>
+            <span class="k">if</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">disabled_by_class</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param_class</span><span class="p">,</span> <span class="nb">set</span><span class="p">()):</span>
+                <span class="k">continue</span>
+
             <span class="c1"># Skip boolean parameters</span>
             <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">is_boolean</span><span class="p">:</span>
                 <span class="k">continue</span>
@@ -1474,6 +1536,103 @@ FranchestynOptimizer        </code>
             <span class="n">bounds</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">p</span><span class="o">.</span><span class="n">minimum</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">maximum</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">calib_keys</span><span class="p">,</span> <span class="n">bounds</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_random_simplex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a random initial simplex fully contained in parameter bounds.&quot;&quot;&quot;</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">)</span>
+        <span class="n">simplex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="c1"># Anchor vertex</span>
+        <span class="n">simplex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span> <span class="k">for</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="c1"># One perturbed vertex per dimension</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">simplex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">span</span> <span class="o">=</span> <span class="n">hi</span> <span class="o">-</span> <span class="n">lo</span>
+            <span class="n">delta</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.05</span> <span class="o">*</span> <span class="n">span</span><span class="p">,</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">span</span><span class="p">)</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.5</span> <span class="k">else</span> <span class="mf">1.0</span>
+            <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">direction</span> <span class="o">*</span> <span class="n">delta</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span>
+            <span class="n">simplex</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+        <span class="k">return</span> <span class="n">simplex</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_nelder_mead_single_restart</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run one Nelder-Mead restart using standard coefficients.&quot;&quot;&quot;</span>
+        <span class="c1"># Standard Nelder-Mead coefficients</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># reflection</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="mf">2.0</span>  <span class="c1"># expansion</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="mf">0.5</span>    <span class="c1"># contraction</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.5</span>  <span class="c1"># shrink</span>
+
+        <span class="n">simplex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_random_simplex</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+        <span class="n">fvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_objective</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">simplex</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="n">nit</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">nit</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span><span class="p">:</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">fvals</span><span class="p">)</span>
+            <span class="n">simplex</span> <span class="o">=</span> <span class="n">simplex</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+            <span class="n">fvals</span> <span class="o">=</span> <span class="n">fvals</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+
+            <span class="c1"># Convergence check driven by the objective spread across vertices</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fvals</span> <span class="o">-</span> <span class="n">fvals</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftol</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="n">centroid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">simplex</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">worst</span> <span class="o">=</span> <span class="n">simplex</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># Reflection</span>
+            <span class="n">xr</span> <span class="o">=</span> <span class="n">centroid</span> <span class="o">+</span> <span class="n">alpha</span> <span class="o">*</span> <span class="p">(</span><span class="n">centroid</span> <span class="o">-</span> <span class="n">worst</span><span class="p">)</span>
+            <span class="n">fr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span><span class="p">(</span><span class="n">xr</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">fvals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">fr</span> <span class="o">&lt;</span> <span class="n">fvals</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]:</span>
+                <span class="n">simplex</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span>
+                <span class="n">fvals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">fr</span>
+            <span class="k">elif</span> <span class="n">fr</span> <span class="o">&lt;</span> <span class="n">fvals</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="c1"># Expansion</span>
+                <span class="n">xe</span> <span class="o">=</span> <span class="n">centroid</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="p">(</span><span class="n">xr</span> <span class="o">-</span> <span class="n">centroid</span><span class="p">)</span>
+                <span class="n">fe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span><span class="p">(</span><span class="n">xe</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">fe</span> <span class="o">&lt;</span> <span class="n">fr</span><span class="p">:</span>
+                    <span class="n">simplex</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">xe</span>
+                    <span class="n">fvals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">fe</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">simplex</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span>
+                    <span class="n">fvals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">fr</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Contraction</span>
+                <span class="k">if</span> <span class="n">fr</span> <span class="o">&lt;</span> <span class="n">fvals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="c1"># Outside contraction</span>
+                    <span class="n">xc</span> <span class="o">=</span> <span class="n">centroid</span> <span class="o">+</span> <span class="n">rho</span> <span class="o">*</span> <span class="p">(</span><span class="n">xr</span> <span class="o">-</span> <span class="n">centroid</span><span class="p">)</span>
+                    <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span><span class="p">(</span><span class="n">xc</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">fc</span> <span class="o">&lt;=</span> <span class="n">fr</span><span class="p">:</span>
+                        <span class="n">simplex</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">xc</span>
+                        <span class="n">fvals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">fc</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Shrink</span>
+                        <span class="n">best</span> <span class="o">=</span> <span class="n">simplex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">simplex</span><span class="p">)):</span>
+                            <span class="n">simplex</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">best</span> <span class="o">+</span> <span class="n">sigma</span> <span class="o">*</span> <span class="p">(</span><span class="n">simplex</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">best</span><span class="p">)</span>
+                            <span class="n">fvals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span><span class="p">(</span><span class="n">simplex</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Inside contraction</span>
+                    <span class="n">xc</span> <span class="o">=</span> <span class="n">centroid</span> <span class="o">-</span> <span class="n">rho</span> <span class="o">*</span> <span class="p">(</span><span class="n">centroid</span> <span class="o">-</span> <span class="n">worst</span><span class="p">)</span>
+                    <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span><span class="p">(</span><span class="n">xc</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">fc</span> <span class="o">&lt;</span> <span class="n">fvals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="n">simplex</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">xc</span>
+                        <span class="n">fvals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">fc</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Shrink</span>
+                        <span class="n">best</span> <span class="o">=</span> <span class="n">simplex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">simplex</span><span class="p">)):</span>
+                            <span class="n">simplex</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">best</span> <span class="o">+</span> <span class="n">sigma</span> <span class="o">*</span> <span class="p">(</span><span class="n">simplex</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">best</span><span class="p">)</span>
+                            <span class="n">fvals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span><span class="p">(</span><span class="n">simplex</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+            <span class="n">nit</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_on_iteration</span><span class="p">(</span><span class="n">simplex</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">simplex</span><span class="p">,</span> <span class="n">fvals</span><span class="p">,</span> <span class="n">nit</span>
 </code></pre></div>
         </details>
 
@@ -1494,15 +1653,15 @@ FranchestynOptimizer        </code>
 
 
 
-<h3 id="simpest.models.fr_optimizer.FranchestynOptimizer.calibrate" class="doc doc-heading">
+<h4 id="simpest.models.fr_optimizer.FranchestynOptimizer.calibrate" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_optimizer.FranchestynOptimizer.calibrate" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#simpest.models.fr_optimizer.FranchestynOptimizer.calibrate" class="headerlink" title="Permanent link">&para;</a></h4>
 
     <div class="doc doc-contents ">
 
-      <p>Run multi-start Nelder-Mead and return the best parameter set.</p>
+      <p>Run multi-start simplex and return the best parameter set.</p>
 
 <p><strong>Returns:</strong></p>
 <table>
@@ -1524,7 +1683,7 @@ FranchestynOptimizer        </code>
           <summary>Source code in <code>simpest/models/fr_optimizer.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Run multi-start Nelder-Mead and return the best parameter set.</span>
+<span class="sd">    Run multi-start simplex and return the best parameter set.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, float]: Best-fit parameter values keyed by</span>
@@ -1537,44 +1696,21 @@ FranchestynOptimizer        </code>
 
     <span class="n">best_rmse</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
     <span class="n">best_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;- Calibrating </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">)</span><span class="si">}</span><span class="s1"> using Nelder-Mead method. </span><span class="se">\n</span><span class="s1">-Parameters: </span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Calibrating </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">)</span><span class="si">}</span><span class="s2"> using multi-start simplex method.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="sa">f</span><span class="s2">&quot;- Parameters:</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">restart</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_restarts</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_restart</span> <span class="o">=</span> <span class="n">restart</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_iter_in_restart</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="c1"># Random starting point within parameter bounds</span>
-        <span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
-            <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span>
-        <span class="p">])</span>
-
-        <span class="n">result</span><span class="p">:</span> <span class="n">OptimizeResult</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span><span class="p">,</span>
-            <span class="n">x0</span><span class="p">,</span>
-            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;Nelder-Mead&quot;</span><span class="p">,</span>
-            <span class="n">options</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span><span class="p">,</span>
-                <span class="s2">&quot;xatol&quot;</span><span class="p">:</span> <span class="mf">1e-4</span><span class="p">,</span>
-                <span class="s2">&quot;fatol&quot;</span><span class="p">:</span> <span class="mf">1e-4</span><span class="p">,</span>
-                <span class="s2">&quot;disp&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="p">},</span>
-            <span class="n">callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_iteration</span><span class="p">,</span>
-            <span class="n">bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>  <span class="c1"># used only to clamp in objective</span>
-        <span class="p">)</span>
-
-        <span class="n">rmse</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">fun</span>
-        <span class="c1"># print(</span>
-        <span class="c1">#     # f&quot;\nRestart {restart + 1}/{self.n_restarts} complete  &quot;</span>
-        <span class="c1">#     f&quot;\nIterations={result.nit}  evals={result.nfev}  RMSE={rmse:.4f}&quot;,</span>
-        <span class="c1">#     flush=True,</span>
-        <span class="c1"># )</span>
+        <span class="n">simplex</span><span class="p">,</span> <span class="n">fvals</span><span class="p">,</span> <span class="n">_nit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nelder_mead_single_restart</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+        <span class="n">best_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">fvals</span><span class="p">))</span>
+        <span class="n">rmse</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fvals</span><span class="p">[</span><span class="n">best_idx</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="n">rmse</span> <span class="o">&lt;</span> <span class="n">best_rmse</span><span class="p">:</span>
             <span class="n">best_rmse</span> <span class="o">=</span> <span class="n">rmse</span>
-            <span class="n">best_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="p">))</span>
+            <span class="n">best_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">,</span> <span class="n">simplex</span><span class="p">[</span><span class="n">best_idx</span><span class="p">]))</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Best RMSE: </span><span class="si">{</span><span class="n">best_rmse</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">best_params</span>
@@ -1705,6 +1841,10 @@ FranchestynOptimizer        </code>
         <script src="../../js/timeago.min.js"></script>
       
         <script src="../../js/timeago_mkdocs_material.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>

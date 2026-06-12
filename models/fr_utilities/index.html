@@ -1011,14 +1011,15 @@
   <a href="#simpest.models.fr_utilities" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_utilities
+        fr_utilities
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="fr_utilities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_utilities.rain_detachment" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1028,8 +1029,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_utilities.t_response" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1037,6 +1038,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1178,14 +1184,15 @@
   <a href="#simpest.models.fr_utilities" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_utilities
+        fr_utilities
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="fr_utilities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_utilities.rain_detachment" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1195,8 +1202,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_utilities.t_response" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1204,6 +1211,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1235,16 +1247,22 @@
 
   <div class="doc doc-object doc-module">
 
-<a id="simpest.models.fr_utilities"></a>
+
+
+<h2 id="simpest.models.fr_utilities" class="doc doc-heading">
+        <code>simpest.models.fr_utilities</code>
+
+
+
+<a href="#simpest.models.fr_utilities" class="headerlink" title="Permanent link">&para;</a></h2>
+
     <div class="doc doc-contents first">
 
-      <p>utilities.py – Biophysical helper functions for the FraNchEstYN model.</p>
-<p>Translated from utilities.cs.</p>
-<p>ReadFileOrExitsParameters was intentionally skipped in utilities.py. The C# ReadFileOrExitsParameters 
-in utilities.cs is just a thin wrapper: In the Python rewrite, calibrated_read() was translated 
-directly into param_reader.py:87 as a standalone function. Since the wrapper added no logic 
-(the variety argument was even noted as "currently unused"), there was no need to reproduce 
-it in utilities.py.</p>
+      <p>Biophysical helper functions shared across the model.</p>
+<p>This module provides small, stateless functions that encode reusable
+biophysical relationships, such as the cardinal-temperature response used by
+both the crop and disease sub-models and the rainfall-driven spore detachment
+index used by the disease model.</p>
 
 
 
@@ -1261,20 +1279,21 @@ it in utilities.py.</p>
 
 
 
-<h2 id="simpest.models.fr_utilities.rain_detachment" class="doc doc-heading">
+<h3 id="simpest.models.fr_utilities.rain_detachment" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">rain_detachment</span><span class="p">(</span><span class="n">rainfall</span><span class="p">,</span> <span class="n">rain50</span><span class="p">,</span> <span class="n">f_int</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_utilities.rain_detachment" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_utilities.rain_detachment" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
-      <p>Rain-driven spore detachment index (dimensionless, 0–1).</p>
-<p>Saturates as rainfall increases relative to the capacity term (rain50 × fInt).</p>
-<div class="admonition formula">
-<p class="admonition-title">Formula</p>
-<p>detachment = rainfall / (rain50 * f_int + rainfall)</p>
-</div>
+      <p>Rain-driven spore detachment index.</p>
+<p>Returns a dimensionless index in <code>[0, 1]</code> that saturates as rainfall
+increases relative to the canopy-scaled half-saturation term:</p>
+<div class="arithmatex">\[
+\text{detachment} = \frac{\text{rainfall}}
+                          {\text{rain50} \cdot f_{int} + \text{rainfall}}
+\]</div>
 
 <p><strong>Parameters:</strong></p>
 <table>
@@ -1290,40 +1309,62 @@ it in utilities.py.</p>
       <tr>
         <td><code>rainfall</code></td>
         <td><code>float</code></td>
-        <td><p>precipitation (mm) over the time step</p></td>
+        <td><p>Precipitation over the time step (mm).</p></td>
         <td><em>required</em></td>
       </tr>
       <tr>
         <td><code>rain50</code></td>
         <td><code>float</code></td>
-        <td><p>half-saturation parameter (mm) – rainfall giving ~0.5 when fInt = 1</p></td>
+        <td><p>Half-saturation parameter (mm); the rainfall that yields
+an index of about 0.5 at full canopy (<code>f_int = 1</code>).</p></td>
         <td><em>required</em></td>
       </tr>
       <tr>
         <td><code>f_int</code></td>
         <td><code>float</code></td>
-        <td><p>light interception fraction</p></td>
+        <td><p>Light interception fraction in <code>[0, 1]</code>.</p></td>
         <td><em>required</em></td>
       </tr>
   </tbody>
-</table>      <p>Returns 0.0 when rainfall is 0 or denominator is 0.</p>
-
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>float</code></td>
+      <td><p>Detachment index in <code>[0, 1]</code>; <code>0.0</code> when rainfall is zero or
+the denominator is zero.</p></td>
+    </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_utilities.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">rain_detachment</span><span class="p">(</span><span class="n">rainfall</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rain50</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">f_int</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rain-driven spore detachment index (dimensionless, 0–1).</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rain-driven spore detachment index.</span>
 
-<span class="sd">    Saturates as rainfall increases relative to the capacity term (rain50 × fInt).</span>
+<span class="sd">    Returns a dimensionless index in ``[0, 1]`` that saturates as rainfall</span>
+<span class="sd">    increases relative to the canopy-scaled half-saturation term:</span>
 
-<span class="sd">    Formula:</span>
-<span class="sd">        detachment = rainfall / (rain50 * f_int + rainfall)</span>
+<span class="sd">    $$</span>
+<span class="sd">    \\text{detachment} = \\frac{\\text{rainfall}}</span>
+<span class="sd">                              {\\text{rain50} \\cdot f_{int} + \\text{rainfall}}</span>
+<span class="sd">    $$</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        rainfall:  precipitation (mm) over the time step</span>
-<span class="sd">        rain50:    half-saturation parameter (mm) – rainfall giving ~0.5 when fInt = 1</span>
-<span class="sd">        f_int:     light interception fraction</span>
+<span class="sd">        rainfall (float): Precipitation over the time step (mm).</span>
+<span class="sd">        rain50 (float): Half-saturation parameter (mm); the rainfall that yields</span>
+<span class="sd">            an index of about 0.5 at full canopy (``f_int = 1``).</span>
+<span class="sd">        f_int (float): Light interception fraction in ``[0, 1]``.</span>
 
-<span class="sd">    Returns 0.0 when rainfall is 0 or denominator is 0.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Detachment index in ``[0, 1]``; ``0.0`` when rainfall is zero or</span>
+<span class="sd">        the denominator is zero.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">denominator</span> <span class="o">=</span> <span class="p">(</span><span class="n">rain50</span> <span class="o">*</span> <span class="n">f_int</span><span class="p">)</span> <span class="o">+</span> <span class="n">rainfall</span>
     <span class="k">if</span> <span class="n">denominator</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
@@ -1341,37 +1382,102 @@ it in utilities.py.</p>
 
 
 
-<h2 id="simpest.models.fr_utilities.t_response" class="doc doc-heading">
+<h3 id="simpest.models.fr_utilities.t_response" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">t_response</span><span class="p">(</span><span class="n">t_ave</span><span class="p">,</span> <span class="n">t_base</span><span class="p">,</span> <span class="n">t_opt</span><span class="p">,</span> <span class="n">t_max</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_utilities.t_response" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_utilities.t_response" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
-      <p>Beta-shaped temperature response function.</p>
-<p>Returns a dimensionless efficiency in [0, 1] as a function of the average
-temperature <em>t_ave</em> relative to the cardinal temperatures <em>t_base</em>
-(minimum), <em>t_opt</em> (optimum), and <em>t_max</em> (maximum).</p>
-<p>Formula (when t_base &lt; t_ave &lt; t_max):
-    f = ((t_max - t_ave) / (t_max - t_opt))
-        * ((t_ave - t_base) / (t_opt - t_base)) ** ((t_opt - t_base) / (t_max - t_opt))</p>
-<p>Returns 0 outside [t_base, t_max].</p>
+      <p>Beta-shaped cardinal-temperature response function.</p>
+<p>Returns a dimensionless growth or development efficiency in the range
+<code>[0, 1]</code> that peaks at the optimum temperature and falls to zero at the
+base and maximum temperatures. For <code>t_base &lt; t_ave &lt; t_max</code> the response is</p>
+<div class="arithmatex">\[
+f = \frac{t_{max} - t_{ave}}{t_{max} - t_{opt}}
+    \left(\frac{t_{ave} - t_{base}}{t_{opt} - t_{base}}\right)
+    ^{\frac{t_{opt} - t_{base}}{t_{max} - t_{opt}}}
+\]</div>
+<p>and <code>0</code> outside the interval <code>[t_base, t_max]</code>.</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>t_ave</code></td>
+        <td><code>float</code></td>
+        <td><p>Average temperature for the step (°C).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>t_base</code></td>
+        <td><code>float</code></td>
+        <td><p>Base (minimum) cardinal temperature (°C).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>t_opt</code></td>
+        <td><code>float</code></td>
+        <td><p>Optimum cardinal temperature (°C).</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>t_max</code></td>
+        <td><code>float</code></td>
+        <td><p>Maximum cardinal temperature (°C).</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>float</code></td>
+      <td><p>Temperature response factor in <code>[0, 1]</code>.</p></td>
+    </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_utilities.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">t_response</span><span class="p">(</span><span class="n">t_ave</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t_base</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t_opt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t_max</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Beta-shaped temperature response function.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Beta-shaped cardinal-temperature response function.</span>
 
-<span class="sd">    Returns a dimensionless efficiency in [0, 1] as a function of the average</span>
-<span class="sd">    temperature *t_ave* relative to the cardinal temperatures *t_base*</span>
-<span class="sd">    (minimum), *t_opt* (optimum), and *t_max* (maximum).</span>
+<span class="sd">    Returns a dimensionless growth or development efficiency in the range</span>
+<span class="sd">    ``[0, 1]`` that peaks at the optimum temperature and falls to zero at the</span>
+<span class="sd">    base and maximum temperatures. For ``t_base &lt; t_ave &lt; t_max`` the response is</span>
 
-<span class="sd">    Formula (when t_base &lt; t_ave &lt; t_max):</span>
-<span class="sd">        f = ((t_max - t_ave) / (t_max - t_opt))</span>
-<span class="sd">            * ((t_ave - t_base) / (t_opt - t_base)) ** ((t_opt - t_base) / (t_max - t_opt))</span>
+<span class="sd">    $$</span>
+<span class="sd">    f = \\frac{t_{max} - t_{ave}}{t_{max} - t_{opt}}</span>
+<span class="sd">        \\left(\\frac{t_{ave} - t_{base}}{t_{opt} - t_{base}}\\right)</span>
+<span class="sd">        ^{\\frac{t_{opt} - t_{base}}{t_{max} - t_{opt}}}</span>
+<span class="sd">    $$</span>
 
-<span class="sd">    Returns 0 outside [t_base, t_max].</span>
+<span class="sd">    and ``0`` outside the interval ``[t_base, t_max]``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        t_ave (float): Average temperature for the step (°C).</span>
+<span class="sd">        t_base (float): Base (minimum) cardinal temperature (°C).</span>
+<span class="sd">        t_opt (float): Optimum cardinal temperature (°C).</span>
+<span class="sd">        t_max (float): Maximum cardinal temperature (°C).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Temperature response factor in ``[0, 1]``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">t_ave</span> <span class="o">&lt;=</span> <span class="n">t_base</span> <span class="ow">or</span> <span class="n">t_ave</span> <span class="o">&gt;=</span> <span class="n">t_max</span><span class="p">:</span>
         <span class="k">return</span> <span class="mf">0.0</span>
@@ -1497,6 +1603,10 @@ temperature <em>t_ave</em> relative to the cardinal temperatures <em>t_base</em>
         <script src="../../js/timeago.min.js"></script>
       
         <script src="../../js/timeago_mkdocs_material.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>

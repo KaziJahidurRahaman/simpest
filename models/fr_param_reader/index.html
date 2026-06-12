@@ -1039,14 +1039,15 @@
   <a href="#simpest.models.fr_param_reader" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_param_reader
+        fr_param_reader
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="fr_param_reader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_param_reader.calibrated_read" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1056,8 +1057,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_param_reader.read" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1067,8 +1068,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_param_reader.read_by_crop" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1078,8 +1079,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_param_reader.read_crop_parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1089,8 +1090,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_param_reader.read_disease_parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1100,8 +1101,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_param_reader.read_fungicide_parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1109,6 +1110,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1222,14 +1228,15 @@
   <a href="#simpest.models.fr_param_reader" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simpest.models.fr_param_reader
+        fr_param_reader
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="fr_param_reader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_param_reader.calibrated_read" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1239,8 +1246,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_param_reader.read" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1250,8 +1257,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_param_reader.read_by_crop" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1261,8 +1268,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_param_reader.read_crop_parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1272,8 +1279,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_param_reader.read_disease_parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1283,8 +1290,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#simpest.models.fr_param_reader.read_fungicide_parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1292,6 +1299,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1323,25 +1335,76 @@
 
   <div class="doc doc-object doc-module">
 
-<a id="simpest.models.fr_param_reader"></a>
+
+
+<h2 id="simpest.models.fr_param_reader" class="doc doc-heading">
+        <code>simpest.models.fr_param_reader</code>
+
+
+
+<a href="#simpest.models.fr_param_reader" class="headerlink" title="Permanent link">&para;</a></h2>
+
     <div class="doc doc-contents first">
 
-      <p>param_reader.py – Reads FraNchEstYN parameter CSV files.</p>
-<p>Translated from readers/paramReader.cs.</p>
-<p>CSV format (franchestynParameters.csv):
-  col 0: Name
-  col 1: Class
-  col 2: Description   (ignored)
-  col 3: Unit          (ignored)
-  col 4: Min
-  col 5: Max
-  col 6: Value
-  col 7: CalibrationSubset</p>
-<p>Dictionary key: "Name_Class"</p>
-<p>Calibrated output CSV format:
-  col 0: Name
-  col 1: Class
-  col 2: Value</p>
+      <p>Readers for model parameter definitions.</p>
+<p>Parameters can be supplied either as a flat CSV table or as modular JSON files
+organised by crop, disease, and fungicide type. Each reader returns a dictionary
+keyed by <code>"Class_ParamName"</code> (for example <code>"crop_TbaseCrop"</code>) whose values
+are :class:<code>~simpest.models.fr_data.Parameter</code> objects carrying the numeric
+value together with the calibration bounds.</p>
+<p>Parameter definition CSV columns:</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Field</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Name</td>
+<td>Parameter class</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Class</td>
+<td>Parameter name</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Description</td>
+<td>Ignored</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Unit</td>
+<td>Ignored</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Min</td>
+<td>Lower calibration bound</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Max</td>
+<td>Upper calibration bound</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Value</td>
+<td>Default value</td>
+</tr>
+<tr>
+<td>7</td>
+<td>CalibrationSubset</td>
+<td>Calibration inclusion tag</td>
+</tr>
+</tbody>
+</table>
+<p>Calibrated-output CSV columns are <code>Name</code>, <code>Class</code>, and <code>Value</code>.</p>
 
 
 
@@ -1358,11 +1421,11 @@
 
 
 
-<h2 id="simpest.models.fr_param_reader.calibrated_read" class="doc doc-heading">
+<h3 id="simpest.models.fr_param_reader.calibrated_read" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">calibrated_read</span><span class="p">(</span><span class="n">file</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_param_reader.calibrated_read" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_param_reader.calibrated_read" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
@@ -1382,8 +1445,8 @@
       <tr>
         <td><code>file</code></td>
         <td><code>str | Path</code></td>
-        <td><p>Path to the calibrated parameters CSV.  If the file does not
-  exist, an empty dict is returned (matching C# behaviour).</p></td>
+        <td><p>Path to the calibrated parameters CSV. If the file does not
+  exist, an empty dict is returned.</p></td>
         <td><em>required</em></td>
       </tr>
   </tbody>
@@ -1409,8 +1472,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a calibrated output CSV and return a dict keyed &#39;Name_Class&#39;.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        file: Path to the calibrated parameters CSV.  If the file does not</span>
-<span class="sd">              exist, an empty dict is returned (matching C# behaviour).</span>
+<span class="sd">        file: Path to the calibrated parameters CSV. If the file does not</span>
+<span class="sd">              exist, an empty dict is returned.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dictionary mapping &#39;ParamName_ClassName&#39; → calibrated float value.</span>
@@ -1449,11 +1512,11 @@
 
 
 
-<h2 id="simpest.models.fr_param_reader.read" class="doc doc-heading">
+<h3 id="simpest.models.fr_param_reader.read" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">read</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">calibration_variable</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_param_reader.read" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_param_reader.read" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
@@ -1568,11 +1631,11 @@
 
 
 
-<h2 id="simpest.models.fr_param_reader.read_by_crop" class="doc doc-heading">
+<h3 id="simpest.models.fr_param_reader.read_by_crop" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">read_by_crop</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">crop_type</span><span class="o">=</span><span class="s1">&#39;wheat&#39;</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_param_reader.read_by_crop" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_param_reader.read_by_crop" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
@@ -1679,11 +1742,11 @@ Returns empty dict if crop_type not found.</p></td>
 
 
 
-<h2 id="simpest.models.fr_param_reader.read_crop_parameters" class="doc doc-heading">
+<h3 id="simpest.models.fr_param_reader.read_crop_parameters" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">read_crop_parameters</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">crop_type</span><span class="o">=</span><span class="s1">&#39;wheat&#39;</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_param_reader.read_crop_parameters" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_param_reader.read_crop_parameters" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
@@ -1780,11 +1843,11 @@ Raises ValueError if crop_type not found.</p></td>
 
 
 
-<h2 id="simpest.models.fr_param_reader.read_disease_parameters" class="doc doc-heading">
+<h3 id="simpest.models.fr_param_reader.read_disease_parameters" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">read_disease_parameters</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">disease_type</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_param_reader.read_disease_parameters" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_param_reader.read_disease_parameters" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
@@ -1890,11 +1953,11 @@ Raises ValueError if disease_type not found.</p></td>
 
 
 
-<h2 id="simpest.models.fr_param_reader.read_fungicide_parameters" class="doc doc-heading">
+<h3 id="simpest.models.fr_param_reader.read_fungicide_parameters" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">read_fungicide_parameters</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fungicide_type</span><span class="o">=</span><span class="s1">&#39;protectant&#39;</span><span class="p">)</span></code>
 
 
-<a href="#simpest.models.fr_param_reader.read_fungicide_parameters" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#simpest.models.fr_param_reader.read_fungicide_parameters" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
@@ -2095,6 +2158,10 @@ Raises ValueError if fungicide_type not found.</p></td>
         <script src="../../js/timeago.min.js"></script>
       
         <script src="../../js/timeago_mkdocs_material.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>
