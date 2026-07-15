@@ -110,8 +110,11 @@ class FranchestynOptimizer:
             if rmse < best_rmse:
                 best_rmse = rmse
                 best_params = dict(zip(self.calib_keys, simplex[best_idx]))
-
+    
         print(f"\nBest RMSE: {best_rmse:.4f}")
+
+        print(best_params)
+
         return best_params
 
     # -----------------------------------------------------------------------

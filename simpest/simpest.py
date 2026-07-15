@@ -9,8 +9,9 @@ import simpest.models.franchestyn as franchestyn_mod
 
 
 def run_pipeline(
-    implace_config: simplace_mod.SimplaceConfig,
+    simplace_config: simplace_mod.SimplaceConfig,
     franchestyn_config: franchestyn_mod.FranchestynConfig,
+    reference_df: pd.DataFrame,
     project_lines: list[int],
     shutdown_simplace: bool = False,
 ) -> dict:
@@ -27,7 +28,9 @@ def run_pipeline(
         simplace_config (simplace_mod.SimplaceConfig):
             Configuration object for SIMPLACE (install, work, output, solution, project paths).
         franchestyn_config (franchestyn_mod.FranchestynConfig):
-            Configuration object for FraNchEstYN (reference, crop, disease, site, etc.).
+            Configuration object for FraNchEstYN (crop, disease, site, etc.).
+        reference_df (pd.DataFrame):
+            In-memory reference data for FraNchEstYN.
         project_lines (list of int):
             List of project line indices to run in SIMPLACE (usually [1]).
         shutdown_simplace (bool, optional):
@@ -75,13 +78,18 @@ def run_pipeline(
             yearly_sowing_doy=yearly_sowing_doy,
         )
 
+        crop_model_df = pd.read_csv(crop_model_path)
+        weather_df = pd.read_csv(weather_path)
+        management_df = pd.read_csv(management_path)
+
         result = franchestyn_mod.run_franchestyn(
-            weather_path=str(weather_path),
-            management_path=str(management_path),
-            cropmodel_path=str(crop_model_path),
             start_year=start_year,
             end_year=end_year,
             config=franchestyn_config,
+            weather_df=weather_df,
+            management_df=management_df,
+            crop_model_df=crop_model_df,
+            ref_df=reference_df,
         )
 
         summary = result.get("outputs", {}).get("summary", {})

@@ -249,47 +249,122 @@ def extract_yearly_sowing_doy(
     return {year: default_sowing_doy for year in range(start_year, end_year + 1)}
 
 
+# def export_crop_model_data(output_root: Path, project_row: dict) -> Path:
+#     """
+#     Export crop model data from Simplace daily output to a CSV file for FraNchEstYN.
+
+#     Args:
+#         output_root (Path): Output root directory.
+#         project_row (dict): Project row dictionary.
+
+#     Returns:
+#         Path: Path to the exported crop model CSV file.
+#     """
+#     src = output_root / "SimulationExperimentTemplate" / f"{project_row['location']}{project_row['iopt']}_daily.csv"
+#     dst = output_root / "SimulationExperimentTemplate" / "cropModel_data.csv"
+
+#     with src.open(newline="", encoding="utf-8") as f_in, dst.open("w", newline="", encoding="utf-8") as f_out:
+#         reader = csv.DictReader(f_in, delimiter=";")
+#         writer = csv.DictWriter(
+#             f_out,
+#             fieldnames=["year", "doy", "agb", "yield", "fint", "lai", "gdd"],
+#             delimiter=",",
+#         )
+#         writer.writeheader()
+
+#         for row in reader:
+#             if all(float(row[name]) == 0.0 for name in ("TAGB", "WSO", "FINT", "LAI")):
+#                 continue
+
+#             d = datetime.strptime(row["CURRENT.DATE"], "%d.%m.%Y")
+#             writer.writerow(
+#                 {
+#                     "year": d.year,
+#                     "doy": d.timetuple().tm_yday,
+#                     "agb": float(row["TAGB"]) * 10,
+#                     "yield": float(row["WSO"]) * 10,
+#                     "fint": row["FINT"],
+#                     "lai": row["LAI"],
+#                     "gdd": row["TSUM"],
+#                 }
+#             )
+#     return dst
+
+
 def export_crop_model_data(output_root: Path, project_row: dict) -> Path:
-    """
-    Export crop model data from Simplace daily output to a CSV file for FraNchEstYN.
+    """Exports daily SIMPLACE outputs to FraNchEstYN crop model format.
+
+    The exported CSV contains the variables required by FraNchEstYN for
+    coupling with an external crop model.
+
+    Expected output units:
+        - agb: g/m²
+        - yield: g/m²
+        - fint: fraction (0–1)
+        - lai: m²/m²
+        - gdd: °C·day
+
+    Notes:
+        SIMPLACE (LINTUL5) already exports ``TAGB`` and ``WSO`` in g/m².
+        Therefore, no unit conversion is applied.
 
     Args:
-        output_root (Path): Output root directory.
-        project_row (dict): Project row dictionary.
+        output_root: Root directory containing the
+            ``SimulationExperimentTemplate`` folder.
+        project_row: Dictionary containing project information. Must include
+            the keys ``location`` and ``iopt``.
 
     Returns:
-        Path: Path to the exported crop model CSV file.
-    """
-    src = output_root / "SimulationExperimentTemplate" / f"{project_row['location']}{project_row['iopt']}_daily.csv"
-    dst = output_root / "SimulationExperimentTemplate" / "cropModel_data.csv"
+        Path to the exported ``cropModel_data.csv`` file.
 
-    with src.open(newline="", encoding="utf-8") as f_in, dst.open("w", newline="", encoding="utf-8") as f_out:
+    Raises:
+        FileNotFoundError: If the SIMPLACE daily output file does not exist.
+        KeyError: If required columns are missing from the input CSV.
+        ValueError: If numeric conversion of required variables fails.
+    """
+    sim_dir = output_root / "SimulationExperimentTemplate"
+
+    src = sim_dir / f"{project_row['location']}{project_row['iopt']}_daily.csv"
+    dst = sim_dir / "cropModel_data.csv"
+
+    if not src.exists():
+        raise FileNotFoundError(f"SIMPLACE daily output not found: {src}")
+
+    with src.open("r", newline="", encoding="utf-8") as f_in, \
+         dst.open("w", newline="", encoding="utf-8") as f_out:
+
         reader = csv.DictReader(f_in, delimiter=";")
-        writer = csv.DictWriter(
-            f_out,
-            fieldnames=["year", "doy", "agb", "yield", "fint", "lai", "gdd"],
-            delimiter=",",
-        )
+
+        writer = csv.DictWriter(f_out, fieldnames=["year", "doy", "agb", "yield", "fint", "lai", "gdd"],)
         writer.writeheader()
 
         for row in reader:
-            if all(float(row[name]) == 0.0 for name in ("TAGB", "WSO", "FINT", "LAI")):
+
+            agb = float(row["TAGB"])
+            yield_ = float(row["WSO"])
+            fint = float(row["FINT"])
+            lai = float(row["LAI"])
+            gdd = float(row["TSUM"])
+
+            # Skip rows before crop emergence.
+            if agb == 0.0 and yield_ == 0.0 and fint == 0.0 and lai == 0.0:
                 continue
 
-            d = datetime.strptime(row["CURRENT.DATE"], "%d.%m.%Y")
+            date = datetime.strptime(row["CURRENT.DATE"], "%d.%m.%Y")
+
             writer.writerow(
                 {
-                    "year": d.year,
-                    "doy": d.timetuple().tm_yday,
-                    "agb": float(row["TAGB"]) * 10,
-                    "yield": float(row["WSO"]) * 10,
-                    "fint": row["FINT"],
-                    "lai": row["LAI"],
-                    "gdd": row["TSUM"],
+                    "year": date.year,
+                    "doy": date.timetuple().tm_yday,
+                    "agb": agb,
+                    "yield": yield_,
+                    "fint": fint,
+                    "lai": lai,
+                    "gdd": gdd,
                 }
             )
-    return dst
 
+    return dst
 
 def _saturation_vapor_pressure(t_celsius: float) -> float:
     """

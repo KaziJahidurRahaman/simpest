@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -9,44 +10,6 @@ import numpy as np
 import pandas as pd
 from .fr_optimizer import FranchestynOptimizer
 from .fr_runner import FranchestynRunner
-
-
-def _resolve_default_reference() -> str:
-    """
-    Resolve a local default reference CSV using repository files only.
-
-    Returns:
-        str: Path to the default reference CSV file.
-    """
-    repo_root = Path(__file__).resolve().parents[2]
-    candidates = [
-        repo_root
-        / "franchestyn"
-        / "src_csharp"
-        / "FraNchEstYN"
-        / "FraNchEstYN"
-        / "files"
-        / "reference"
-        / "Indiana.csv",
-        repo_root
-        / "franchestyn"
-        / "src_csharp"
-        / "FraNchEstYN"
-        / "FraNchEstYN"
-        / "bin"
-        / "Debug"
-        / "net8.0"
-        / "files"
-        / "reference"
-        / "Indiana.csv",
-    ]
-
-    for path in candidates:
-        if path.exists():
-            return str(path)
-
-    # Fall back to a repository-local canonical path if files are not present yet.
-    return str(candidates[0])
 
 
 def _resolve_local_model_file(filename: str) -> str:
@@ -87,7 +50,6 @@ class FranchestynConfig:
         crop_param_file (str): Path to crop parameter file.
         disease_param_file (str): Path to disease parameter file.
         fungicide_param_file (str): Path to fungicide parameter file.
-        reference_path (str): Path to reference CSV.
         crop_type (str): Crop type (e.g., 'wheat').
         disease_type (str): Disease type (e.g., 'septoria'). Also the disease
             on/off switch — ``None`` skips the disease model entirely, giving a
@@ -121,7 +83,6 @@ class FranchestynConfig:
     crop_param_file: str = field(default_factory=lambda: _resolve_local_model_file("fr_crop_parameters.json"))
     disease_param_file: str = field(default_factory=lambda: _resolve_local_model_file("fr_disease_parameters.json"))
     fungicide_param_file: str = field(default_factory=lambda: _resolve_local_model_file("fr_fungicide_parameters.json"))
-    reference_path: str = _resolve_default_reference()
     crop_type: str = "wheat"
     disease_type: str = "septoria"
     fungicide_type: str | None = "protectant"
@@ -186,26 +147,28 @@ def _outputs_to_records(date_outputs):
 
 
 def run_franchestyn(
-    weather_path: str,
-    management_path: str,
     start_year: int,
     end_year: int,
     config: FranchestynConfig,
-    cropmodel_path: str | None = None,
+    weather_df: pd.DataFrame,
+    management_df: pd.DataFrame,
+    crop_model_df: pd.DataFrame,
+    ref_df: pd.DataFrame,
     crop_param_file: str | None = None,
     disease_param_file: str | None = None,
     fungicide_param_file: str | None = None,
 ) -> dict:
     """
-    Run the FraNchEstYN model with the given configuration and input files.
+    Run the FraNchEstYN model with in-memory DataFrame inputs.
 
     Args:
-        weather_path (str): Path to weather input file.
-        management_path (str): Path to management input file.
         start_year (int): Start year for simulation.
         end_year (int): End year for simulation.
         config (FranchestynConfig): FraNchEstYN configuration object.
-        cropmodel_path (str|None, optional): Path to crop model data file.
+        weather_df (pd.DataFrame): In-memory weather input.
+        management_df (pd.DataFrame): In-memory management input.
+        crop_model_df (pd.DataFrame): In-memory crop model input.
+        ref_df (pd.DataFrame): In-memory reference input.
         crop_param_file (str|None, optional): Path to crop parameter file.
         disease_param_file (str|None, optional): Path to disease parameter file.
         fungicide_param_file (str|None, optional): Path to fungicide parameter file.
@@ -217,48 +180,68 @@ def run_franchestyn(
     disease_param_file = disease_param_file or config.disease_param_file
     fungicide_param_file = fungicide_param_file or config.fungicide_param_file
 
-    runner = FranchestynRunner(
-        weather_dir=weather_path,
-        param_file=config.param_file,
-        sowing_file=management_path,
-        ref_dir=config.reference_path,
-        crop_model_dir=cropmodel_path,
-        site=config.site,
-        variety=config.variety,
-        disease=config.disease,
-        start_year=start_year,
-        end_year=end_year,
-        weather_time_step="daily",
-        calibration_variable=config.calibration_variable,
-        is_calibration=config.is_calibration,
-        use_gdd=config.use_gdd,
-        use_prev_day_alignment=config.use_prev_day_alignment,
-        all_row_includes_end_year=config.all_row_includes_end_year,
-        crop_type=config.crop_type,
-        crop_param_file=crop_param_file,
-        disease_param_file=disease_param_file,
-        disease_type=config.disease_type,
-        fungicide_param_file=fungicide_param_file,
-        fungicide_type=config.fungicide_type,
-    )
+    if weather_df is None or weather_df.empty:
+        raise ValueError("weather_df must be a non-empty DataFrame.")
+    if management_df is None or management_df.empty:
+        raise ValueError("management_df must be a non-empty DataFrame.")
+    if crop_model_df is None or crop_model_df.empty:
+        raise ValueError("crop_model_df must be a non-empty DataFrame.")
+    if ref_df is None or ref_df.empty:
+        raise ValueError("ref_df must be a non-empty DataFrame.")
 
-    best_params = {}
-    if config.is_calibration:
-        disabled_by_class = {
-            "crop": set(config.crop_disabled_params),
-            "disease": set(config.disease_disabled_params),
-        }
-        optimizer = FranchestynOptimizer(
-            runner=runner,
+    def _write_temp_csv(df: pd.DataFrame, tmp_dir: str, name: str) -> str:
+        path = Path(tmp_dir) / name
+        df.to_csv(path, index=False)
+        return str(path)
+
+    with tempfile.TemporaryDirectory(prefix="simpest_franchestyn_") as tmp_dir:
+        weather_input = _write_temp_csv(weather_df, tmp_dir, "weather.csv")
+        management_input = _write_temp_csv(management_df, tmp_dir, "management.csv")
+        crop_model_input = _write_temp_csv(crop_model_df, tmp_dir, "crop_model.csv")
+        reference_input = _write_temp_csv(ref_df, tmp_dir, "reference.csv")
+
+        runner = FranchestynRunner(
+            weather_dir=weather_input,
+            param_file=config.param_file,
+            sowing_file=management_input,
+            ref_dir=reference_input,
+            crop_model_dir=crop_model_input,
+            site=config.site,
+            variety=config.variety,
+            disease=config.disease,
+            start_year=start_year,
+            end_year=end_year,
+            weather_time_step="daily",
             calibration_variable=config.calibration_variable,
-            n_restarts=config.n_restarts,
-            max_iter=config.max_iter,
-            disabled_by_class=disabled_by_class,
+            is_calibration=config.is_calibration,
+            use_gdd=config.use_gdd,
+            use_prev_day_alignment=config.use_prev_day_alignment,
+            all_row_includes_end_year=config.all_row_includes_end_year,
+            crop_type=config.crop_type,
+            crop_param_file=crop_param_file,
+            disease_param_file=disease_param_file,
+            disease_type=config.disease_type,
+            fungicide_param_file=fungicide_param_file,
+            fungicide_type=config.fungicide_type,
         )
-        best_params = optimizer.calibrate()
-        date_outputs = runner.run(param_values=best_params)
-    else:
-        date_outputs = runner.run()
+
+        best_params = {}
+        if config.is_calibration:
+            disabled_by_class = {
+                "crop": set(config.crop_disabled_params),
+                "disease": set(config.disease_disabled_params),
+            }
+            optimizer = FranchestynOptimizer(
+                runner=runner,
+                calibration_variable=config.calibration_variable,
+                n_restarts=config.n_restarts,
+                max_iter=config.max_iter,
+                disabled_by_class=disabled_by_class,
+            )
+            best_params = optimizer.calibrate()
+            date_outputs = runner.run(param_values=best_params)
+        else:
+            date_outputs = runner.run()
 
     include_crop = config.calibration_variable in ("crop", "all")
     include_disease = config.calibration_variable in ("disease", "all")
