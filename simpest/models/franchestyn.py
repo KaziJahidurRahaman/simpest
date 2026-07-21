@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from .fr_optimizer import FranchestynOptimizer
+from .fr_param_reader import load_crop_specs, load_disease_specs, load_fungicide_specs
 from .fr_runner import FranchestynRunner
 
 
@@ -25,14 +26,26 @@ def _resolve_local_model_file(filename: str) -> str:
     return str(Path(__file__).with_name(filename))
 
 
-def deactivate_calibration(params: dict, disable_list) -> None:
+def deactivate_calibration(params: dict, disable_list) -> dict:
     """
     Disable calibration for selected parameter names in a parameter section.
 
+    Mirrors the FraNchEstYN R convention: each parameter carries a boolean
+    ``calibration`` flag, and deactivating a parameter simply forces that flag
+    to ``False``. The calibrator then skips any parameter whose flag is off.
+
+    The ``params`` mapping is mutated in place *and* returned, so both
+    ``deactivate_calibration(specs, names)`` and
+    ``specs = deactivate_calibration(specs, names)`` are valid.
+
     Args:
-        params (dict): Mapping of parameter name to parameter specification dict.
+        params (dict): Mapping of parameter name to parameter specification dict
+            (e.g. ``config.crop_parameters``).
         disable_list (Iterable[str]): Parameter names for which calibration
-            should be forced to False.
+            should be forced to ``False``.
+
+    Returns:
+        dict: The same ``params`` mapping, with the selected flags set to False.
     """
     for param_name in disable_list:
         if param_name in params:
@@ -40,7 +53,7 @@ def deactivate_calibration(params: dict, disable_list) -> None:
     return params
 
 
-@dataclass(frozen=True)
+@dataclass
 class FranchestynConfig:
     """
     Configuration for FraNchEstYN model runs.
@@ -74,10 +87,20 @@ class FranchestynConfig:
             includes it. Has no effect for per-year sowing CSVs.
         n_restarts (int): Number of calibration restarts.
         max_iter (int): Maximum calibration iterations.
+        crop_parameters (dict): Raw crop parameter spec dict for ``crop_type``,
+            loaded from ``crop_param_file`` at construction. Editable in place;
+            pass it through :func:`deactivate_calibration` to turn off
+            calibration for selected parameters before running.
+        disease_parameters (dict): Raw disease parameter spec dict for
+            ``disease_type``, loaded from ``disease_param_file``.
+        fungicide_parameters (dict): Raw fungicide parameter spec dict for
+            ``fungicide_type`` (empty when ``fungicide_type`` is None).
         crop_disabled_params (frozenset[str]): Crop parameter names to hard-exclude
-            from calibration.
+            from calibration. Legacy alternative to editing ``crop_parameters``;
+            both are honored.
         disease_disabled_params (frozenset[str]): Disease parameter names to
-            hard-exclude from calibration.
+            hard-exclude from calibration. Legacy alternative to editing
+            ``disease_parameters``; both are honored.
     """
     param_file: str = ""
     crop_param_file: str = field(default_factory=lambda: _resolve_local_model_file("fr_crop_parameters.json"))
@@ -98,6 +121,26 @@ class FranchestynConfig:
     max_iter: int = 100
     crop_disabled_params: frozenset[str] = frozenset()
     disease_disabled_params: frozenset[str] = frozenset()
+
+    # Editable parameter spec dicts, populated from the JSON files in
+    # __post_init__ (unless the caller supplied their own).
+    crop_parameters: dict = field(default_factory=dict)
+    disease_parameters: dict = field(default_factory=dict)
+    fungicide_parameters: dict = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Load the editable parameter spec dicts from the JSON files.
+
+        Only fills a dict that the caller left empty, so an explicitly passed
+        ``crop_parameters`` / ``disease_parameters`` / ``fungicide_parameters``
+        is preserved.
+        """
+        if not self.crop_parameters:
+            self.crop_parameters = load_crop_specs(self.crop_param_file, self.crop_type)
+        if not self.disease_parameters and self.disease_type:
+            self.disease_parameters = load_disease_specs(self.disease_param_file, self.disease_type)
+        if not self.fungicide_parameters and self.fungicide_type:
+            self.fungicide_parameters = load_fungicide_specs(self.fungicide_param_file, self.fungicide_type)
 
 
 def _outputs_to_records(date_outputs):
@@ -223,6 +266,9 @@ def run_franchestyn(
             disease_type=config.disease_type,
             fungicide_param_file=fungicide_param_file,
             fungicide_type=config.fungicide_type,
+            crop_param_specs=config.crop_parameters or None,
+            disease_param_specs=config.disease_parameters or None,
+            fungicide_param_specs=config.fungicide_parameters or None,
         )
 
         best_params = {}

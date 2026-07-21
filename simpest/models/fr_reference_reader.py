@@ -149,7 +149,7 @@ def read_sowing(
             fung_doys = sorted(set(fung_doys))
 
             year_cell = row[year_idx].strip().strip('"') if year_idx >= 0 else ""
-            print(f'Parsed row: site={row_site}, year={year_cell}, variety={row_var}, sow_doy={sow_doy}, fung_doys={fung_doys}')
+            # print(f'Parsed rows:  year={year_cell}, variety={row_var}, sow_doy={sow_doy}, fung_doys={fung_doys}')
             
             if year_cell.lower() == "all":
                 all_row = (sow_doy, fung_doys)
@@ -337,7 +337,7 @@ def read_crop_model_data(crop_model_file: str | Path, use_gdd: bool = False) -> 
         header_map = {_norm(h): i for i, h in enumerate(raw_headers)}
 
         fint_col = _get_col(header_map, "fint", "f_int", "lightinterception", "lightint")
-        agb_col = _get_col(header_map, "agb", "abovegroundbiomass", "biomass", "wtop")
+        agb_col = _get_col(header_map, "agb", "agbattainable", "abovegroundbiomass", "biomass", "wtop")
         yield_col = _get_col(header_map, "yield", "yieldattainable", "yieldunlimited", "yieldpotential", "wgrn", "grainyieldpotential")
         year_col = _get_col(header_map, "year", "yr")
         doy_col = _get_col(header_map, "doy", "dayofyear", "dy", "d")

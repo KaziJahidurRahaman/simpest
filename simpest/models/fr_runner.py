@@ -32,7 +32,7 @@ from .fr_crop_model import run as crop_run
 from .fr_disease_model import DiseaseModel
 from .fr_fungicide_model import run as fungicide_run
 from .fr_param_reader import (
-    read as param_read, read_by_crop, calibrated_read,
+    read as param_read, calibrated_read, build_params_from_specs,
     read_crop_parameters, read_disease_parameters, read_fungicide_parameters
 )
 from .fr_weather_reader import read_daily, read_hourly
@@ -115,6 +115,9 @@ class FranchestynRunner:
         disease_type: Optional[str] = None,
         fungicide_param_file: Optional[str] = None,
         fungicide_type: Optional[str] = None,
+        crop_param_specs: Optional[Dict[str, dict]] = None,
+        disease_param_specs: Optional[Dict[str, dict]] = None,
+        fungicide_param_specs: Optional[Dict[str, dict]] = None,
         use_gdd: bool = False,
         use_prev_day_alignment: bool = True,
         all_row_includes_end_year: bool = False,
@@ -140,27 +143,39 @@ class FranchestynRunner:
         self.all_row_includes_end_year = all_row_includes_end_year
 
         # Read parameter definitions (bounds, defaults)
-        # Three modular loading scenarios:
-        # 1. All three files provided → modular (crop + optional disease + optional fungicide)
-        # 2. Only crop_type provided → legacy multi-crop JSON
-        # 3. Only param_file → legacy CSV
-        
+        # Three loading scenarios, in precedence order:
+        # 1. In-memory spec dicts (crop_param_specs/…) → build directly. These
+        #    are the (possibly edited) dicts held by FranchestynConfig and take
+        #    priority so caller-side edits (e.g. deactivate_calibration) apply.
+        # 2. crop_param_file + crop_type → modular loading from JSON files.
+        # 3. Only param_file → legacy CSV.
+
         self.name_param: Dict[str, Parameter] = {}
-        
-        if crop_param_file and crop_type:
+
+        if crop_param_specs is not None:
+            # Modular loading from in-memory spec dicts
+            self.name_param.update(build_params_from_specs(crop_param_specs, "crop"))
+            if disease_param_specs and disease_type:
+                self.name_param.update(build_params_from_specs(disease_param_specs, "disease"))
+            if fungicide_param_specs and fungicide_type:
+                self.name_param.update(build_params_from_specs(fungicide_param_specs, "fungicide"))
+        elif crop_param_file and crop_type:
             # Modular loading: always load crop
             self.name_param.update(read_crop_parameters(crop_param_file, crop_type))
-            
+
             # Optionally load disease if both file and type provided
             if disease_param_file and disease_type:
-                self.name_param.update(read_disease_parameters(disease_param_file, disease_type))
-            
+                disease_catalog = read_disease_parameters(disease_param_file)
+                if disease_type not in disease_catalog:
+                    raise ValueError(
+                        f"Disease type '{disease_type}' not found. "
+                        f"Available: {list(disease_catalog.keys())}"
+                    )
+                self.name_param.update(disease_catalog[disease_type])
+
             # Optionally load fungicide if both file and type provided
             if fungicide_param_file and fungicide_type:
                 self.name_param.update(read_fungicide_parameters(fungicide_param_file, fungicide_type))
-        elif crop_type:
-            # Legacy multi-crop JSON (parameters_by_crop.json)
-            self.name_param = read_by_crop(param_file, crop_type)
         else:
             # Legacy CSV loader
             self.name_param = param_read(param_file, calibration_variable)

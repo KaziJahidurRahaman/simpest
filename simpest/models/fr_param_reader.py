@@ -122,52 +122,107 @@ def calibrated_read(file: str | Path) -> Dict[str, float]:
     return result
 
 
-def read_by_crop(file: str | Path, crop_type: str = "wheat") -> Dict[str, Parameter]:
-    """Read parameters from JSON file organized by crop type.
+def _load_json(file: str | Path, kind: str) -> dict:
+    """Load a JSON parameter file, raising a clear error if it is missing.
 
     Args:
-        file:      Path to the parameters_by_crop.json file.
+        file: Path to the JSON parameter file.
+        kind: Human-readable label used in the error message (e.g. "Crop").
+
+    Returns:
+        The parsed JSON object.
+    """
+    path = Path(file)
+    if not path.exists():
+        raise FileNotFoundError(f"{kind} parameter file not found: {path}")
+    with path.open(encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def build_params_from_specs(specs: dict, param_class: str) -> Dict[str, Parameter]:
+    """Build a ``{class_ParamName: Parameter}`` dict from a raw spec dict.
+
+    The ``specs`` mapping is the JSON structure for a single crop / disease /
+    fungicide type, i.e. ``{ParamName: {"value": .., "min": .., "max": ..,
+    "calibration": bool}}``. This is the single place that translates a spec
+    dict into :class:`Parameter` objects, shared by the file readers and by
+    callers that already hold an (optionally edited) spec dict.
+
+    Args:
+        specs:       Mapping of parameter name to its specification dict.
+        param_class: Parameter class tag ("crop", "disease", or "fungicide").
+
+    Returns:
+        Dictionary mapping ``f"{param_class}_{ParamName}"`` → Parameter.
+    """
+    result: Dict[str, Parameter] = {}
+    for param_name, spec in specs.items():
+        param = Parameter(param_class=param_class)
+
+        # IsSplashBorne is the only boolean parameter (disease only).
+        if param_name.lower() == "issplashborne":
+            param.value_bool = bool(spec.get("value", 0))
+            param.is_boolean = True
+        else:
+            param.value = float(spec.get("value", 0.0))
+            param.minimum = float(spec.get("min", 0.0))
+            param.maximum = float(spec.get("max", 1.0))
+
+        param.calibration = "x" if spec.get("calibration", False) else ""
+        result[f"{param_class}_{param_name}"] = param
+
+    return result
+
+
+def load_crop_specs(file: str | Path, crop_type: str = "wheat") -> dict:
+    """Load the raw parameter spec dict for a single crop type.
+
+    Args:
+        file:      Path to the crop parameters JSON file.
         crop_type: Crop type key (e.g., "wheat", "rice"). Defaults to "wheat".
 
     Returns:
-        Dictionary mapping 'ParamName_ClassName' → Parameter for the specified crop.
-        Returns empty dict if crop_type not found.
+        Mapping of ``ParamName`` → spec dict for the requested crop type.
+        Raises ValueError if ``crop_type`` is not present.
     """
-    result: Dict[str, Parameter] = {}
-    path = Path(file)
-
-    if not path.exists():
-        raise FileNotFoundError(f"Parameter file not found: {path}")
-
-    with path.open(encoding="utf-8") as fh:
-        data = json.load(fh)
-
-    # Get the crop section
+    data = _load_json(file, "Crop")
     if crop_type not in data:
-        raise ValueError(f"Crop type '{crop_type}' not found in parameter file. Available: {list(data.keys())}")
+        raise ValueError(f"Crop type '{crop_type}' not found. Available: {list(data.keys())}")
+    return data[crop_type]
 
-    crop_params = data[crop_type]
 
-    # Iterate through model classes (crop, disease, fungicide)
-    for model_class, params in crop_params.items():
-        for param_name, param_dict in params.items():
-            param = Parameter(param_class=model_class)
+def load_disease_specs(file: str | Path, disease_type: str) -> dict:
+    """Load the raw parameter spec dict for a single disease type.
 
-            # IsSplashBorne is the only boolean parameter
-            if param_name.lower() == "issplashborne":
-                param.value_bool = bool(param_dict.get("value", 0))
-                param.is_boolean = True
-            else:
-                param.value = float(param_dict.get("value", 0.0))
-                param.minimum = float(param_dict.get("min", 0.0))
-                param.maximum = float(param_dict.get("max", 1.0))
+    Args:
+        file:         Path to the disease parameters JSON file.
+        disease_type: Disease type key (e.g., "septoria", "brown_rust").
 
-            param.calibration = "x" if param_dict.get("calibration", False) else ""
+    Returns:
+        Mapping of ``ParamName`` → spec dict for the requested disease type.
+        Raises ValueError if ``disease_type`` is not present.
+    """
+    data = _load_json(file, "Disease")
+    if disease_type not in data:
+        raise ValueError(f"Disease type '{disease_type}' not found. Available: {list(data.keys())}")
+    return data[disease_type]
 
-            key = f"{model_class}_{param_name}"
-            result[key] = param
 
-    return result
+def load_fungicide_specs(file: str | Path, fungicide_type: str = "protectant") -> dict:
+    """Load the raw parameter spec dict for a single fungicide type.
+
+    Args:
+        file:           Path to the fungicide parameters JSON file.
+        fungicide_type: Fungicide type key (e.g., "protectant").
+
+    Returns:
+        Mapping of ``ParamName`` → spec dict for the requested fungicide type.
+        Raises ValueError if ``fungicide_type`` is not present.
+    """
+    data = _load_json(file, "Fungicide")
+    if fungicide_type not in data:
+        raise ValueError(f"Fungicide type '{fungicide_type}' not found. Available: {list(data.keys())}")
+    return data[fungicide_type]
 
 
 def read_crop_parameters(file: str | Path, crop_type: str = "wheat") -> Dict[str, Parameter]:
@@ -181,77 +236,24 @@ def read_crop_parameters(file: str | Path, crop_type: str = "wheat") -> Dict[str
         Dictionary mapping 'crop_ParamName' → Parameter for the specified crop type.
         Raises ValueError if crop_type not found.
     """
-    result: Dict[str, Parameter] = {}
-    path = Path(file)
-
-    if not path.exists():
-        raise FileNotFoundError(f"Crop parameter file not found: {path}")
-
-    with path.open(encoding="utf-8") as fh:
-        data = json.load(fh)
-
-    if crop_type not in data:
-        raise ValueError(f"Crop type '{crop_type}' not found. Available: {list(data.keys())}")
-
-    crop_params = data[crop_type]
-
-    for param_name, param_dict in crop_params.items():
-        param = Parameter(param_class="crop")
-        param.value = float(param_dict.get("value", 0.0))
-        param.minimum = float(param_dict.get("min", 0.0))
-        param.maximum = float(param_dict.get("max", 1.0))
-        param.calibration = "x" if param_dict.get("calibration", False) else ""
-
-        key = f"crop_{param_name}"
-        result[key] = param
-
-    return result
+    return build_params_from_specs(load_crop_specs(file, crop_type), "crop")
 
 
-def read_disease_parameters(file: str | Path, disease_type: str) -> Dict[str, Parameter]:
-    """Read disease parameters from disease_parameters.json.
+def read_disease_parameters(file: str | Path) -> Dict[str, Dict[str, Parameter]]:
+    """Read all disease parameters from disease_parameters.json.
 
     Args:
-        file:         Path to the disease_parameters.json file.
-        disease_type: Disease type key (e.g., "septoria", "brown_rust", "black_rust",
-                      "yellow_rust", "wheat_blast").
+        file: Path to the disease_parameters.json file.
 
     Returns:
-        Dictionary mapping 'disease_ParamName' → Parameter for the specified disease type.
-        Raises ValueError if disease_type not found.
+        Dictionary mapping ``disease_type`` to a parameter dictionary keyed as
+        ``disease_ParamName``.
     """
-    result: Dict[str, Parameter] = {}
-    path = Path(file)
-
-    if not path.exists():
-        raise FileNotFoundError(f"Disease parameter file not found: {path}")
-
-    with path.open(encoding="utf-8") as fh:
-        data = json.load(fh)
-
-    if disease_type not in data:
-        raise ValueError(f"Disease type '{disease_type}' not found. Available: {list(data.keys())}")
-
-    disease_params = data[disease_type]
-
-    for param_name, param_dict in disease_params.items():
-        param = Parameter(param_class="disease")
-
-        # IsSplashBorne is a boolean parameter
-        if param_name.lower() == "issplashborne":
-            param.value_bool = bool(param_dict.get("value", 0))
-            param.is_boolean = True
-        else:
-            param.value = float(param_dict.get("value", 0.0))
-            param.minimum = float(param_dict.get("min", 0.0))
-            param.maximum = float(param_dict.get("max", 1.0))
-
-        param.calibration = "x" if param_dict.get("calibration", False) else ""
-
-        key = f"disease_{param_name}"
-        result[key] = param
-
-    return result
+    data = _load_json(file, "Disease")
+    return {
+        disease_type: build_params_from_specs(disease_specs, "disease")
+        for disease_type, disease_specs in data.items()
+    }
 
 
 def read_fungicide_parameters(file: str | Path, fungicide_type: str = "protectant") -> Dict[str, Parameter]:
@@ -265,28 +267,4 @@ def read_fungicide_parameters(file: str | Path, fungicide_type: str = "protectan
         Dictionary mapping 'fungicide_ParamName' → Parameter for the specified type.
         Raises ValueError if fungicide_type not found.
     """
-    result: Dict[str, Parameter] = {}
-    path = Path(file)
-
-    if not path.exists():
-        raise FileNotFoundError(f"Fungicide parameter file not found: {path}")
-
-    with path.open(encoding="utf-8") as fh:
-        data = json.load(fh)
-
-    if fungicide_type not in data:
-        raise ValueError(f"Fungicide type '{fungicide_type}' not found. Available: {list(data.keys())}")
-
-    fungicide_params = data[fungicide_type]
-
-    for param_name, param_dict in fungicide_params.items():
-        param = Parameter(param_class="fungicide")
-        param.value = float(param_dict.get("value", 0.0))
-        param.minimum = float(param_dict.get("min", 0.0))
-        param.maximum = float(param_dict.get("max", 1.0))
-        param.calibration = "x" if param_dict.get("calibration", False) else ""
-
-        key = f"fungicide_{param_name}"
-        result[key] = param
-
-    return result
+    return build_params_from_specs(load_fungicide_specs(file, fungicide_type), "fungicide")

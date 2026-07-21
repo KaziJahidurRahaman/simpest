@@ -1,4 +1,0 @@
-
-# simpest module
-
-::: simpest.simpest

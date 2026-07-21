@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE solution PUBLIC "-//SIMPLACE/DTD SOL 1.0//EN" "http://simplace.net/dtd/SimSolution_4_1.dtd">
+
+<solution version="4.1" check="LAZY">
+  <description title="Solution reproduces results of the Fortran Lintul5 Version" author="Gunther Krauss" qualitylevel="II">
+    WIKI_START
+      === Purpose ===
+      - Serve as a general example for documenting the simulations of a research project
+      - Test the implementation of Lintul5 and to compare the results with the output of 
+        the original fortran program (original purpose).
+
+      === References ===
+      This solution uses standard parameters and data that is provided with the Lintul5 package from
+      the Model Library of the Plant Production Systems, Wageningen, Netherlands 
+
+      [http://models.pps.wur.nl/content/lintul-5-crop-growth-simulation-model-potential-water-limited-n-limited-and-npk-limited-co-0 Link]
+
+      Executable program, fortran source code, input and output data can be downloaded as a .zip file from the link above. 
+
+      === Data ====
+      Data (parameters, weather data) was derived from following files from the directory Test-L-NPK
+      * (B) BATCH.INP - batch input file that controls the run
+      * (S) SOILP1.DAT - default soil parameters
+      * (C) CROPP1.DAT - default crop parameters (winter wheat)
+      * (W) SEVI87.dat - weather file for 1987
+      * (M) MANAGE.DAT - default management
+      * (O) WAGIPTS1.dat - output of the fortran program 
+
+      Data has been converted to the required data format. Values whose original units contain kg, ha, cm were
+      transformed to g, m^2 and mm (water) resp. m (lengths).
+
+      === Remarks ===
+      The output of this solution is (up to rounding errors) the same as the fortran program (O).
+
+      === Usage ====
+      * Used with simplace-project SimulationExperimentTemplate/projects/Lintul5All.proj.xml to calculate all scenarios from (B)
+      * Test if Simplace&lt;Lintul5&gt; produces same results as the original fortran program.
+      * UnitTest to assert the same results when changes are made to the framework/component (comparison is not yet automatic)
+      * Variation of this solution (changing vIOPT and vLocation) was used to compare with other results produced by original program
+      * Solution used as a starting point by other users to implement their Lintul5-based solutions.
+    WIKI_END
+  </description>
+
+  <variables>
+    <var id="vLocation" datatype="CHAR" description="key to select corresponding weather file (W)">sevilla</var>
+    <var id="vSeasonId" datatype="CHAR" description="key to select default season in management (M)">default</var>
+    <var id="vSoilType" datatype="CHAR" description="key to select default values for soil parameters (S)">default</var>
+    <var id="vCropName" datatype="CHAR" description="key to select default values for cropw parameters (C)">default</var>
+    <var id="startdate" datatype="DATE" description="taken from (B)">31.03.1987</var>
+    <var id="enddate" datatype="DATE" description="runs until end of year">31.12.1987</var>
+    <var id="vCO" datatype="DOUBLE" unit="http://www.wurvoc.org/vocabularies/om-1.8/parts_per_million" description="value taken from (B)">370</var>
+    <var id="vIOPT" datatype="INT" description="switch: water and NPK-limitation on, value taken from (B), line 9">4</var>
+    <var id="vIRRI" datatype="INT" description="switch: no irrigation, value taken from (B), line 9">0</var>
+    <var id="vIDEM" datatype="INT" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" description="day of emergence, value taken from (B), line 9">90</var>
+  </variables>
+  
+  <interfaces default="simpool">
+    <interface id="weatherfile" type="CSV">
+      <poolsize>2</poolsize>
+      <divider />
+      <filename>${_WORKDIR_}/SimulationExperimentTemplate/data/weather/${vLocation}.txt</filename>
+    </interface>
+    <interface id="soilfile" type="XML">
+      <poolsize>1</poolsize>
+      <filename>${_WORKDIR_}/SimulationExperimentTemplate/data/soil/${vSoilType}.xml</filename>
+    </interface>
+    <interface id="cropfile" type="XML">
+      <poolsize>1</poolsize>
+      <filename>${_WORKDIR_}/SimulationExperimentTemplate/data/crop/${vCropName}.xml</filename>
+    </interface>
+    <interface id="managementfile" type="XML">
+      <poolsize>1</poolsize>
+      <filename>${_WORKDIR_}/SimulationExperimentTemplate/data/management/mgm_${vLocation}.xml</filename>
+    </interface>
+    <interface id="lintul5daily" type="CSV">
+      <poolsize>100</poolsize>
+      <divider>;</divider>
+      <filename>${_OUTPUTDIR_}/SimulationExperimentTemplate/${vLocation}${vIOPT}_daily.csv</filename>
+    </interface>
+    <interface id="lintul5sum" type="CSV">
+      <poolsize>100</poolsize>
+      <divider>;</divider>
+      <filename>${_OUTPUTDIR_}/SimulationExperimentTemplate/summary.csv</filename>
+    </interface>
+  </interfaces>
+  <resources>
+    <resource id="weather" interface="weatherfile" frequence="DAILY">
+      <header>
+        <res id="CURRENTDATE" datatype="DATE" key="CURRENT.DATE" />
+        <res id="Irradiation" unit="http://www.wurvoc.org/vocabularies/om-1.8/kilojoule_per_square_metre_day" datatype="DOUBLE" />
+        <res id="TMin" unit="http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius" datatype="DOUBLE" />
+        <res id="TMax" unit="http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius" datatype="DOUBLE" />
+        <res id="VapourPressure" unit="http://www.wurvoc.org/vocabularies/om-1.8/kilopascal" datatype="DOUBLE" />
+        <res id="WindSpeed" unit="http://www.wurvoc.org/vocabularies/om-1.8/metre_per_second-time" datatype="DOUBLE" />
+        <res id="Precipitation" unit="http://www.wurvoc.org/vocabularies/om-1.8/millimetre" datatype="DOUBLE" />
+      </header>
+    </resource>
+    <resource id="soil" interface="soilfile" frequence="COMPLEX" rule="${DefaultManagement.DoSow}">
+      <description title="Default soil file">Data is taken from (S). The original value for KSUB is converted from cm day-1 to mm day-1.</description>
+      <header>
+        <res id="SoilType" datatype="CHAR" key="vSoilType" />
+        <res id="SMDRY" description="soil moisture content at airdry (pF= 6.0)" unit="http://www.wurvoc.org/vocabularies/om-1.8/cubic_metre_per_cubic_metre" datatype="DOUBLE" />
+        <res id="SMW" description="soil moisture content at wilting point (pF= 4.2)" unit="http://www.wurvoc.org/vocabularies/om-1.8/cubic_metre_per_cubic_metre" datatype="DOUBLE" />
+        <res id="SMFC" description="soil moisture content at field capacity (pF= 2.3)" unit="http://www.wurvoc.org/vocabularies/om-1.8/cubic_metre_per_cubic_metre" datatype="DOUBLE" />
+        <res id="SM0" description="soil moisture content at saturation" unit="http://www.wurvoc.org/vocabularies/om-1.8/cubic_metre_per_cubic_metre" datatype="DOUBLE" />
+        <res id="CRAIRC" description="critical soil air content for aeration" unit="http://www.wurvoc.org/vocabularies/om-1.8/cubic_metre_per_cubic_metre" datatype="DOUBLE" />
+        <res id="SMI" description="soil moisture content in initial root zone at planting or emergence" unit="http://www.wurvoc.org/vocabularies/om-1.8/cubic_metre_per_cubic_metre" datatype="DOUBLE" />
+        <res id="SMLOWI" description="initial soil moisture content in lower zone at planting or emergence" unit="http://www.wurvoc.org/vocabularies/om-1.8/cubic_metre_per_cubic_metre" datatype="DOUBLE" />
+        <res id="RDMSO" description="maximum rooting depth as determined by soil structure" unit="http://www.wurvoc.org/vocabularies/om-1.8/metre" datatype="DOUBLE" />
+        <res id="RUNFR" description="average fraction of precipitation lost by runoff" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="CFEV" description="correction factor of time course of soil evaporation (value between 1 and about 4)" unit="http://www.wurvoc.org/vocabularies/om-1.8/cubic_metre_per_cubic_metre" datatype="DOUBLE" />
+        <res id="KSUB" description="maximal percolation rate from lower zone to deeper soil layers" unit="http://www.wurvoc.org/vocabularies/om-1.8/millimetre_per_day" datatype="DOUBLE" />
+      </header>
+    </resource>
+    <resource id="crop" interface="cropfile" frequence="COMPLEX" rule="${DefaultManagement.DoSow}">
+      <description title="Default Crop file" />
+      <header>
+        <res id="CROPNAME" datatype="CHAR" key="vCropName" />
+        <res id="TBASEM" description="lower threshold temp. for emergence" unit="http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius" datatype="DOUBLE" />
+        <res id="TEFFMX" description="max. eff. temp. for emergence" unit="http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius" datatype="DOUBLE" />
+        <res id="TSUMEM" description="temperature sum from sowing to emergence" unit="http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius" datatype="DOUBLE" />
+        <res id="IDSL" description="indicates wheather pre-anthesis development depends on temp. (=0) or both temperature and daylengt (=1)" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="INT" />
+        <res id="PHOTTB" description="correction factor of development rate in dependence of day length" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLEARRAY" />
+        <res id="TSUM1" description="temperature sum from emergence to anthesis" unit="" datatype="DOUBLE" />
+        <res id="TSUM2" description="temperature sum from anthesis to maturity" unit="" datatype="DOUBLE" />
+        <res id="DTSMTB" description="Daily increase in temperature sum" unit="http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius" datatype="DOUBLEARRAY" />
+        <res id="DVSI" description="Initial DVS" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="DVSEND" description="Development stage at harvest (=2.0 at maturity[-])" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="TDWI" description="Initial total crop dry weight" unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_square_metre " datatype="DOUBLE" />
+        <res id="RGRLAI" description="Maximum Relative increase in LAI" unit="http://www.wurvoc.org/vocabularies/om-1.8/reciprocal_day" datatype="DOUBLE" />
+        <res id="SLATB" description="specific leaf area" unit="http://www.wurvoc.org/vocabularies/om-1.8/square_metre_per_gram" datatype="DOUBLEARRAY" />
+        <res id="SPA" description="specific pod area" unit="http://www.wurvoc.org/vocabularies/om-1.8/square_metre_per_gram" datatype="DOUBLE" />
+        <res id="SSATB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/square_metre_per_gram" datatype="DOUBLEARRAY" />
+        <res id="LAICR" description="Critical leaf area index for overshadowing" unit="http://www.wurvoc.org/vocabularies/om-1.8/square_metre_per_square_metre" datatype="DOUBLE" />
+        <res id="TBASE" description="lower theshold temp. for increase in LAI" unit="http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius" datatype="DOUBLE" />
+        <res id="KDIFTB" description="Extinction cofficient for diffuse visible light" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLEARRAY" />
+        <res id="RUETB" description="Radiation use efficiency for biomass production" unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_megajoule" datatype="DOUBLEARRAY" />
+        <res id="TMPFTB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLEARRAY" />
+        <res id="TMNFTB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLEARRAY" />
+        <res id="COTB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLEARRAY" />
+        <res id="FRTB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLEARRAY" />
+        <res id="FLTB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLEARRAY" />
+        <res id="FSTB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLEARRAY" />
+        <res id="FOTB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLEARRAY" />
+        <res id="RDRL" description="max. rel. death rate of leaves due to water stress" unit="http://www.wurvoc.org/vocabularies/om-1.8/reciprocal_day" datatype="DOUBLE" />
+        <res id="RDRLTB" description="relative death rate of leaves as a function of daily mean temperature" unit="http://www.wurvoc.org/vocabularies/om-1.8/reciprocal_day" datatype="DOUBLEARRAY" />
+        <res id="RDRSHM" description="rel. death rate of leaves due to shading (above LAICR)" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="RDRRTB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/reciprocal_day" datatype="DOUBLEARRAY" />
+        <res id="RDRSTB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/reciprocal_day" datatype="DOUBLEARRAY" />
+        <res id="CFET" description="Correction factor transpiration rate" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="DEPNR" description="Crop group number for soil water depletion" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="IAIRDU" description="air ducts in roots present(=1) or not (=0)" unit="" datatype="BOOLEAN" />
+        <res id="RDI" description="Initial rooting depth" unit="http://www.wurvoc.org/vocabularies/om-1.8/metre" datatype="DOUBLE" />
+        <res id="RRI" description="Maximum daily increase in rooting depth" unit="http://www.wurvoc.org/vocabularies/om-1.8/metre_per_day" datatype="DOUBLE" />
+        <res id="RDMCR" description="Maximum rooting depth" unit="http://www.wurvoc.org/vocabularies/om-1.8/metre" datatype="DOUBLE" />
+        <res id="DVSDR" description="development stage above which death of roots and stems starts" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="DVSDLT" description="development stage above which death of leaves starts in dependence of mean daily temperature" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="RDRNS" description="max. relative death rate of leaves due to nutrient (N-P-K) stress" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="DVSNLT" description=" development stage above which no crop N-P-K uptake does occur" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="DVSNT" description=" development stage above which N-P-K translocation to storage organs does occur " unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="FNTRT" description=" N-P-K translocations from roots as a fraction of resp. total N-P-K amounts translocated from leaves and stems" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="FRNX" description=" optimal N concentration as fraction of maximum N concentration" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="FRPX" description=" optimal P concentration as fraction of maximum P concentration" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="FRKX" description=" optimal K concentration as fraction of maximum K concentration" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="LRNR" description=" maximum N concentration in roots as fraction of maximum N concentration in leaves" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="LSNR" description=" maximum N concentration in stems as fraction of maximum N concentration in leaves" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="LRPR" description=" maximum P concentration in roots as fraction of maximum P concentration in leaves" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="LSPR" description=" maximum P concentration in stems as fraction of maximum P concentration in leaves" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="LRKR" description=" maximum K concentration in roots as fraction of maximum K concentration in leaves" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="LSKR" description=" maximum K concentration in stems as fraction of maximum K concentration in leaves" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="NLAI" description=" coefficient for the reduction due to nutrient (N-P-K) stress of the LAI increase (during juvenile phase)" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="NLUE" description=" coefficient for the reduction of RUE due to nutrient (N-P-K) stress" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="NMAXSO" description=" maximum N concentration (= 1.6*min. N conc.) in storage organs " unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_gram" datatype="DOUBLE" />
+        <res id="PMAXSO" description=" maximum P concentration (= 1.6*min. P conc.) in storage organs " unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_gram" datatype="DOUBLE" />
+        <res id="KMAXSO" description=" maximum K concentration (= 1.6*min. K conc.) in storage organs " unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_gram" datatype="DOUBLE" />
+        <res id="NPART" description=" coefficient for the effect of N stress on leaf allocation " unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="NSLA" description=" coefficient for the effect of nutrient (N-P-K) stress on SLA reduction" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="RNFLV" description=" residual N fraction in leaves " unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_gram" datatype="DOUBLE" />
+        <res id="RNFST" description=" residual N fraction in stems " unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_gram" datatype="DOUBLE" />
+        <res id="RNFRT" description=" residual N fraction in roots " unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_gram" datatype="DOUBLE" />
+        <res id="RPFLV" description=" residual P fraction in leaves " unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_gram" datatype="DOUBLE" />
+        <res id="RPFST" description=" residual P fraction in stems " unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_gram" datatype="DOUBLE" />
+        <res id="RPFRT" description=" residual P fraction in roots " unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_gram" datatype="DOUBLE" />
+        <res id="RKFLV" description=" residual K fraction in leaves " unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_gram" datatype="DOUBLE" />
+        <res id="RKFST" description=" residual K fraction in stems " unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_gram" datatype="DOUBLE" />
+        <res id="RKFRT" description=" residual K fraction in roots " unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_gram" datatype="DOUBLE" />
+        <res id="TCNT" description=" time coefficient for N translocation to storage organs" unit="http://www.wurvoc.org/vocabularies/om-1.8/day" datatype="DOUBLE" />
+        <res id="TCPT" description=" time coefficient for P translocation to storage organs" unit="http://www.wurvoc.org/vocabularies/om-1.8/day" datatype="DOUBLE" />
+        <res id="TCKT" description=" time coefficient for K translocation to storage organs" unit="http://www.wurvoc.org/vocabularies/om-1.8/day" datatype="DOUBLE" />
+        <res id="NFIXF" description=" fraction of crop nitrogen uptake by biological fixation" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLE" />
+        <res id="NMXLV" description="maximum N concentration in leaves as function of development stage" unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_gram" datatype="DOUBLEARRAY" />
+        <res id="PMXLV" description="maximum P concentration in leaves as function of development stage" unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_gram" datatype="DOUBLEARRAY" />
+        <res id="KMXLV" description="maximum K concentration in leaves as function of development stage" unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_gram" datatype="DOUBLEARRAY" />
+      </header>
+    </resource>
+    <resource id="management" interface="managementfile" frequence="COMPLEX" rule="${DefaultManagement.DoSow}">
+      <header>
+        <res id="SeasonId" datatype="CHAR" key="vSeasonId" />
+        <res id="Latitude" datatype="DOUBLE" unit="http://www.wurvoc.org/vocabularies/om-1.8/degree" />
+        <res id="SunInclination" datatype="DOUBLE" unit="http://www.wurvoc.org/vocabularies/om-1.8/degree" />
+        <res id="Altitude" datatype="DOUBLE" unit="http://www.wurvoc.org/vocabularies/om-1.8/metre" />
+        <res id="FERNTAB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_square_metre_day" datatype="DOUBLEARRAY" />
+        <res id="FERPTAB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_square_metre_day" datatype="DOUBLEARRAY" />
+        <res id="FERKTAB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_square_metre_day" datatype="DOUBLEARRAY" />
+        <res id="NRFTAB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLEARRAY" />
+        <res id="PRFTAB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLEARRAY" />
+        <res id="KRFTAB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" datatype="DOUBLEARRAY" />
+        <res id="NMINS" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_square_metre" datatype="DOUBLE" />
+        <res id="RTNMINS" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/reciprocal_day" datatype="DOUBLE" />
+        <res id="PMINS" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_square_metre" datatype="DOUBLE" />
+        <res id="RTPMINS" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/reciprocal_day" datatype="DOUBLE" />
+        <res id="KMINS" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/gram_per_square_metre" datatype="DOUBLE" />
+        <res id="RTKMINS" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/reciprocal_day" datatype="DOUBLE" />
+        <res id="IRRTAB" description="" unit="http://www.wurvoc.org/vocabularies/om-1.8/millimetre_per_day" datatype="DOUBLEARRAY" />
+      </header>
+    </resource>
+    <transform id="weather_transform" frequence="DAILY" class="net.simplace.sim.transformers.DefaultSQLStatementTransformer">
+      <description title="Weather transformer for unit conversion">Given weather data is transformed to appropriate units. Irradiation from kJ/m^2 to J/m^2 and kPa to hPa (=mbar).</description>
+      <header>
+        <res id="CURRENTDATE" datatype="DATE" key="CURRENT.DATE" />
+        <res id="Irradiation" unit="http://www.wurvoc.org/vocabularies/om-1.8/joule_per_square_metre_day" datatype="DOUBLE" />
+        <res id="TMin" unit="http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius" datatype="DOUBLE" />
+        <res id="TMax" unit="http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius" datatype="DOUBLE" />
+        <res id="WindSpeed" unit="http://www.wurvoc.org/vocabularies/om-1.8/metre_per_second-time" datatype="DOUBLE" />
+        <res id="VapourPressure" unit="http://www.wurvoc.org/vocabularies/om-1.8/hectopascal" datatype="DOUBLE" />
+        <res id="Precipitation" unit="http://www.wurvoc.org/vocabularies/om-1.8/millimetre" datatype="DOUBLE" />
+      </header>
+      <input id="statement">SELECT 
+					   				CURRENTDATE, 
+					   				Irradiation*1000 AS Irradiation,
+					   				TMin,
+					   				TMax,
+					   				VapourPressure*10 AS VapourPressure,
+					   				WindSpeed,
+					   				Precipitation AS Precipitation
+					   			  FROM weather</input>
+    </transform>
+    <transform id="at" frequence="DAILY" resource="management" class="net.simplace.sim.transformers.AstronomicParametersTransformer">
+      <header>
+        <res id="DOY" datatype="INT" key="CURRENT.DOY" />
+        <res id="SeasonId" datatype="CHAR" key="vSeasonId" />
+        <res id="DayLength" datatype="DOUBLE" unit="http://www.wurvoc.org/vocabularies/om-1.8/hour" />
+        <res id="PhotoperiodicDayLength" datatype="DOUBLE" unit="http://www.wurvoc.org/vocabularies/om-1.8/hour" />
+        <res id="SolarConstant" datatype="DOUBLE" unit="http://www.wurvoc.org/vocabularies/joule_per_square_metre_second-time" />
+        <res id="SINLD" datatype="DOUBLE" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" />
+        <res id="COSLD" datatype="DOUBLE" unit="http://www.wurvoc.org/vocabularies/om-1.8/one" />
+        <res id="DSINB" datatype="DOUBLE" unit="http://www.wurvoc.org/vocabularies/om-1.8/second-time_per_day" />
+        <res id="DSINBE" datatype="DOUBLE" unit="http://www.wurvoc.org/vocabularies/om-1.8/second-time_per_day" />
+      </header>
+      <input id="SunInclinationField">SunInclination</input>
+      <input id="LatitudeField">Latitude</input>
+      <input id="IdField">SeasonId</input>
+    </transform>
+  </resources>
+  <simmodel>
+    <simcomponent id="DefaultManagement" class="net.simplace.sim.components.DefaultManagement">
+      <action rule="${CURRENT.DOY}==${vIDEM}">
+        <description title="Determine sowing day of year">Sowing occurs when the actual model day equals the variable vIDEM.</description>
+        <mgm id="DoSow" datatype="BOOLEAN" default="false" rule="true" />
+      </action>
+      <action rule="${Phenology.IsMaturity}">
+        <description title="Determine harvest day of year">Harvest occurs when the development stage is bigger than 2.</description>
+        <mgm id="DoHarvest" datatype="BOOLEAN" default="false" rule="true" />
+      </action>
+      <action rule="${CURRENT.DOY}==${vIDEM} || (${DefaultManagement.WithCrop} &amp;&amp; !${Phenology.IsMaturity})">
+        <description title="Determine if there is a crop">Is true between DoSow and DoHarvest</description>
+        <mgm id="WithCrop" datatype="BOOLEAN" default="false" rule="true" />
+      </action>
+    </simcomponent>
+    <simcomponent id="Irradiation" class="net.simplace.sim.components.models.lintul5.Irradiation">
+      <input id="iDAYL" source="at.DayLength" />
+      <input id="iSINLD" source="at.SINLD" />
+      <input id="iCOSLD" source="at.COSLD" />
+      <input id="iDTR" source="weather_transform.Irradiation" />
+    </simcomponent>
+    <simcomponent id="PotentialEvapoTranspiration" class="net.simplace.sim.components.models.lintul5.PotentialEvapoTranspiration">
+      <input id="cALTI" source="management.Altitude" />
+      <input id="cCO" source="vCO" />
+      <input id="cCFET" source="crop.CFET" />
+      <input id="iTMAX" source="weather.TMax" />
+      <input id="iTMIN" source="weather.TMin" />
+      <input id="iVAP" source="weather_transform.VapourPressure" />
+      <input id="iWIND" source="weather.WindSpeed" />
+      <input id="iAVRAD" source="Irradiation.AVRAD" />
+      <input id="iATMTR" source="Irradiation.ATMTR" />
+      <input id="iFINT" source="Lintul5.FINT" />
+    </simcomponent>
+    <simcomponent id="WaterBalance" class="net.simplace.sim.components.models.lintul5.WaterBalance">
+      <input id="cCFEV" source="soil.CFEV" />
+      <input id="cCRAIRC" source="soil.CRAIRC" />
+      <input id="cDEPNR" source="crop.DEPNR" />
+      <input id="cIAIRDU" source="crop.IAIRDU" />
+      <input id="cIOPT" source="vIOPT" />
+      <input id="cIRRI" source="vIRRI" />
+      <input id="cIRRTAB" source="management.IRRTAB" />
+      <input id="cKSUB" source="soil.KSUB" />
+      <input id="cRDI" source="crop.RDI" />
+      <input id="cRDMCR" source="crop.RDMCR" />
+      <input id="cRDMSO" source="soil.RDMSO" />
+      <input id="cRUNFR" source="soil.RUNFR" />
+      <input id="cSM0" source="soil.SM0" />
+      <input id="cSMDRY" source="soil.SMDRY" />
+      <input id="cSMW" source="soil.SMW" />
+      <input id="cSMFC" source="soil.SMFC" />
+      <input id="cSMI" source="soil.SMI" />
+      <input id="cSMLOWI" source="soil.SMLOWI" />
+      <input id="iDoSow" source="DefaultManagement.DoSow" />
+      <input id="iDoHarvest" source="DefaultManagement.DoHarvest" />
+      <input id="iWithCrop" source="DefaultManagement.WithCrop" />
+      <input id="iPotentialTranspiration" source="PotentialEvapoTranspiration.PotentialTranspiration" />
+      <input id="iPotentialSoilEvaporation" source="PotentialEvapoTranspiration.PotentialSoilEvaporation" />
+      <input id="iReferenceCropEvapotranspirationCo2Corrected" source="PotentialEvapoTranspiration.ReferenceCropEvapotranspirationCo2Corrected" />
+      <input id="iEMERG" source="Phenology.EMERG" />
+      <input id="iRAIN" source="weather_transform.Precipitation" />
+      <input id="iRD" source="Lintul5.sRD" />
+      <input id="iRR" source="Lintul5.rRR" />
+    </simcomponent>
+    <simcomponent id="Phenology" class="net.simplace.sim.components.models.lintul5.Phenology">
+      <input id="cPL" datatype="BOOLEAN">false</input>
+      <input id="cIDPL" datatype="INT">0</input>
+      <input id="cIDEM" source="vIDEM" />
+      <input id="cIDSL" source="crop.IDSL" />
+      <input id="cTSUMEM" source="crop.TSUMEM" />
+      <input id="cTSUM1" source="crop.TSUM1" />
+      <input id="cTSUM2" source="crop.TSUM2" />
+      <input id="cTBASEM" source="crop.TBASEM" />
+      <input id="cTEFFMX" source="crop.TEFFMX" />
+      <input id="cPHOTTB" source="crop.PHOTTB" />
+      <input id="cDTSMTB" source="crop.DTSMTB" />
+      <input id="cDVSI" source="crop.DVSI" />
+      <input id="iDDLP" source="at.PhotoperiodicDayLength" />
+      <input id="iTMIN" source="weather.TMin" />
+      <input id="iTMAX" source="weather.TMax" />
+      <input id="iDoSow" source="DefaultManagement.DoSow" />
+      <input id="iDoHarvest" source="DefaultManagement.DoHarvest" />
+    </simcomponent>
+    <simcomponent id="RadiationUseEfficiency" class="net.simplace.sim.components.models.lintul5.RadiationUseEfficiency">
+      <input id="cCOTB" source="crop.COTB" />
+      <input id="cCO" source="vCO" />
+      <input id="cRUETB" source="crop.RUETB" />
+      <input id="cTMPFTB" source="crop.TMPFTB" />
+      <input id="cTMNFTB" source="crop.TMNFTB" />
+      <input id="iTMIN" source="weather.TMin" />
+      <input id="iTMAX" source="weather.TMax" />
+      <input id="iDVS" source="Phenology.sDVS" />
+    </simcomponent>
+    <simcomponent id="Lintul5" class="net.simplace.sim.components.models.lintul5.Lintul5">
+      <input id="cDVSI" source="crop.DVSI" />
+      <input id="cTDWI" source="crop.TDWI" />
+      <input id="cRGRLAI" source="crop.RGRLAI" />
+      <input id="cSLATB" source="crop.SLATB" />
+      <input id="cLAICR" source="crop.LAICR" />
+      <input id="cTBASE" source="crop.TBASE" />
+      <input id="cKDIFTB" source="crop.KDIFTB" />
+      <input id="cFRTB" source="crop.FRTB" />
+      <input id="cFLTB" source="crop.FLTB" />
+      <input id="cFSTB" source="crop.FSTB" />
+      <input id="cFOTB" source="crop.FOTB" />
+      <input id="cRDRL" source="crop.RDRL" />
+      <input id="cRDRLTB" source="crop.RDRLTB" />
+      <input id="cRDRSHM" source="crop.RDRSHM" />
+      <input id="cRDRRTB" source="crop.RDRRTB" />
+      <input id="cRDRSTB" source="crop.RDRSTB" />
+      <input id="cRDI" source="crop.RDI" />
+      <input id="cRRI" source="crop.RRI" />
+      <input id="cDVSDR" source="crop.DVSDR" />
+      <input id="cDVSDLT" source="crop.DVSDLT" />
+      <input id="cRDRNS" source="crop.RDRNS" />
+      <input id="cDVSNLT" source="crop.DVSNLT" />
+      <input id="cDVSNT" source="crop.DVSNT" />
+      <input id="cFNTRT" source="crop.FNTRT" />
+      <input id="cFRNX" source="crop.FRNX" />
+      <input id="cFRPX" source="crop.FRPX" />
+      <input id="cFRKX" source="crop.FRKX" />
+      <input id="cLRNR" source="crop.LRNR" />
+      <input id="cLSNR" source="crop.LSNR" />
+      <input id="cLRPR" source="crop.LRPR" />
+      <input id="cLSPR" source="crop.LSPR" />
+      <input id="cLRKR" source="crop.LRKR" />
+      <input id="cLSKR" source="crop.LSKR" />
+      <input id="cNLAI" source="crop.NLAI" />
+      <input id="cNLUE" source="crop.NLUE" />
+      <input id="cNMAXSO" source="crop.NMAXSO" />
+      <input id="cPMAXSO" source="crop.PMAXSO" />
+      <input id="cKMAXSO" source="crop.KMAXSO" />
+      <input id="cNPART" source="crop.NPART" />
+      <input id="cNSLA" source="crop.NSLA" />
+      <input id="cRNFLV" source="crop.RNFLV" />
+      <input id="cRNFST" source="crop.RNFST" />
+      <input id="cRNFRT" source="crop.RNFRT" />
+      <input id="cRPFLV" source="crop.RPFLV" />
+      <input id="cRPFST" source="crop.RPFST" />
+      <input id="cRPFRT" source="crop.RPFRT" />
+      <input id="cRKFLV" source="crop.RKFLV" />
+      <input id="cRKFST" source="crop.RKFST" />
+      <input id="cRKFRT" source="crop.RKFRT" />
+      <input id="cTCNT" source="crop.TCNT" />
+      <input id="cTCPT" source="crop.TCPT" />
+      <input id="cTCKT" source="crop.TCKT" />
+      <input id="cNFIXF" source="crop.NFIXF" />
+      <input id="cNMXLV" source="crop.NMXLV" />
+      <input id="cPMXLV" source="crop.PMXLV" />
+      <input id="cKMXLV" source="crop.KMXLV" />
+      <input id="cFERNTAB" source="management.FERNTAB" />
+      <input id="cFERPTAB" source="management.FERPTAB" />
+      <input id="cFERKTAB" source="management.FERKTAB" />
+      <input id="cNRFTAB" source="management.NRFTAB" />
+      <input id="cPRFTAB" source="management.PRFTAB" />
+      <input id="cKRFTAB" source="management.KRFTAB" />
+      <input id="cNMINI" source="management.NMINS" />
+      <input id="cRTNMINS" source="management.RTNMINS" />
+      <input id="cPMINI" source="management.PMINS" />
+      <input id="cRTPMINS" source="management.RTPMINS" />
+      <input id="cKMINI" source="management.KMINS" />
+      <input id="cRTKMINS" source="management.RTKMINS" />
+      <input id="cIOPT" source="vIOPT" />
+      <input id="iTMIN" source="weather.TMin" />
+      <input id="iTMAX" source="weather.TMax" />
+      <input id="iAVRAD" source="Irradiation.AVRAD" />
+      <input id="iTRANRF" source="WaterBalance.TRANRF" />
+      <input id="iRDM" source="WaterBalance.RDM" />
+      <input id="iDVS" source="Phenology.sDVS" />
+      <input id="iEMERG" source="Phenology.EMERG" />
+      <input id="iIDEMERG" source="Phenology.IDEMERG" />
+      <input id="iRUE" source="RadiationUseEfficiency.RUE" />
+      <input id="iRTMCO" source="RadiationUseEfficiency.RTMCO" />
+      <input id="iDoSow" source="DefaultManagement.DoSow" />
+      <input id="iDoHarvest" source="DefaultManagement.DoHarvest" />
+    </simcomponent>
+  </simmodel>
+  <outputs>
+    <output id="LintulSum" interface="lintul5sum" frequence="BOOLEAN" rule="Phenology.IsMaturity" cachesize="10">
+      <description title="Daily Output">Daily output of calculated model variables.</description>
+      <header>
+        <out id="DOY" datatype="DOUBLE" rule="CURRENT.DOY" />
+        <out id="WLVG" datatype="DOUBLE" rule="Lintul5.sWLVG" />
+        <out id="WLVD" datatype="DOUBLE" rule="Lintul5.sWLVD" />
+        <out id="WST" datatype="DOUBLE" rule="Lintul5.sWST" />
+        <out id="WRT" datatype="DOUBLE" rule="Lintul5.sWRT" />
+        <out id="WSO" datatype="DOUBLE" rule="Lintul5.sWSO" />
+        <out id="TAGB" datatype="DOUBLE" rule="Lintul5.sTAGB" />
+        <out id="TSUM" datatype="DOUBLE" rule="Phenology.sTSUM" />
+        <out id="DVS" datatype="DOUBLE" rule="Phenology.sDVS" />
+        <out id="LAI" datatype="DOUBLE" rule="Lintul5.sLAI" />
+        <out id="TRANRF" datatype="DOUBLE" rule="WaterBalance.TRANRF" />
+        <out id="GRT" datatype="DOUBLE" rule="Lintul5.rGRT" />
+        <out id="NNI" datatype="DOUBLE" rule="Lintul5.NNI" />
+        <out id="NPKI" datatype="DOUBLE" rule="Lintul5.NPKI" />
+        <out id="ES0" datatype="DOUBLE" rule="PotentialEvapoTranspiration.ES0" />
+        <out id="TRMAX" datatype="DOUBLE" rule="PotentialEvapoTranspiration.PotentialTranspiration" />
+        <out id="EVMAX" datatype="DOUBLE" rule="PotentialEvapoTranspiration.PotentialSoilEvaporation" />
+        <out id="WAVT" datatype="DOUBLE" rule="WaterBalance.sWAVT" />
+        <out id="TPAR" datatype="DOUBLE" rule="Lintul5.sTPAR" />
+        <out id="TPARINT" datatype="DOUBLE" rule="Lintul5.sTPARINT" />
+        <out id="FINT" datatype="DOUBLE" rule="Lintul5.FINT" />
+        <out id="RAIN" datatype="DOUBLE" rule="weather.Precipitation" />
+        <out id="WBAL" datatype="DOUBLE" rule="WaterBalance.WBAL" />
+        <out id="WBALL" datatype="DOUBLE" rule="WaterBalance.WBALL" />
+        <out id="SMACT" datatype="DOUBLE" rule="WaterBalance.sSMACT" />
+        <out id="TDRAIN" datatype="DOUBLE" rule="WaterBalance.sTDRAIN" />
+        <out id="TRAIN" datatype="DOUBLE" rule="WaterBalance.sTRAIN" />
+        <out id="TRUNOF" datatype="DOUBLE" rule="WaterBalance.sTRUNOF" />
+        <out id="TIRR" datatype="DOUBLE" rule="WaterBalance.sTIRR" />
+        <out id="TESOIL" datatype="DOUBLE" rule="WaterBalance.sCumulativeActualSoilEvaporation" />
+        <out id="TTRANS" datatype="DOUBLE" rule="WaterBalance.sCumulativeActualTranspiration" />
+        <out id="WTOT" datatype="DOUBLE" rule="WaterBalance.sWTOT" />
+        <out id="WAVT" datatype="DOUBLE" rule="WaterBalance.sWAVT" />
+        <out id="TWDR" datatype="DOUBLE" rule="WaterBalance.sTWDR" />
+        <out id="CFET" datatype="DOUBLE" rule="PotentialEvapoTranspiration.cCFET" />
+        <out id="CFEV" datatype="DOUBLE" rule="WaterBalance.cCFEV" />
+        <out id="CRAIRC" datatype="DOUBLE" rule="WaterBalance.cCRAIRC" />
+        <out id="DEPNR" datatype="DOUBLE" rule="WaterBalance.cDEPNR" />
+        <out id="IAIRDU" datatype="BOOLEAN" rule="WaterBalance.cIAIRDU" />
+        <out id="IOPT" datatype="INT" rule="WaterBalance.cIOPT" />
+        <out id="IRRI" datatype="INT" rule="WaterBalance.cIRRI" />
+        <out id="KSUB" datatype="DOUBLE" rule="WaterBalance.cKSUB" />
+        <out id="RDI" datatype="DOUBLE" rule="WaterBalance.cRDI" />
+        <out id="RDMCR" datatype="DOUBLE" rule="WaterBalance.cRDMCR" />
+        <out id="RDMSO" datatype="DOUBLE" rule="WaterBalance.cRDMSO" />
+        <out id="RUNFR" datatype="DOUBLE" rule="WaterBalance.cRUNFR" />
+        <out id="SM0" datatype="DOUBLE" rule="WaterBalance.cSM0" />
+        <out id="SMDRY" datatype="DOUBLE" rule="WaterBalance.cSMDRY" />
+        <out id="SMFC" datatype="DOUBLE" rule="WaterBalance.cSMFC" />
+        <out id="SMI" datatype="DOUBLE" rule="WaterBalance.cSMI" />
+        <out id="SMLOWI" datatype="DOUBLE" rule="WaterBalance.cSMLOWI" />
+        <out id="SMW" datatype="DOUBLE" rule="WaterBalance.cSMW" />
+        <out id="RD" datatype="DOUBLE" rule="Lintul5.sRD" />
+        <out id="RR" datatype="DOUBLE" rule="Lintul5.rRR" />
+        <out id="RDM" datatype="DOUBLE" rule="Lintul5.iRDM" />
+      </header>
+    </output>
+    <output id="LintulDaily" interface="lintul5daily" frequence="DAILY" cachesize="10">
+      <description title="Daily Output">Daily output of calculated model variables.</description>
+      <header>
+        <out id="WLVG" datatype="DOUBLE" rule="Lintul5.sWLVG" />
+        <out id="WLVD" datatype="DOUBLE" rule="Lintul5.sWLVD" />
+        <out id="WST" datatype="DOUBLE" rule="Lintul5.sWST" />
+        <out id="WRT" datatype="DOUBLE" rule="Lintul5.sWRT" />
+        <out id="WSO" datatype="DOUBLE" rule="Lintul5.sWSO" />
+        <out id="TAGB" datatype="DOUBLE" rule="Lintul5.sTAGB" />
+        <out id="TSUM" datatype="DOUBLE" rule="Phenology.sTSUM" />
+        <out id="DVS" datatype="DOUBLE" rule="Phenology.sDVS" />
+        <out id="LAI" datatype="DOUBLE" rule="Lintul5.sLAI" />
+        <out id="TRANRF" datatype="DOUBLE" rule="WaterBalance.TRANRF" />
+        <out id="GRT" datatype="DOUBLE" rule="Lintul5.rGRT" />
+        <out id="NNI" datatype="DOUBLE" rule="Lintul5.NNI" />
+        <out id="NPKI" datatype="DOUBLE" rule="Lintul5.NPKI" />
+        <out id="ES0" datatype="DOUBLE" rule="PotentialEvapoTranspiration.ES0" />
+        <out id="ETC" datatype="DOUBLE" rule="PotentialEvapoTranspiration.ReferenceCropEvapotranspirationCo2Corrected" />
+        <out id="TRMAX" datatype="DOUBLE" rule="PotentialEvapoTranspiration.PotentialTranspiration" />
+        <out id="EVMAX" datatype="DOUBLE" rule="PotentialEvapoTranspiration.PotentialSoilEvaporation" />
+        <out id="WAVT" datatype="DOUBLE" rule="WaterBalance.sWAVT" />
+        <out id="TPAR" datatype="DOUBLE" rule="Lintul5.sTPAR" />
+        <out id="TPARINT" datatype="DOUBLE" rule="Lintul5.sTPARINT" />
+        <out id="FINT" datatype="DOUBLE" rule="Lintul5.FINT" />
+        <out id="RAIN" datatype="DOUBLE" rule="weather.Precipitation" />
+        <out id="WBAL" datatype="DOUBLE" rule="WaterBalance.WBAL" />
+        <out id="WBALL" datatype="DOUBLE" rule="WaterBalance.WBALL" />
+        <out id="SMACT" datatype="DOUBLE" rule="WaterBalance.sSMACT" />
+        <out id="TDRAIN" datatype="DOUBLE" rule="WaterBalance.sTDRAIN" />
+        <out id="TRAIN" datatype="DOUBLE" rule="WaterBalance.sTRAIN" />
+        <out id="TRUNOF" datatype="DOUBLE" rule="WaterBalance.sTRUNOF" />
+        <out id="TIRR" datatype="DOUBLE" rule="WaterBalance.sTIRR" />
+        <out id="TESOIL" datatype="DOUBLE" rule="WaterBalance.sCumulativeActualSoilEvaporation" />
+        <out id="TTRANS" datatype="DOUBLE" rule="WaterBalance.sCumulativeActualTranspiration" />
+        <out id="WTOT" datatype="DOUBLE" rule="WaterBalance.sWTOT" />
+        <out id="WAVT" datatype="DOUBLE" rule="WaterBalance.sWAVT" />
+        <out id="TWDR" datatype="DOUBLE" rule="WaterBalance.sTWDR" />
+        <out id="CFET" datatype="DOUBLE" rule="PotentialEvapoTranspiration.cCFET" />
+        <out id="CFEV" datatype="DOUBLE" rule="WaterBalance.cCFEV" />
+        <out id="CRAIRC" datatype="DOUBLE" rule="WaterBalance.cCRAIRC" />
+        <out id="DEPNR" datatype="DOUBLE" rule="WaterBalance.cDEPNR" />
+        <out id="IAIRDU" datatype="BOOLEAN" rule="WaterBalance.cIAIRDU" />
+        <out id="IOPT" datatype="INT" rule="WaterBalance.cIOPT" />
+        <out id="IRRI" datatype="INT" rule="WaterBalance.cIRRI" />
+        <out id="KSUB" datatype="DOUBLE" rule="WaterBalance.cKSUB" />
+        <out id="RDI" datatype="DOUBLE" rule="WaterBalance.cRDI" />
+        <out id="RDMCR" datatype="DOUBLE" rule="WaterBalance.cRDMCR" />
+        <out id="RDMSO" datatype="DOUBLE" rule="WaterBalance.cRDMSO" />
+        <out id="RUNFR" datatype="DOUBLE" rule="WaterBalance.cRUNFR" />
+        <out id="SM0" datatype="DOUBLE" rule="WaterBalance.cSM0" />
+        <out id="SMDRY" datatype="DOUBLE" rule="WaterBalance.cSMDRY" />
+        <out id="SMFC" datatype="DOUBLE" rule="WaterBalance.cSMFC" />
+        <out id="SMI" datatype="DOUBLE" rule="WaterBalance.cSMI" />
+        <out id="SMLOWI" datatype="DOUBLE" rule="WaterBalance.cSMLOWI" />
+        <out id="SMW" datatype="DOUBLE" rule="WaterBalance.cSMW" />
+        <out id="RD" datatype="DOUBLE" rule="Lintul5.sRD" />
+        <out id="RR" datatype="DOUBLE" rule="Lintul5.rRR" />
+        <out id="RDM" datatype="DOUBLE" rule="Lintul5.iRDM" />
+      </header>
+    </output>
+  </outputs>
+</solution>
+
