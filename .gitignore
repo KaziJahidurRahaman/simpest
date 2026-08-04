@@ -105,4 +105,6 @@ ENV/
 
 # IDE settings
 .vscode/
-claude-prompts/documentation-guide.md
+claude-prompts/
+claude-prompts/
+claude-prompts/
