@@ -87,8 +87,9 @@ print(result["outputs"]["summary"])
 ```
 
 For the full pipeline — running SIMPLACE first and converting its output into
-the DataFrames above — see the walkthrough notebook at
-[`docs/examples/simpest_workflow_example.ipynb`](docs/examples/simpest_workflow_example.ipynb).
+the DataFrames above — see the example notebooks at
+[`docs/examples/1_Run Simpest.ipynb`](docs/examples/1_Run%20Simpest.ipynb) and
+[`docs/examples/2_Plot.ipynb`](docs/examples/2_Plot.ipynb).
 
 ## Directory layout
 
@@ -121,7 +122,7 @@ Full documentation, including the API reference, is published at
 
 - [Installation](docs/installation.md)
 - [Usage](docs/usage.md)
-- [Examples](docs/examples/intro.ipynb)
+- [Examples](docs/examples/1_Run%20Simpest.ipynb)
 - [API Reference](docs/simpest.md)
 - [Contributing](docs/contributing.md)
 - [Changelog](docs/changelog.md)

@@ -130,17 +130,17 @@ result = run_franchestyn(
 print(result["outputs"]["summary"])
 ```
 
-See the full workflow notebook at
-[docs/examples/simpest_workflow_example.ipynb](examples/simpest_workflow_example.ipynb)
-for running SIMPLACE first and converting its output into the DataFrames
-above.
+See the example notebooks at
+[examples/1_Run Simpest.ipynb](examples/1_Run%20Simpest.ipynb) and
+[examples/2_Plot.ipynb](examples/2_Plot.ipynb) for running SIMPLACE first and
+converting its output into the DataFrames above.
 
 ## Quick Links
 
 - [Installation](installation.md)
 - [Usage](usage.md)
 - [API Reference](simpest.md)
-- [Examples](examples/intro.ipynb)
+- [Examples](examples/1_Run%20Simpest.ipynb)
 - [Contributing](contributing.md)
 - [Changelog](changelog.md)
 

@@ -60,11 +60,9 @@ plugins:
           allow_errors: false
           ignore:
               - "conf.py"
-              # Informal, work-in-progress notebooks kept for local development;
-              # not part of the published documentation set.
-              - "examples/Run Simpest.ipynb"
+              # Backup copy kept for local reference; not part of the published
+              # documentation set.
               - "examples/Run Simpest - Copy.ipynb"
-              - "examples/Plot.ipynb"
           execute_ignore: ["*ignore.ipynb"]
 
 markdown_extensions:
@@ -101,8 +99,8 @@ nav:
     - Changelog: changelog.md
     - Report Issues: https://github.com/KaziJahidurRahaman/simpest/issues
     - Examples:
-        - examples/intro.ipynb
-        - examples/simpest_workflow_example.ipynb
+        - Run simpest: examples/1_Run Simpest.ipynb
+        - Plot results: examples/2_Plot.ipynb
     - API Reference:
           - simpest module: simpest.md
           - common module: common.md

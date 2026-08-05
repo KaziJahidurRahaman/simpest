@@ -183,5 +183,6 @@ runs once with the JSON defaults (or with `crop_parameters` /
 
 See the [API Reference](simpest.md) for the full parameter and return-value
 documentation, and
-[`docs/examples/simpest_workflow_example.ipynb`](examples/simpest_workflow_example.ipynb)
-for a complete, runnable walkthrough.
+[`examples/1_Run Simpest.ipynb`](examples/1_Run%20Simpest.ipynb) /
+[`examples/2_Plot.ipynb`](examples/2_Plot.ipynb) for a complete, runnable
+walkthrough.
