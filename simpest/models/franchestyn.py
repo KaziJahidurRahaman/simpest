@@ -30,9 +30,9 @@ def deactivate_calibration(params: dict, disable_list) -> dict:
     """
     Disable calibration for selected parameter names in a parameter section.
 
-    Mirrors the FraNchEstYN R convention: each parameter carries a boolean
-    ``calibration`` flag, and deactivating a parameter simply forces that flag
-    to ``False``. The calibrator then skips any parameter whose flag is off.
+    Each parameter carries a boolean ``calibration`` flag, and deactivating a
+    parameter simply forces that flag to ``False``. The calibrator then skips
+    any parameter whose flag is off.
 
     The ``params`` mapping is mutated in place *and* returned, so both
     ``deactivate_calibration(specs, names)`` and
@@ -56,7 +56,7 @@ def deactivate_calibration(params: dict, disable_list) -> dict:
 @dataclass
 class FranchestynConfig:
     """
-    Configuration for FraNchEstYN model runs.
+    Configuration for a simpest crop-disease-fungicide simulation run.
 
     Attributes:
         param_file (str): Path to the main parameter file.
@@ -145,7 +145,7 @@ class FranchestynConfig:
 
 def _outputs_to_records(date_outputs):
     """
-    Convert date_outputs from FraNchEstYN runner to a list of record dicts.
+    Convert date_outputs from the simulation runner to a list of record dicts.
 
     Args:
         date_outputs (dict): Mapping of date to output objects.
@@ -202,12 +202,12 @@ def run_franchestyn(
     fungicide_param_file: str | None = None,
 ) -> dict:
     """
-    Run the FraNchEstYN model with in-memory DataFrame inputs.
+    Run the crop-disease-fungicide simulation with in-memory DataFrame inputs.
 
     Args:
         start_year (int): Start year for simulation.
         end_year (int): End year for simulation.
-        config (FranchestynConfig): FraNchEstYN configuration object.
+        config (FranchestynConfig): Simulation configuration object.
         weather_df (pd.DataFrame): In-memory weather input.
         management_df (pd.DataFrame): In-memory management input.
         crop_model_df (pd.DataFrame): In-memory crop model input.
@@ -313,7 +313,7 @@ def run_franchestyn(
 
 def save_simulation_results_csv(res_ot_simulation, output_root: Path, filename: str = "franchestyn_simulation_results.csv") -> Path:
     """
-    Save FraNchEstYN simulation results to a CSV file.
+    Save simulation results to a CSV file.
 
     Args:
         res_ot_simulation (list of dict): Simulation output records.

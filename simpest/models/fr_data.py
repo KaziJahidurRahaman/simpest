@@ -1,4 +1,4 @@
-"""Input, output, and parameter data structures for the FraNchEstYN model.
+"""Input, output, and parameter data structures for the simulation model.
 
 This module defines the typed containers that carry information through the
 simulation: hourly and daily weather inputs, external crop-model series, the
@@ -53,7 +53,7 @@ class InputsDaily:
 
 
 # ---------------------------------------------------------------------------
-# Crop model data (external model output fed into Franchestyn)
+# Crop model data (external crop-model output fed into the disease model)
 # ---------------------------------------------------------------------------
 
 @dataclass

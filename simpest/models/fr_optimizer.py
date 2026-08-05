@@ -1,4 +1,4 @@
-"""Multi-start Nelder–Mead calibration for the FraNchEstYN model.
+"""Multi-start Nelder–Mead calibration for the simulation model.
 
 This module estimates model parameters by minimising the run's root-mean-square
 error against reference observations. It uses a self-contained, pure-Python
@@ -28,7 +28,7 @@ import numpy as np
 
 from .fr_runner import FranchestynRunner
 class FranchestynOptimizer:
-    """Multi-start Nelder–Mead calibration for the FraNchEstYN model.
+    """Multi-start Nelder–Mead calibration for a simpest simulation run.
 
     Wraps a configured runner and searches for the parameter set that minimises
     the run's RMSE against reference data. Only parameters flagged for

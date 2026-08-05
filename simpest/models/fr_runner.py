@@ -1,4 +1,4 @@
-"""Main simulation runner for the FraNchEstYN model.
+"""Main simulation runner for simpest's crop-disease-fungicide model.
 
 The runner orchestrates a full simulation: it loads parameters, weather, the
 sowing schedule, reference observations, and any external crop-model series,
@@ -45,7 +45,7 @@ _MAX_DAS = 11 * 30
 
 class FranchestynRunner:
     """
-    End-to-end FraNchEstYN simulation runner.
+    End-to-end crop-disease-fungicide simulation runner.
 
     Args:
         weather_dir (str): Directory containing weather data.

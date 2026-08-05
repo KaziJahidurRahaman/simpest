@@ -4,7 +4,7 @@ site_author: KaziJahidurRahaman
 site_url: https://KaziJahidurRahaman.github.io/simpest
 repo_url: https://github.com/KaziJahidurRahaman/simpest
 
-copyright: "Copyright &copy; 2024 - 2024 Kazi Jahidur Rahaman"
+copyright: "Copyright &copy; 2024 - 2026 Kazi Jahidur Rahaman"
 
 theme:
     palette:
@@ -58,7 +58,13 @@ plugins:
           ignore_h1_titles: True
           execute: False
           allow_errors: false
-          ignore: ["conf.py"]
+          ignore:
+              - "conf.py"
+              # Informal, work-in-progress notebooks kept for local development;
+              # not part of the published documentation set.
+              - "examples/Run Simpest.ipynb"
+              - "examples/Run Simpest - Copy.ipynb"
+              - "examples/Plot.ipynb"
           execute_ignore: ["*ignore.ipynb"]
 
 markdown_extensions:
@@ -99,6 +105,7 @@ nav:
         - examples/simpest_workflow_example.ipynb
     - API Reference:
           - simpest module: simpest.md
+          - common module: common.md
           - models:
               - models package: models/models_package.md
               - simplace module: models/simplace.md
@@ -113,4 +120,3 @@ nav:
               - fr_param_reader module: models/fr_param_reader.md
               - fr_reference_reader module: models/fr_reference_reader.md
               - fr_weather_reader module: models/fr_weather_reader.md
-        #   - common module: common.md

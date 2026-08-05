@@ -5,26 +5,50 @@
 [![PyPI](https://img.shields.io/pypi/v/simpest.svg)](https://pypi.python.org/pypi/simpest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-## Introduction
+**simpest** is a Python package for coupled crop growth and plant disease/pest
+simulation. It runs a [SIMPLACE](https://www.simplace.net)/Lintul5 crop growth
+scenario, converts the daily crop trajectory into the inputs a disease and
+fungicide simulation model expects, and runs that model — optionally
+calibrating selected parameters against field reference observations — to
+produce daily and seasonal outputs. The disease/pest simulation logic is
+inspired by the [FraNchEstYN](https://github.com/GeoModelLab/FraNchEstYN)
+model.
 
-**simpest** is a Python package for crop and disease simulation workflows.
-It connects [SIMPLACE](https://www.simplace.net) outputs with the FraNchEstYN
-model family so you can run end-to-end experiments from weather and management
-data to simulation and summary results.
+## The modelling pipeline
 
-## Package Description
+1. **Crop growth (SIMPLACE).** [`simpest.models.simplace`](models/simplace.md)
+   configures and runs a SIMPLACE/Lintul5 scenario and reads back the daily
+   trajectory (light interception, above-ground biomass, yield, and thermal
+   time).
+2. **Format conversion.** Helper functions in the same module reshape the
+   SIMPLACE weather, management, and crop-model outputs into the tables the
+   disease/fungicide simulation consumes.
+3. **Disease, pest, and fungicide simulation.**
+   [`simpest.models.franchestyn`](models/franchestyn.md) drives an hourly
+   infection model and a daily SEIR (susceptible → latent → sporulating →
+   dead) tissue-progression model, applies any scheduled fungicide
+   treatments, and couples the epidemic back onto the crop through four
+   damage mechanisms — light stealers, RUE reducers, assimilate sappers, and
+   senescence accelerators.
+4. **Calibration (optional).** A multi-start Nelder–Mead search
+   ([`fr_optimizer`](models/fr_optimizer.md)) fits selected crop and/or
+   disease parameters to reference observations by minimising RMSE.
+5. **Outputs.** Daily simulation records and per-season summaries (AUDPC,
+   yield loss, peak severity, weather aggregates) are returned as
+   DataFrame-ready records and can be written to CSV.
 
-The package supports a practical modeling pipeline:
+## Package description
 
-- Runs SIMPLACE scenarios
-- Converts SIMPLACE outputs to FraNchEstYN-compatible inputs
-- Runs crop, disease, and fungicide simulation steps
-- Calibrates selected parameters using multi-start Nelder-Mead optimization
-- Export daily simulation and seasonal summary outputs.
+- Runs SIMPLACE scenarios and reads the resulting daily crop trajectory.
+- Converts SIMPLACE outputs to the format expected by the disease/fungicide
+  simulation.
+- Runs the crop, disease, and fungicide simulation steps.
+- Calibrates selected parameters using multi-start Nelder–Mead optimization.
+- Exports daily simulation and seasonal summary outputs.
 
-Core modules are available under [simpest/models](../simpest/models).
+Core modules are available under [simpest/models](https://github.com/KaziJahidurRahaman/simpest/tree/main/simpest/models).
 
-## Directory Tree
+## Directory tree
 
 ```text
 simpest/
@@ -66,45 +90,50 @@ For development installs, use editable mode:
 pip install -e .
 ```
 
+See [Installation](installation.md) for the SIMPLACE/JVM prerequisites
+needed for the crop growth stage.
+
 ## Quickstart
 
+The disease/fungicide simulation stage takes plain pandas DataFrames, so it
+can be exercised on its own once weather, management, crop-model, and
+reference data are available (as CSVs or otherwise):
+
 ```python
-from simpest.models.simplace import SimplaceConfig, init_simplace, run_simplace
+import pandas as pd
 from simpest.models.franchestyn import FranchestynConfig, run_franchestyn
 
-# 1) Configure and run SIMPLACE
-sp_cfg = SimplaceConfig(
-	install_dir="<SIMPLACE_INSTALL>",
-	work_dir="<SIMPLACE_WORK>",
-	output_dir="<OUTPUT_DIR>",
-	solution_path="<SOLUTION_PATH>",
-	project_path="<PROJECT_PATH>",
-)
-shell = init_simplace(sp_cfg)
-run_simplace(shell, sp_cfg, project_lines=[1])
+weather_df = pd.read_csv("weather.csv")
+management_df = pd.read_csv("management.csv")
+crop_model_df = pd.read_csv("crop_model.csv")
+ref_df = pd.read_csv("reference.csv")
 
-# 2) Configure and run FraNchEstYN
-fr_cfg = FranchestynConfig(
-	reference_path="<REFERENCE_CSV>",
-	crop_type="wheat",
-	disease_type="septoria",
-	site="indiana",
-	variety="Generic",
-	disease="thisDisease",
+config = FranchestynConfig(
+    crop_type="wheat",
+    disease_type="septoria",
+    fungicide_type=None,
+    site="indiana",
+    variety="Generic",
+    disease="thisDisease",
+    is_calibration=False,
 )
 
 result = run_franchestyn(
-	weather_path="<WEATHER_FILE>",
-	management_path="<MANAGEMENT_FILE>",
-	start_year=2018,
-	end_year=2019,
-	config=fr_cfg,
+    start_year=2018,
+    end_year=2019,
+    config=config,
+    weather_df=weather_df,
+    management_df=management_df,
+    crop_model_df=crop_model_df,
+    ref_df=ref_df,
 )
 print(result["outputs"]["summary"])
 ```
 
-See the full workflow notebook at [docs/examples/simpest_workflow_example.ipynb](examples/simpest_workflow_example.ipynb).
-
+See the full workflow notebook at
+[docs/examples/simpest_workflow_example.ipynb](examples/simpest_workflow_example.ipynb)
+for running SIMPLACE first and converting its output into the DataFrames
+above.
 
 ## Quick Links
 

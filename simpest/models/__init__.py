@@ -1,4 +1,4 @@
-"""Model modules for SIMPLACE and FraNchEstYN workflows."""
+"""Model modules for SIMPLACE-driven crop growth and disease/pest simulation workflows."""
 
 from .franchestyn import FranchestynConfig, run_franchestyn
 from .simplace import SimplaceConfig

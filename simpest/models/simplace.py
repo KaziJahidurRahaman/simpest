@@ -3,13 +3,13 @@ import math
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import jpype
 import pandas as pd
 
 import simplace
-def get_simplace_directories(shell):
+def get_simplace_directories(shell: Any) -> dict:
     """
     Wrapper for simplace.getSimplaceDirectories to avoid exposing simplace in notebooks.
 
@@ -44,7 +44,7 @@ class SimplaceConfig:
     project_path: str = "SimulationExperimentTemplate/project/Lintul5All_indiana.proj.xml"
 
 
-def init_simplace(config: SimplaceConfig):
+def init_simplace(config: SimplaceConfig) -> Any:
     """
     Initialize and return a Simplace instance using the given configuration.
 
@@ -52,7 +52,7 @@ def init_simplace(config: SimplaceConfig):
         config (SimplaceConfig): Simplace configuration object.
 
     Returns:
-        Simplace instance.
+        Any: Simplace shell instance (an opaque jpype-backed object).
     """
     global _SIMPLACE_INSTANCE
 
@@ -72,7 +72,7 @@ def init_simplace(config: SimplaceConfig):
     return _SIMPLACE_INSTANCE
 
 
-def run_simplace(shell, config: SimplaceConfig, project_lines: list[int]):
+def run_simplace(shell: Any, config: SimplaceConfig, project_lines: list[int]) -> None:
     """
     Run a Simplace project for the specified project lines.
 
@@ -292,10 +292,10 @@ def extract_yearly_sowing_doy(
 
 
 def export_crop_model_data(output_root: Path, project_row: dict) -> Path:
-    """Exports daily SIMPLACE outputs to FraNchEstYN crop model format.
+    """Exports daily SIMPLACE outputs to the simpest crop-model input format.
 
-    The exported CSV contains the variables required by FraNchEstYN for
-    coupling with an external crop model.
+    The exported CSV contains the variables required by the disease and
+    fungicide sub-models for coupling with an external crop model.
 
     Expected output units:
         - agb: g/m²
@@ -381,7 +381,7 @@ def _saturation_vapor_pressure(t_celsius: float) -> float:
 
 def convert_weather(work_root: Path, output_root: Path, location: str) -> Path:
     """
-    Convert Simplace weather file to FraNchEstYN-compatible CSV format.
+    Convert a Simplace weather file to the simpest weather CSV format.
 
     Args:
         work_root (Path): Simplace workspace root directory.
@@ -445,7 +445,7 @@ def build_management(
     yearly_sowing_doy: Optional[dict[int, int]] = None,
 ) -> Path:
     """
-    Build and save a management CSV file for FraNchEstYN.
+    Build and save a management CSV file for the disease/fungicide simulation.
 
     Args:
         output_root (Path): Output root directory.
@@ -508,12 +508,12 @@ def merge_simplace_and_franchestyn(
     out_name: str = "merged_simulation_data.csv",
 ) -> Path:
     """
-    Merge Simplace and FraNchEstYN daily outputs into a single CSV file.
+    Merge Simplace crop-model and simpest daily disease outputs into one CSV file.
 
     Args:
         output_root (Path): Output root directory.
         project_row (dict): Project row dictionary.
-        franchestyn_df (pd.DataFrame): FraNchEstYN daily output DataFrame.
+        franchestyn_df (pd.DataFrame): Daily disease/fungicide output DataFrame.
         out_name (str, optional): Output filename. Defaults to "merged_simulation_data.csv".
 
     Returns:
