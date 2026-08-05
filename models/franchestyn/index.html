@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -507,14 +507,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/intro/" class="md-nav__link">
+      <a href="../../examples/intro.ipynb" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Intro
+    None
   
 
     
@@ -535,14 +535,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/simpest_workflow_example/" class="md-nav__link">
+      <a href="../../examples/simpest_workflow_example.ipynb" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Simpest workflow example
+    None
   
 
     
@@ -644,6 +644,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../../common/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    common module
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -657,10 +685,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_9_2" id="__nav_9_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9_3" id="__nav_9_3_label" tabindex="0">
             
   
   
@@ -678,8 +706,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_9_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_9_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -831,6 +859,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="FranchestynConfig">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simpest.models.franchestyn.FranchestynConfig.__post_init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __post_init__()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1256,6 +1301,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="FranchestynConfig">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simpest.models.franchestyn.FranchestynConfig.__post_init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __post_init__()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1396,7 +1458,7 @@ FranchestynConfig        </code>
 
     <div class="doc doc-contents ">
 
-      <p>Configuration for FraNchEstYN model runs.</p>
+      <p>Configuration for a simpest crop-disease-fungicide simulation run.</p>
 
 <p><strong>Attributes:</strong></p>
 <table>
@@ -1427,11 +1489,6 @@ FranchestynConfig        </code>
         <td><code>fungicide_param_file</code></td>
         <td><code>str</code></td>
         <td><p>Path to fungicide parameter file.</p></td>
-      </tr>
-      <tr>
-        <td><code>reference_path</code></td>
-        <td><code>str</code></td>
-        <td><p>Path to reference CSV.</p></td>
       </tr>
       <tr>
         <td><code>crop_type</code></td>
@@ -1510,32 +1567,53 @@ includes it. Has no effect for per-year sowing CSVs.</p></td>
         <td><p>Maximum calibration iterations.</p></td>
       </tr>
       <tr>
+        <td><code>crop_parameters</code></td>
+        <td><code>dict</code></td>
+        <td><p>Raw crop parameter spec dict for <code>crop_type</code>,
+loaded from <code>crop_param_file</code> at construction. Editable in place;
+pass it through :func:<code>deactivate_calibration</code> to turn off
+calibration for selected parameters before running.</p></td>
+      </tr>
+      <tr>
+        <td><code>disease_parameters</code></td>
+        <td><code>dict</code></td>
+        <td><p>Raw disease parameter spec dict for
+<code>disease_type</code>, loaded from <code>disease_param_file</code>.</p></td>
+      </tr>
+      <tr>
+        <td><code>fungicide_parameters</code></td>
+        <td><code>dict</code></td>
+        <td><p>Raw fungicide parameter spec dict for
+<code>fungicide_type</code> (empty when <code>fungicide_type</code> is None).</p></td>
+      </tr>
+      <tr>
         <td><code>crop_disabled_params</code></td>
         <td><code>frozenset[str]</code></td>
         <td><p>Crop parameter names to hard-exclude
-from calibration.</p></td>
+from calibration. Legacy alternative to editing <code>crop_parameters</code>;
+both are honored.</p></td>
       </tr>
       <tr>
         <td><code>disease_disabled_params</code></td>
         <td><code>frozenset[str]</code></td>
         <td><p>Disease parameter names to
-hard-exclude from calibration.</p></td>
+hard-exclude from calibration. Legacy alternative to editing
+<code>disease_parameters</code>; both are honored.</p></td>
       </tr>
   </tbody>
 </table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/franchestyn.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+          <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FranchestynConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Configuration for FraNchEstYN model runs.</span>
+<span class="sd">    Configuration for a simpest crop-disease-fungicide simulation run.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        param_file (str): Path to the main parameter file.</span>
 <span class="sd">        crop_param_file (str): Path to crop parameter file.</span>
 <span class="sd">        disease_param_file (str): Path to disease parameter file.</span>
 <span class="sd">        fungicide_param_file (str): Path to fungicide parameter file.</span>
-<span class="sd">        reference_path (str): Path to reference CSV.</span>
 <span class="sd">        crop_type (str): Crop type (e.g., &#39;wheat&#39;).</span>
 <span class="sd">        disease_type (str): Disease type (e.g., &#39;septoria&#39;). Also the disease</span>
 <span class="sd">            on/off switch — ``None`` skips the disease model entirely, giving a</span>
@@ -1560,16 +1638,25 @@ hard-exclude from calibration.</p></td>
 <span class="sd">            includes it. Has no effect for per-year sowing CSVs.</span>
 <span class="sd">        n_restarts (int): Number of calibration restarts.</span>
 <span class="sd">        max_iter (int): Maximum calibration iterations.</span>
+<span class="sd">        crop_parameters (dict): Raw crop parameter spec dict for ``crop_type``,</span>
+<span class="sd">            loaded from ``crop_param_file`` at construction. Editable in place;</span>
+<span class="sd">            pass it through :func:`deactivate_calibration` to turn off</span>
+<span class="sd">            calibration for selected parameters before running.</span>
+<span class="sd">        disease_parameters (dict): Raw disease parameter spec dict for</span>
+<span class="sd">            ``disease_type``, loaded from ``disease_param_file``.</span>
+<span class="sd">        fungicide_parameters (dict): Raw fungicide parameter spec dict for</span>
+<span class="sd">            ``fungicide_type`` (empty when ``fungicide_type`` is None).</span>
 <span class="sd">        crop_disabled_params (frozenset[str]): Crop parameter names to hard-exclude</span>
-<span class="sd">            from calibration.</span>
+<span class="sd">            from calibration. Legacy alternative to editing ``crop_parameters``;</span>
+<span class="sd">            both are honored.</span>
 <span class="sd">        disease_disabled_params (frozenset[str]): Disease parameter names to</span>
-<span class="sd">            hard-exclude from calibration.</span>
+<span class="sd">            hard-exclude from calibration. Legacy alternative to editing</span>
+<span class="sd">            ``disease_parameters``; both are honored.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">param_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">crop_param_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_resolve_local_model_file</span><span class="p">(</span><span class="s2">&quot;fr_crop_parameters.json&quot;</span><span class="p">))</span>
     <span class="n">disease_param_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_resolve_local_model_file</span><span class="p">(</span><span class="s2">&quot;fr_disease_parameters.json&quot;</span><span class="p">))</span>
     <span class="n">fungicide_param_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_resolve_local_model_file</span><span class="p">(</span><span class="s2">&quot;fr_fungicide_parameters.json&quot;</span><span class="p">))</span>
-    <span class="n">reference_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_resolve_default_reference</span><span class="p">()</span>
     <span class="n">crop_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wheat&quot;</span>
     <span class="n">disease_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;septoria&quot;</span>
     <span class="n">fungicide_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;protectant&quot;</span>
@@ -1585,6 +1672,26 @@ hard-exclude from calibration.</p></td>
     <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
     <span class="n">crop_disabled_params</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">()</span>
     <span class="n">disease_disabled_params</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">()</span>
+
+    <span class="c1"># Editable parameter spec dicts, populated from the JSON files in</span>
+    <span class="c1"># __post_init__ (unless the caller supplied their own).</span>
+    <span class="n">crop_parameters</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">disease_parameters</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">fungicide_parameters</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load the editable parameter spec dicts from the JSON files.</span>
+
+<span class="sd">        Only fills a dict that the caller left empty, so an explicitly passed</span>
+<span class="sd">        ``crop_parameters`` / ``disease_parameters`` / ``fungicide_parameters``</span>
+<span class="sd">        is preserved.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_parameters</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">crop_parameters</span> <span class="o">=</span> <span class="n">load_crop_specs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crop_param_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_parameters</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">disease_parameters</span> <span class="o">=</span> <span class="n">load_disease_specs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disease_param_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fungicide_parameters</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fungicide_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fungicide_parameters</span> <span class="o">=</span> <span class="n">load_fungicide_specs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fungicide_param_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fungicide_type</span><span class="p">)</span>
 </code></pre></div>
         </details>
 
@@ -1622,6 +1729,48 @@ hard-exclude from calibration.</p></td>
 
 
 
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h4 id="simpest.models.franchestyn.FranchestynConfig.__post_init__" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-special"><code>special</code></small>
+  </span>
+
+<a href="#simpest.models.franchestyn.FranchestynConfig.__post_init__" class="headerlink" title="Permanent link">&para;</a></h4>
+
+    <div class="doc doc-contents ">
+
+      <p>Load the editable parameter spec dicts from the JSON files.</p>
+<p>Only fills a dict that the caller left empty, so an explicitly passed
+<code>crop_parameters</code> / <code>disease_parameters</code> / <code>fungicide_parameters</code>
+is preserved.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>simpest/models/franchestyn.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load the editable parameter spec dicts from the JSON files.</span>
+
+<span class="sd">    Only fills a dict that the caller left empty, so an explicitly passed</span>
+<span class="sd">    ``crop_parameters`` / ``disease_parameters`` / ``fungicide_parameters``</span>
+<span class="sd">    is preserved.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_parameters</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crop_parameters</span> <span class="o">=</span> <span class="n">load_crop_specs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crop_param_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_type</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_parameters</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_type</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disease_parameters</span> <span class="o">=</span> <span class="n">load_disease_specs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disease_param_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_type</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fungicide_parameters</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fungicide_type</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fungicide_parameters</span> <span class="o">=</span> <span class="n">load_fungicide_specs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fungicide_param_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fungicide_type</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
 
 
 
@@ -1831,6 +1980,12 @@ valid post-sowing days.</p></td>
     <div class="doc doc-contents ">
 
       <p>Disable calibration for selected parameter names in a parameter section.</p>
+<p>Each parameter carries a boolean <code>calibration</code> flag, and deactivating a
+parameter simply forces that flag to <code>False</code>. The calibrator then skips
+any parameter whose flag is off.</p>
+<p>The <code>params</code> mapping is mutated in place <em>and</em> returned, so both
+<code>deactivate_calibration(specs, names)</code> and
+<code>specs = deactivate_calibration(specs, names)</code> are valid.</p>
 
 <p><strong>Parameters:</strong></p>
 <table>
@@ -1846,28 +2001,56 @@ valid post-sowing days.</p></td>
       <tr>
         <td><code>params</code></td>
         <td><code>dict</code></td>
-        <td><p>Mapping of parameter name to parameter specification dict.</p></td>
+        <td><p>Mapping of parameter name to parameter specification dict
+(e.g. <code>config.crop_parameters</code>).</p></td>
         <td><em>required</em></td>
       </tr>
       <tr>
         <td><code>disable_list</code></td>
         <td><code>Iterable[str]</code></td>
         <td><p>Parameter names for which calibration
-should be forced to False.</p></td>
+should be forced to <code>False</code>.</p></td>
         <td><em>required</em></td>
       </tr>
   </tbody>
 </table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>dict</code></td>
+      <td><p>The same <code>params</code> mapping, with the selected flags set to False.</p></td>
+    </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/franchestyn.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">deactivate_calibration</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">disable_list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">deactivate_calibration</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">disable_list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Disable calibration for selected parameter names in a parameter section.</span>
 
+<span class="sd">    Each parameter carries a boolean ``calibration`` flag, and deactivating a</span>
+<span class="sd">    parameter simply forces that flag to ``False``. The calibrator then skips</span>
+<span class="sd">    any parameter whose flag is off.</span>
+
+<span class="sd">    The ``params`` mapping is mutated in place *and* returned, so both</span>
+<span class="sd">    ``deactivate_calibration(specs, names)`` and</span>
+<span class="sd">    ``specs = deactivate_calibration(specs, names)`` are valid.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        params (dict): Mapping of parameter name to parameter specification dict.</span>
+<span class="sd">        params (dict): Mapping of parameter name to parameter specification dict</span>
+<span class="sd">            (e.g. ``config.crop_parameters``).</span>
 <span class="sd">        disable_list (Iterable[str]): Parameter names for which calibration</span>
-<span class="sd">            should be forced to False.</span>
+<span class="sd">            should be forced to ``False``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: The same ``params`` mapping, with the selected flags set to False.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">disable_list</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
@@ -1886,14 +2069,14 @@ should be forced to False.</p></td>
 
 
 <h3 id="simpest.models.franchestyn.run_franchestyn" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">run_franchestyn</span><span class="p">(</span><span class="n">weather_path</span><span class="p">,</span> <span class="n">management_path</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">cropmodel_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">crop_param_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">disease_param_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fungicide_param_file</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">run_franchestyn</span><span class="p">(</span><span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">weather_df</span><span class="p">,</span> <span class="n">management_df</span><span class="p">,</span> <span class="n">crop_model_df</span><span class="p">,</span> <span class="n">ref_df</span><span class="p">,</span> <span class="n">crop_param_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">disease_param_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fungicide_param_file</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 
 <a href="#simpest.models.franchestyn.run_franchestyn" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents ">
 
-      <p>Run the FraNchEstYN model with the given configuration and input files.</p>
+      <p>Run the crop-disease-fungicide simulation with in-memory DataFrame inputs.</p>
 
 <p><strong>Parameters:</strong></p>
 <table>
@@ -1906,18 +2089,6 @@ should be forced to False.</p></td>
     </tr>
   </thead>
   <tbody>
-      <tr>
-        <td><code>weather_path</code></td>
-        <td><code>str</code></td>
-        <td><p>Path to weather input file.</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>management_path</code></td>
-        <td><code>str</code></td>
-        <td><p>Path to management input file.</p></td>
-        <td><em>required</em></td>
-      </tr>
       <tr>
         <td><code>start_year</code></td>
         <td><code>int</code></td>
@@ -1933,14 +2104,32 @@ should be forced to False.</p></td>
       <tr>
         <td><code>config</code></td>
         <td><code>FranchestynConfig</code></td>
-        <td><p>FraNchEstYN configuration object.</p></td>
+        <td><p>Simulation configuration object.</p></td>
         <td><em>required</em></td>
       </tr>
       <tr>
-        <td><code>cropmodel_path</code></td>
-        <td><code>str|None</code></td>
-        <td><p>Path to crop model data file.</p></td>
-        <td><code>None</code></td>
+        <td><code>weather_df</code></td>
+        <td><code>pd.DataFrame</code></td>
+        <td><p>In-memory weather input.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>management_df</code></td>
+        <td><code>pd.DataFrame</code></td>
+        <td><p>In-memory management input.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>crop_model_df</code></td>
+        <td><code>pd.DataFrame</code></td>
+        <td><p>In-memory crop model input.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>ref_df</code></td>
+        <td><code>pd.DataFrame</code></td>
+        <td><p>In-memory reference input.</p></td>
+        <td><em>required</em></td>
       </tr>
       <tr>
         <td><code>crop_param_file</code></td>
@@ -1980,26 +2169,28 @@ should be forced to False.</p></td>
         <details class="quote">
           <summary>Source code in <code>simpest/models/franchestyn.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_franchestyn</span><span class="p">(</span>
-    <span class="n">weather_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">management_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">start_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">end_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">FranchestynConfig</span><span class="p">,</span>
-    <span class="n">cropmodel_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">weather_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">management_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">crop_model_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">ref_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">crop_param_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">disease_param_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fungicide_param_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Run the FraNchEstYN model with the given configuration and input files.</span>
+<span class="sd">    Run the crop-disease-fungicide simulation with in-memory DataFrame inputs.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        weather_path (str): Path to weather input file.</span>
-<span class="sd">        management_path (str): Path to management input file.</span>
 <span class="sd">        start_year (int): Start year for simulation.</span>
 <span class="sd">        end_year (int): End year for simulation.</span>
-<span class="sd">        config (FranchestynConfig): FraNchEstYN configuration object.</span>
-<span class="sd">        cropmodel_path (str|None, optional): Path to crop model data file.</span>
+<span class="sd">        config (FranchestynConfig): Simulation configuration object.</span>
+<span class="sd">        weather_df (pd.DataFrame): In-memory weather input.</span>
+<span class="sd">        management_df (pd.DataFrame): In-memory management input.</span>
+<span class="sd">        crop_model_df (pd.DataFrame): In-memory crop model input.</span>
+<span class="sd">        ref_df (pd.DataFrame): In-memory reference input.</span>
 <span class="sd">        crop_param_file (str|None, optional): Path to crop parameter file.</span>
 <span class="sd">        disease_param_file (str|None, optional): Path to disease parameter file.</span>
 <span class="sd">        fungicide_param_file (str|None, optional): Path to fungicide parameter file.</span>
@@ -2011,48 +2202,71 @@ should be forced to False.</p></td>
     <span class="n">disease_param_file</span> <span class="o">=</span> <span class="n">disease_param_file</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">disease_param_file</span>
     <span class="n">fungicide_param_file</span> <span class="o">=</span> <span class="n">fungicide_param_file</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">fungicide_param_file</span>
 
-    <span class="n">runner</span> <span class="o">=</span> <span class="n">FranchestynRunner</span><span class="p">(</span>
-        <span class="n">weather_dir</span><span class="o">=</span><span class="n">weather_path</span><span class="p">,</span>
-        <span class="n">param_file</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">param_file</span><span class="p">,</span>
-        <span class="n">sowing_file</span><span class="o">=</span><span class="n">management_path</span><span class="p">,</span>
-        <span class="n">ref_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">reference_path</span><span class="p">,</span>
-        <span class="n">crop_model_dir</span><span class="o">=</span><span class="n">cropmodel_path</span><span class="p">,</span>
-        <span class="n">site</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">site</span><span class="p">,</span>
-        <span class="n">variety</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">variety</span><span class="p">,</span>
-        <span class="n">disease</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">disease</span><span class="p">,</span>
-        <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
-        <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
-        <span class="n">weather_time_step</span><span class="o">=</span><span class="s2">&quot;daily&quot;</span><span class="p">,</span>
-        <span class="n">calibration_variable</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">calibration_variable</span><span class="p">,</span>
-        <span class="n">is_calibration</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">is_calibration</span><span class="p">,</span>
-        <span class="n">use_gdd</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">use_gdd</span><span class="p">,</span>
-        <span class="n">use_prev_day_alignment</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">use_prev_day_alignment</span><span class="p">,</span>
-        <span class="n">all_row_includes_end_year</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">all_row_includes_end_year</span><span class="p">,</span>
-        <span class="n">crop_type</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">crop_type</span><span class="p">,</span>
-        <span class="n">crop_param_file</span><span class="o">=</span><span class="n">crop_param_file</span><span class="p">,</span>
-        <span class="n">disease_param_file</span><span class="o">=</span><span class="n">disease_param_file</span><span class="p">,</span>
-        <span class="n">disease_type</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">disease_type</span><span class="p">,</span>
-        <span class="n">fungicide_param_file</span><span class="o">=</span><span class="n">fungicide_param_file</span><span class="p">,</span>
-        <span class="n">fungicide_type</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">fungicide_type</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">weather_df</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">weather_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;weather_df must be a non-empty DataFrame.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">management_df</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">management_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;management_df must be a non-empty DataFrame.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">crop_model_df</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">crop_model_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;crop_model_df must be a non-empty DataFrame.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ref_df</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ref_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ref_df must be a non-empty DataFrame.&quot;</span><span class="p">)</span>
 
-    <span class="n">best_params</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">is_calibration</span><span class="p">:</span>
-        <span class="n">disabled_by_class</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;crop&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">crop_disabled_params</span><span class="p">),</span>
-            <span class="s2">&quot;disease&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">disease_disabled_params</span><span class="p">),</span>
-        <span class="p">}</span>
-        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">FranchestynOptimizer</span><span class="p">(</span>
-            <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_temp_csv</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">name</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;simpest_franchestyn_&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
+        <span class="n">weather_input</span> <span class="o">=</span> <span class="n">_write_temp_csv</span><span class="p">(</span><span class="n">weather_df</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">,</span> <span class="s2">&quot;weather.csv&quot;</span><span class="p">)</span>
+        <span class="n">management_input</span> <span class="o">=</span> <span class="n">_write_temp_csv</span><span class="p">(</span><span class="n">management_df</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">,</span> <span class="s2">&quot;management.csv&quot;</span><span class="p">)</span>
+        <span class="n">crop_model_input</span> <span class="o">=</span> <span class="n">_write_temp_csv</span><span class="p">(</span><span class="n">crop_model_df</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">,</span> <span class="s2">&quot;crop_model.csv&quot;</span><span class="p">)</span>
+        <span class="n">reference_input</span> <span class="o">=</span> <span class="n">_write_temp_csv</span><span class="p">(</span><span class="n">ref_df</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">,</span> <span class="s2">&quot;reference.csv&quot;</span><span class="p">)</span>
+
+        <span class="n">runner</span> <span class="o">=</span> <span class="n">FranchestynRunner</span><span class="p">(</span>
+            <span class="n">weather_dir</span><span class="o">=</span><span class="n">weather_input</span><span class="p">,</span>
+            <span class="n">param_file</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">param_file</span><span class="p">,</span>
+            <span class="n">sowing_file</span><span class="o">=</span><span class="n">management_input</span><span class="p">,</span>
+            <span class="n">ref_dir</span><span class="o">=</span><span class="n">reference_input</span><span class="p">,</span>
+            <span class="n">crop_model_dir</span><span class="o">=</span><span class="n">crop_model_input</span><span class="p">,</span>
+            <span class="n">site</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">site</span><span class="p">,</span>
+            <span class="n">variety</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">variety</span><span class="p">,</span>
+            <span class="n">disease</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">disease</span><span class="p">,</span>
+            <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
+            <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
+            <span class="n">weather_time_step</span><span class="o">=</span><span class="s2">&quot;daily&quot;</span><span class="p">,</span>
             <span class="n">calibration_variable</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">calibration_variable</span><span class="p">,</span>
-            <span class="n">n_restarts</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">n_restarts</span><span class="p">,</span>
-            <span class="n">max_iter</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">max_iter</span><span class="p">,</span>
-            <span class="n">disabled_by_class</span><span class="o">=</span><span class="n">disabled_by_class</span><span class="p">,</span>
+            <span class="n">is_calibration</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">is_calibration</span><span class="p">,</span>
+            <span class="n">use_gdd</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">use_gdd</span><span class="p">,</span>
+            <span class="n">use_prev_day_alignment</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">use_prev_day_alignment</span><span class="p">,</span>
+            <span class="n">all_row_includes_end_year</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">all_row_includes_end_year</span><span class="p">,</span>
+            <span class="n">crop_type</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">crop_type</span><span class="p">,</span>
+            <span class="n">crop_param_file</span><span class="o">=</span><span class="n">crop_param_file</span><span class="p">,</span>
+            <span class="n">disease_param_file</span><span class="o">=</span><span class="n">disease_param_file</span><span class="p">,</span>
+            <span class="n">disease_type</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">disease_type</span><span class="p">,</span>
+            <span class="n">fungicide_param_file</span><span class="o">=</span><span class="n">fungicide_param_file</span><span class="p">,</span>
+            <span class="n">fungicide_type</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">fungicide_type</span><span class="p">,</span>
+            <span class="n">crop_param_specs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">crop_parameters</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">disease_param_specs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">disease_parameters</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">fungicide_param_specs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">fungicide_parameters</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">best_params</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">calibrate</span><span class="p">()</span>
-        <span class="n">date_outputs</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">param_values</span><span class="o">=</span><span class="n">best_params</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">date_outputs</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+        <span class="n">best_params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">is_calibration</span><span class="p">:</span>
+            <span class="n">disabled_by_class</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;crop&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">crop_disabled_params</span><span class="p">),</span>
+                <span class="s2">&quot;disease&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">disease_disabled_params</span><span class="p">),</span>
+            <span class="p">}</span>
+            <span class="n">optimizer</span> <span class="o">=</span> <span class="n">FranchestynOptimizer</span><span class="p">(</span>
+                <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span>
+                <span class="n">calibration_variable</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">calibration_variable</span><span class="p">,</span>
+                <span class="n">n_restarts</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">n_restarts</span><span class="p">,</span>
+                <span class="n">max_iter</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">max_iter</span><span class="p">,</span>
+                <span class="n">disabled_by_class</span><span class="o">=</span><span class="n">disabled_by_class</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">best_params</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">calibrate</span><span class="p">()</span>
+            <span class="n">date_outputs</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">param_values</span><span class="o">=</span><span class="n">best_params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">date_outputs</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 
     <span class="n">include_crop</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;crop&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">)</span>
     <span class="n">include_disease</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;disease&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">)</span>
@@ -2390,7 +2604,7 @@ flag, and calibrated value, in addition to the calibrated values.</p></td>
 
     <div class="doc doc-contents ">
 
-      <p>Save FraNchEstYN simulation results to a CSV file.</p>
+      <p>Save simulation results to a CSV file.</p>
 
 <p><strong>Parameters:</strong></p>
 <table>
@@ -2442,7 +2656,7 @@ flag, and calibrated value, in addition to the calibrated values.</p></td>
           <summary>Source code in <code>simpest/models/franchestyn.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">save_simulation_results_csv</span><span class="p">(</span><span class="n">res_ot_simulation</span><span class="p">,</span> <span class="n">output_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;franchestyn_simulation_results.csv&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Save FraNchEstYN simulation results to a CSV file.</span>
+<span class="sd">    Save simulation results to a CSV file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        res_ot_simulation (list of dict): Simulation output records.</span>
@@ -2540,7 +2754,7 @@ flag, and calibrated value, in addition to the calibrated values.</p></td>
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Copyright &copy; 2024 - 2024 Kazi Jahidur Rahaman
+      Copyright &copy; 2024 - 2026 Kazi Jahidur Rahaman
     </div>
   
   
@@ -2567,7 +2781,7 @@ flag, and calibrated value, in addition to the calibrated values.</p></td>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../js/timeago.min.js"></script>
       

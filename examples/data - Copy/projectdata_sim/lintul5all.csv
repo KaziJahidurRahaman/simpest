@@ -1,0 +1,9 @@
+projectid;startdate;enddate;simulationid;Location;IOPT;IDEM;IRRI
+wg1;1;01.01.1969;31.12.1974;wageningen;1;1;1
+wg2;2;01.01.1969;31.12.1974;wageningen;2;1;0
+wg3;3;01.01.1969;31.12.1974;wageningen;3;1;0
+wg4;4;01.01.1969;31.12.1974;wageningen;4;1;0
+sv5;5;31.03.1987;31.12.1988;sevilla;1;90;1
+sv6;6;31.03.1987;31.12.1988;sevilla;2;90;0
+sv7;7;31.03.1987;31.12.1988;sevilla;3;90;0
+sv8;8;31.03.1987;31.12.1988;sevilla;4;90;0

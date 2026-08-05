@@ -18,14 +18,14 @@
         <link rel="prev" href="../faq/">
       
       
-        <link rel="next" href="../examples/intro/">
+        <link rel="next" href="../simpest/">
       
       
         
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -466,10 +466,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#v001-date" class="md-nav__link">
+  <a href="#v004" class="md-nav__link">
     <span class="md-ellipsis">
       
-        v0.0.1 - Date
+        v0.0.4
       
     </span>
   </a>
@@ -565,14 +565,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../examples/intro/" class="md-nav__link">
+      <a href="../examples/intro.ipynb" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Intro
+    None
   
 
     
@@ -593,14 +593,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../examples/simpest_workflow_example/" class="md-nav__link">
+      <a href="../examples/simpest_workflow_example.ipynb" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Simpest workflow example
+    None
   
 
     
@@ -702,6 +702,34 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../common/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    common module
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
     
@@ -711,10 +739,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_3" >
         
           
-          <label class="md-nav__link" for="__nav_9_2" id="__nav_9_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9_3" id="__nav_9_3_label" tabindex="0">
             
   
   
@@ -732,8 +760,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_9_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1149,10 +1177,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#v001-date" class="md-nav__link">
+  <a href="#v004" class="md-nav__link">
     <span class="md-ellipsis">
       
-        v0.0.1 - Date
+        v0.0.4
       
     </span>
   </a>
@@ -1183,15 +1211,33 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
-<h2 id="v001-date">v0.0.1 - Date<a class="headerlink" href="#v001-date" title="Permanent link">&para;</a></h2>
-<p><strong>Improvement</strong>:</p>
+<h2 id="v004">v0.0.4<a class="headerlink" href="#v004" title="Permanent link">&para;</a></h2>
+<p><strong>Crop and disease/pest simulation</strong></p>
 <ul>
-<li>TBD</li>
+<li>SIMPLACE/Lintul5 crop growth integration (<code>simpest.models.simplace</code>):
+  configuration, run orchestration, project-row and yearly sowing-day
+  extraction, and conversion of SIMPLACE weather/crop-model/management
+  output into the disease/fungicide simulation's input format.</li>
+<li>Coupled crop growth, SEIR disease, and fungicide simulation
+  (<code>simpest.models.franchestyn</code>), including four disease damage mechanisms
+  (light stealers, RUE reducers, assimilate sappers, senescence
+  accelerators) and optional fungicide efficacy.</li>
+<li>Support for running the crop model internally (thermal-time based) or from
+  an external daily crop-model series, with calendar-day or thermal-time
+  (GDD) based cycle-completion.</li>
+<li>Multi-start Nelder–Mead calibration (<code>simpest.models.fr_optimizer</code>) against
+  reference field observations, with per-parameter calibration flags and
+  exclusion lists.</li>
+<li>The disease/fungicide simulation runner (<code>run_franchestyn</code>) takes in-memory
+  pandas DataFrames for weather, management, crop-model, and reference
+  inputs.</li>
+<li>Daily simulation records and per-season summaries (AUDPC, yield loss, peak
+  severity, weather aggregates), with CSV export helpers.</li>
 </ul>
-<p><strong>New Features</strong>:</p>
-<ul>
-<li>TBD</li>
-</ul>
+<p>See the <a href="../usage/">Usage guide</a> and the
+<a href="../simpest/">API Reference</a> for details, and the
+<a href="https://github.com/KaziJahidurRahaman/simpest/releases">GitHub releases</a>
+for the exact set of changes in each published version.</p>
 
 
 
@@ -1214,7 +1260,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 21, 2026 06:08:01 UTC"><span class="timeago" datetime="2026-05-21T06:08:01+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 21, 2026 06:08:01 UTC">2026-05-21</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="August 5, 2026 05:41:17 UTC"><span class="timeago" datetime="2026-08-05T05:41:17+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="August 5, 2026 05:41:17 UTC">2026-08-05</span>
   </span>
 
     
@@ -1260,7 +1306,7 @@
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Copyright &copy; 2024 - 2024 Kazi Jahidur Rahaman
+      Copyright &copy; 2024 - 2026 Kazi Jahidur Rahaman
     </div>
   
   
@@ -1287,7 +1333,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "search.highlight", "search.share"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../js/timeago.min.js"></script>
       

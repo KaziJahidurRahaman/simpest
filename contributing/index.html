@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -648,14 +648,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../examples/intro/" class="md-nav__link">
+      <a href="../examples/intro.ipynb" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Intro
+    None
   
 
     
@@ -676,14 +676,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../examples/simpest_workflow_example/" class="md-nav__link">
+      <a href="../examples/simpest_workflow_example.ipynb" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Simpest workflow example
+    None
   
 
     
@@ -785,6 +785,34 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../common/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    common module
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
     
@@ -794,10 +822,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_3" >
         
           
-          <label class="md-nav__link" for="__nav_9_2" id="__nav_9_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9_3" id="__nav_9_3_label" tabindex="0">
             
   
   
@@ -815,8 +843,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_9_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1392,14 +1420,16 @@ in docstrings, or even on the web in blog posts, articles, and such.</p>
 </code></pre></div></td></tr></table></div>
 </li>
 <li>
-<p>Install your local copy into a virtualenv. Assuming you have
-    virtualenvwrapper installed, this is how you set up your fork for
-    local development:</p>
+<p>Install your local copy into a virtualenv:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>$<span class="w"> </span>mkvirtualenv<span class="w"> </span>simpest
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate<span class="w">  </span><span class="c1"># .venv\Scripts\activate on Windows</span>
 $<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>simpest/
-$<span class="w"> </span>python<span class="w"> </span>setup.py<span class="w"> </span>develop
+$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements_dev.txt
 </code></pre></div></td></tr></table></div>
 </li>
 <li>
@@ -1410,14 +1440,11 @@ $<span class="w"> </span>python<span class="w"> </span>setup.py<span class="w"> 
 </li>
 <li>
 <p>When you're done making changes, check that your changes pass flake8
-    and the tests, including testing other Python versions with tox:</p>
+    and the tests:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>$<span class="w"> </span>flake8<span class="w"> </span>simpest<span class="w"> </span>tests
-$<span class="w"> </span>python<span class="w"> </span>setup.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>or<span class="w"> </span>pytest
-$<span class="w"> </span>tox
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code>$<span class="w"> </span>flake8<span class="w"> </span>simpest<span class="w"> </span>tests
+$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>unittest<span class="w"> </span>discover<span class="w"> </span>tests/
 </code></pre></div></td></tr></table></div>
-<p>To get flake8 and tox, just pip install them into your virtualenv.</p>
 </li>
 <li>
 <p>Commit your changes and push your branch to GitHub:</p>
@@ -1437,11 +1464,10 @@ $<span class="w"> </span>git<span class="w"> </span>push<span class="w"> </span>
 <ol>
 <li>The pull request should include tests.</li>
 <li>If the pull request adds functionality, the docs should be updated.
-    Put your new functionality into a function with a docstring, and add
-    the feature to the list in README.rst.</li>
-<li>The pull request should work for Python 3.8 and later, and
-    for PyPy. Check <a href="https://github.com/KaziJahidurRahaman/simpest/pull_requests">https://github.com/KaziJahidurRahaman/simpest/pull_requests</a> and make sure that the tests pass for all
-    supported Python versions.</li>
+    Put your new functionality into a function with a Google-style
+    docstring, and add the feature to the list in README.md.</li>
+<li>The pull request should work for Python 3.8 and later (see the
+    <code>classifiers</code> list in <code>pyproject.toml</code> for the versions CI covers).</li>
 </ol>
 
 
@@ -1465,7 +1491,7 @@ $<span class="w"> </span>git<span class="w"> </span>push<span class="w"> </span>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 21, 2026 06:08:01 UTC"><span class="timeago" datetime="2026-05-21T06:08:01+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 21, 2026 06:08:01 UTC">2026-05-21</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="August 5, 2026 05:41:17 UTC"><span class="timeago" datetime="2026-08-05T05:41:17+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="August 5, 2026 05:41:17 UTC">2026-08-05</span>
   </span>
 
     
@@ -1511,7 +1537,7 @@ $<span class="w"> </span>git<span class="w"> </span>push<span class="w"> </span>
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Copyright &copy; 2024 - 2024 Kazi Jahidur Rahaman
+      Copyright &copy; 2024 - 2026 Kazi Jahidur Rahaman
     </div>
   
   
@@ -1538,7 +1564,7 @@ $<span class="w"> </span>git<span class="w"> </span>push<span class="w"> </span>
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "search.highlight", "search.share"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../js/timeago.min.js"></script>
       

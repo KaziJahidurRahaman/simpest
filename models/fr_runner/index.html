@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -507,14 +507,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/intro/" class="md-nav__link">
+      <a href="../../examples/intro.ipynb" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Intro
+    None
   
 
     
@@ -535,14 +535,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/simpest_workflow_example/" class="md-nav__link">
+      <a href="../../examples/simpest_workflow_example.ipynb" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Simpest workflow example
+    None
   
 
     
@@ -644,6 +644,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../../common/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    common module
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -657,10 +685,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_9_2" id="__nav_9_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9_3" id="__nav_9_3_label" tabindex="0">
             
   
   
@@ -678,8 +706,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_9_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_9_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1292,7 +1320,7 @@
 
     <div class="doc doc-contents first">
 
-      <p>Main simulation runner for the FraNchEstYN model.</p>
+      <p>Main simulation runner for simpest's crop-disease-fungicide model.</p>
 <p>The runner orchestrates a full simulation: it loads parameters, weather, the
 sowing schedule, reference observations, and any external crop-model series,
 then drives the hourly–daily model loop across the configured years. Each
@@ -1334,7 +1362,7 @@ FranchestynRunner        </code>
 
     <div class="doc doc-contents ">
 
-      <p>End-to-end FraNchEstYN simulation runner.</p>
+      <p>End-to-end crop-disease-fungicide simulation runner.</p>
 
 <p><strong>Parameters:</strong></p>
 <table>
@@ -1511,7 +1539,7 @@ for per-year sowing CSVs.</p></td>
           <summary>Source code in <code>simpest/models/fr_runner.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FranchestynRunner</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    End-to-end FraNchEstYN simulation runner.</span>
+<span class="sd">    End-to-end crop-disease-fungicide simulation runner.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        weather_dir (str): Directory containing weather data.</span>
@@ -1581,6 +1609,9 @@ for per-year sowing CSVs.</p></td>
         <span class="n">disease_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fungicide_param_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fungicide_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">crop_param_specs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">disease_param_specs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fungicide_param_specs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">use_gdd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">use_prev_day_alignment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">all_row_includes_end_year</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1606,27 +1637,39 @@ for per-year sowing CSVs.</p></td>
         <span class="bp">self</span><span class="o">.</span><span class="n">all_row_includes_end_year</span> <span class="o">=</span> <span class="n">all_row_includes_end_year</span>
 
         <span class="c1"># Read parameter definitions (bounds, defaults)</span>
-        <span class="c1"># Three modular loading scenarios:</span>
-        <span class="c1"># 1. All three files provided → modular (crop + optional disease + optional fungicide)</span>
-        <span class="c1"># 2. Only crop_type provided → legacy multi-crop JSON</span>
-        <span class="c1"># 3. Only param_file → legacy CSV</span>
+        <span class="c1"># Three loading scenarios, in precedence order:</span>
+        <span class="c1"># 1. In-memory spec dicts (crop_param_specs/…) → build directly. These</span>
+        <span class="c1">#    are the (possibly edited) dicts held by FranchestynConfig and take</span>
+        <span class="c1">#    priority so caller-side edits (e.g. deactivate_calibration) apply.</span>
+        <span class="c1"># 2. crop_param_file + crop_type → modular loading from JSON files.</span>
+        <span class="c1"># 3. Only param_file → legacy CSV.</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="k">if</span> <span class="n">crop_param_file</span> <span class="ow">and</span> <span class="n">crop_type</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">crop_param_specs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Modular loading from in-memory spec dicts</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">build_params_from_specs</span><span class="p">(</span><span class="n">crop_param_specs</span><span class="p">,</span> <span class="s2">&quot;crop&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">disease_param_specs</span> <span class="ow">and</span> <span class="n">disease_type</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">build_params_from_specs</span><span class="p">(</span><span class="n">disease_param_specs</span><span class="p">,</span> <span class="s2">&quot;disease&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">fungicide_param_specs</span> <span class="ow">and</span> <span class="n">fungicide_type</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">build_params_from_specs</span><span class="p">(</span><span class="n">fungicide_param_specs</span><span class="p">,</span> <span class="s2">&quot;fungicide&quot;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">crop_param_file</span> <span class="ow">and</span> <span class="n">crop_type</span><span class="p">:</span>
             <span class="c1"># Modular loading: always load crop</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">read_crop_parameters</span><span class="p">(</span><span class="n">crop_param_file</span><span class="p">,</span> <span class="n">crop_type</span><span class="p">))</span>
 
             <span class="c1"># Optionally load disease if both file and type provided</span>
             <span class="k">if</span> <span class="n">disease_param_file</span> <span class="ow">and</span> <span class="n">disease_type</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">read_disease_parameters</span><span class="p">(</span><span class="n">disease_param_file</span><span class="p">,</span> <span class="n">disease_type</span><span class="p">))</span>
+                <span class="n">disease_catalog</span> <span class="o">=</span> <span class="n">read_disease_parameters</span><span class="p">(</span><span class="n">disease_param_file</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">disease_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">disease_catalog</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Disease type &#39;</span><span class="si">{</span><span class="n">disease_type</span><span class="si">}</span><span class="s2">&#39; not found. &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Available: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">disease_catalog</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">disease_catalog</span><span class="p">[</span><span class="n">disease_type</span><span class="p">])</span>
 
             <span class="c1"># Optionally load fungicide if both file and type provided</span>
             <span class="k">if</span> <span class="n">fungicide_param_file</span> <span class="ow">and</span> <span class="n">fungicide_type</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">read_fungicide_parameters</span><span class="p">(</span><span class="n">fungicide_param_file</span><span class="p">,</span> <span class="n">fungicide_type</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="n">crop_type</span><span class="p">:</span>
-            <span class="c1"># Legacy multi-crop JSON (parameters_by_crop.json)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span> <span class="o">=</span> <span class="n">read_by_crop</span><span class="p">(</span><span class="n">param_file</span><span class="p">,</span> <span class="n">crop_type</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Legacy CSV loader</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span> <span class="o">=</span> <span class="n">param_read</span><span class="p">(</span><span class="n">param_file</span><span class="p">,</span> <span class="n">calibration_variable</span><span class="p">)</span>
@@ -2452,7 +2495,7 @@ outputs.</p></td>
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Copyright &copy; 2024 - 2024 Kazi Jahidur Rahaman
+      Copyright &copy; 2024 - 2026 Kazi Jahidur Rahaman
     </div>
   
   
@@ -2479,7 +2522,7 @@ outputs.</p></td>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../js/timeago.min.js"></script>
       

@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -507,14 +507,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/intro/" class="md-nav__link">
+      <a href="../../examples/intro.ipynb" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Intro
+    None
   
 
     
@@ -535,14 +535,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/simpest_workflow_example/" class="md-nav__link">
+      <a href="../../examples/simpest_workflow_example.ipynb" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Simpest workflow example
+    None
   
 
     
@@ -644,6 +644,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../../common/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    common module
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -657,10 +685,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_9_2" id="__nav_9_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9_3" id="__nav_9_3_label" tabindex="0">
             
   
   
@@ -678,8 +706,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_9_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_9_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1569,7 +1597,7 @@ SimplaceConfig        </code>
 
     <div class="doc doc-contents ">
 
-      <p>Build and save a management CSV file for FraNchEstYN.</p>
+      <p>Build and save a management CSV file for the disease/fungicide simulation.</p>
 
 <p><strong>Parameters:</strong></p>
 <table>
@@ -1641,7 +1669,7 @@ is written to preserve backward compatibility.</p></td>
     <span class="n">yearly_sowing_doy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Build and save a management CSV file for FraNchEstYN.</span>
+<span class="sd">    Build and save a management CSV file for the disease/fungicide simulation.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        output_root (Path): Output root directory.</span>
@@ -1715,7 +1743,7 @@ is written to preserve backward compatibility.</p></td>
 
     <div class="doc doc-contents ">
 
-      <p>Convert Simplace weather file to FraNchEstYN-compatible CSV format.</p>
+      <p>Convert a Simplace weather file to the simpest weather CSV format.</p>
 
 <p><strong>Parameters:</strong></p>
 <table>
@@ -1767,7 +1795,7 @@ is written to preserve backward compatibility.</p></td>
           <summary>Source code in <code>simpest/models/simplace.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">convert_weather</span><span class="p">(</span><span class="n">work_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert Simplace weather file to FraNchEstYN-compatible CSV format.</span>
+<span class="sd">    Convert a Simplace weather file to the simpest weather CSV format.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        work_root (Path): Simplace workspace root directory.</span>
@@ -1841,7 +1869,20 @@ is written to preserve backward compatibility.</p></td>
 
     <div class="doc doc-contents ">
 
-      <p>Export crop model data from Simplace daily output to a CSV file for FraNchEstYN.</p>
+      <p>Exports daily SIMPLACE outputs to the simpest crop-model input format.</p>
+<p>The exported CSV contains the variables required by the disease and
+fungicide sub-models for coupling with an external crop model.</p>
+<p>Expected output units:
+    - agb: g/m²
+    - yield: g/m²
+    - fint: fraction (0–1)
+    - lai: m²/m²
+    - gdd: °C·day</p>
+<div class="admonition notes">
+<p class="admonition-title">Notes</p>
+<p>SIMPLACE (LINTUL5) already exports <code>TAGB</code> and <code>WSO</code> in g/m².
+Therefore, no unit conversion is applied.</p>
+</div>
 
 <p><strong>Parameters:</strong></p>
 <table>
@@ -1857,13 +1898,15 @@ is written to preserve backward compatibility.</p></td>
       <tr>
         <td><code>output_root</code></td>
         <td><code>Path</code></td>
-        <td><p>Output root directory.</p></td>
+        <td><p>Root directory containing the
+<code>SimulationExperimentTemplate</code> folder.</p></td>
         <td><em>required</em></td>
       </tr>
       <tr>
         <td><code>project_row</code></td>
         <td><code>dict</code></td>
-        <td><p>Project row dictionary.</p></td>
+        <td><p>Dictionary containing project information. Must include
+the keys <code>location</code> and <code>iopt</code>.</p></td>
         <td><em>required</em></td>
       </tr>
   </tbody>
@@ -1879,51 +1922,108 @@ is written to preserve backward compatibility.</p></td>
   <tbody>
     <tr>
       <td><code>Path</code></td>
-      <td><p>Path to the exported crop model CSV file.</p></td>
+      <td><p>Path to the exported <code>cropModel_data.csv</code> file.</p></td>
     </tr>
+  </tbody>
+</table>
+<p><strong>Exceptions:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>FileNotFoundError</code></td>
+        <td><p>If the SIMPLACE daily output file does not exist.</p></td>
+      </tr>
+      <tr>
+        <td><code>KeyError</code></td>
+        <td><p>If required columns are missing from the input CSV.</p></td>
+      </tr>
+      <tr>
+        <td><code>ValueError</code></td>
+        <td><p>If numeric conversion of required variables fails.</p></td>
+      </tr>
   </tbody>
 </table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/simplace.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">export_crop_model_data</span><span class="p">(</span><span class="n">output_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">project_row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Export crop model data from Simplace daily output to a CSV file for FraNchEstYN.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exports daily SIMPLACE outputs to the simpest crop-model input format.</span>
+
+<span class="sd">    The exported CSV contains the variables required by the disease and</span>
+<span class="sd">    fungicide sub-models for coupling with an external crop model.</span>
+
+<span class="sd">    Expected output units:</span>
+<span class="sd">        - agb: g/m²</span>
+<span class="sd">        - yield: g/m²</span>
+<span class="sd">        - fint: fraction (0–1)</span>
+<span class="sd">        - lai: m²/m²</span>
+<span class="sd">        - gdd: °C·day</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        SIMPLACE (LINTUL5) already exports ``TAGB`` and ``WSO`` in g/m².</span>
+<span class="sd">        Therefore, no unit conversion is applied.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        output_root (Path): Output root directory.</span>
-<span class="sd">        project_row (dict): Project row dictionary.</span>
+<span class="sd">        output_root: Root directory containing the</span>
+<span class="sd">            ``SimulationExperimentTemplate`` folder.</span>
+<span class="sd">        project_row: Dictionary containing project information. Must include</span>
+<span class="sd">            the keys ``location`` and ``iopt``.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Path: Path to the exported crop model CSV file.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">src</span> <span class="o">=</span> <span class="n">output_root</span> <span class="o">/</span> <span class="s2">&quot;SimulationExperimentTemplate&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">project_row</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">]</span><span class="si">}{</span><span class="n">project_row</span><span class="p">[</span><span class="s1">&#39;iopt&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_daily.csv&quot;</span>
-    <span class="n">dst</span> <span class="o">=</span> <span class="n">output_root</span> <span class="o">/</span> <span class="s2">&quot;SimulationExperimentTemplate&quot;</span> <span class="o">/</span> <span class="s2">&quot;cropModel_data.csv&quot;</span>
+<span class="sd">        Path to the exported ``cropModel_data.csv`` file.</span>
 
-    <span class="k">with</span> <span class="n">src</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">,</span> <span class="n">dst</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        FileNotFoundError: If the SIMPLACE daily output file does not exist.</span>
+<span class="sd">        KeyError: If required columns are missing from the input CSV.</span>
+<span class="sd">        ValueError: If numeric conversion of required variables fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sim_dir</span> <span class="o">=</span> <span class="n">output_root</span> <span class="o">/</span> <span class="s2">&quot;SimulationExperimentTemplate&quot;</span>
+
+    <span class="n">src</span> <span class="o">=</span> <span class="n">sim_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">project_row</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">]</span><span class="si">}{</span><span class="n">project_row</span><span class="p">[</span><span class="s1">&#39;iopt&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_daily.csv&quot;</span>
+    <span class="n">dst</span> <span class="o">=</span> <span class="n">sim_dir</span> <span class="o">/</span> <span class="s2">&quot;cropModel_data.csv&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SIMPLACE daily output not found: </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">src</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">,</span> \
+         <span class="n">dst</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+
         <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
-        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span>
-            <span class="n">f_out</span><span class="p">,</span>
-            <span class="n">fieldnames</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;doy&quot;</span><span class="p">,</span> <span class="s2">&quot;agb&quot;</span><span class="p">,</span> <span class="s2">&quot;yield&quot;</span><span class="p">,</span> <span class="s2">&quot;fint&quot;</span><span class="p">,</span> <span class="s2">&quot;lai&quot;</span><span class="p">,</span> <span class="s2">&quot;gdd&quot;</span><span class="p">],</span>
-            <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
+
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">f_out</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;doy&quot;</span><span class="p">,</span> <span class="s2">&quot;agb&quot;</span><span class="p">,</span> <span class="s2">&quot;yield&quot;</span><span class="p">,</span> <span class="s2">&quot;fint&quot;</span><span class="p">,</span> <span class="s2">&quot;lai&quot;</span><span class="p">,</span> <span class="s2">&quot;gdd&quot;</span><span class="p">],)</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;TAGB&quot;</span><span class="p">,</span> <span class="s2">&quot;WSO&quot;</span><span class="p">,</span> <span class="s2">&quot;FINT&quot;</span><span class="p">,</span> <span class="s2">&quot;LAI&quot;</span><span class="p">)):</span>
+
+            <span class="n">agb</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;TAGB&quot;</span><span class="p">])</span>
+            <span class="n">yield_</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;WSO&quot;</span><span class="p">])</span>
+            <span class="n">fint</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;FINT&quot;</span><span class="p">])</span>
+            <span class="n">lai</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;LAI&quot;</span><span class="p">])</span>
+            <span class="n">gdd</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;TSUM&quot;</span><span class="p">])</span>
+
+            <span class="c1"># Skip rows before crop emergence.</span>
+            <span class="k">if</span> <span class="n">agb</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">yield_</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">fint</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">lai</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
                 <span class="k">continue</span>
 
-            <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;CURRENT.DATE&quot;</span><span class="p">],</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">.%m.%Y&quot;</span><span class="p">)</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;CURRENT.DATE&quot;</span><span class="p">],</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">.%m.%Y&quot;</span><span class="p">)</span>
+
             <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
-                    <span class="s2">&quot;doy&quot;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">timetuple</span><span class="p">()</span><span class="o">.</span><span class="n">tm_yday</span><span class="p">,</span>
-                    <span class="s2">&quot;agb&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;TAGB&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span>
-                    <span class="s2">&quot;yield&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;WSO&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span>
-                    <span class="s2">&quot;fint&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;FINT&quot;</span><span class="p">],</span>
-                    <span class="s2">&quot;lai&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;LAI&quot;</span><span class="p">],</span>
-                    <span class="s2">&quot;gdd&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;TSUM&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">date</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+                    <span class="s2">&quot;doy&quot;</span><span class="p">:</span> <span class="n">date</span><span class="o">.</span><span class="n">timetuple</span><span class="p">()</span><span class="o">.</span><span class="n">tm_yday</span><span class="p">,</span>
+                    <span class="s2">&quot;agb&quot;</span><span class="p">:</span> <span class="n">agb</span><span class="p">,</span>
+                    <span class="s2">&quot;yield&quot;</span><span class="p">:</span> <span class="n">yield_</span><span class="p">,</span>
+                    <span class="s2">&quot;fint&quot;</span><span class="p">:</span> <span class="n">fint</span><span class="p">,</span>
+                    <span class="s2">&quot;lai&quot;</span><span class="p">:</span> <span class="n">lai</span><span class="p">,</span>
+                    <span class="s2">&quot;gdd&quot;</span><span class="p">:</span> <span class="n">gdd</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
+
     <span class="k">return</span> <span class="n">dst</span>
 </code></pre></div>
         </details>
@@ -2244,7 +2344,7 @@ values are available, it falls back to a constant sowing DOY derived from
   <tbody>
       <tr>
         <td><code>shell</code></td>
-        <td></td>
+        <td><code>Any</code></td>
         <td><p>Simplace shell instance.</p></td>
         <td><em>required</em></td>
       </tr>
@@ -2267,7 +2367,7 @@ values are available, it falls back to a constant sowing DOY derived from
 </table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/simplace.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_simplace_directories</span><span class="p">(</span><span class="n">shell</span><span class="p">):</span>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_simplace_directories</span><span class="p">(</span><span class="n">shell</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrapper for simplace.getSimplaceDirectories to avoid exposing simplace in notebooks.</span>
 
@@ -2329,14 +2429,14 @@ values are available, it falls back to a constant sowing DOY derived from
   </thead>
   <tbody>
     <tr>
-      <td></td>
-      <td><p>Simplace instance.</p></td>
+      <td><code>Any</code></td>
+      <td><p>Simplace shell instance (an opaque jpype-backed object).</p></td>
     </tr>
   </tbody>
 </table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/simplace.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">init_simplace</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">SimplaceConfig</span><span class="p">):</span>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">init_simplace</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">SimplaceConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initialize and return a Simplace instance using the given configuration.</span>
 
@@ -2344,7 +2444,7 @@ values are available, it falls back to a constant sowing DOY derived from
 <span class="sd">        config (SimplaceConfig): Simplace configuration object.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Simplace instance.</span>
+<span class="sd">        Any: Simplace shell instance (an opaque jpype-backed object).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">_SIMPLACE_INSTANCE</span>
 
@@ -2382,7 +2482,7 @@ values are available, it falls back to a constant sowing DOY derived from
 
     <div class="doc doc-contents ">
 
-      <p>Merge Simplace and FraNchEstYN daily outputs into a single CSV file.</p>
+      <p>Merge Simplace crop-model and simpest daily disease outputs into one CSV file.</p>
 
 <p><strong>Parameters:</strong></p>
 <table>
@@ -2410,7 +2510,7 @@ values are available, it falls back to a constant sowing DOY derived from
       <tr>
         <td><code>franchestyn_df</code></td>
         <td><code>pd.DataFrame</code></td>
-        <td><p>FraNchEstYN daily output DataFrame.</p></td>
+        <td><p>Daily disease/fungicide output DataFrame.</p></td>
         <td><em>required</em></td>
       </tr>
       <tr>
@@ -2445,12 +2545,12 @@ values are available, it falls back to a constant sowing DOY derived from
     <span class="n">out_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;merged_simulation_data.csv&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Merge Simplace and FraNchEstYN daily outputs into a single CSV file.</span>
+<span class="sd">    Merge Simplace crop-model and simpest daily disease outputs into one CSV file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        output_root (Path): Output root directory.</span>
 <span class="sd">        project_row (dict): Project row dictionary.</span>
-<span class="sd">        franchestyn_df (pd.DataFrame): FraNchEstYN daily output DataFrame.</span>
+<span class="sd">        franchestyn_df (pd.DataFrame): Daily disease/fungicide output DataFrame.</span>
 <span class="sd">        out_name (str, optional): Output filename. Defaults to &quot;merged_simulation_data.csv&quot;.</span>
 
 <span class="sd">    Returns:</span>
@@ -2515,7 +2615,7 @@ values are available, it falls back to a constant sowing DOY derived from
   <tbody>
       <tr>
         <td><code>shell</code></td>
-        <td></td>
+        <td><code>Any</code></td>
         <td><p>Simplace shell instance.</p></td>
         <td><em>required</em></td>
       </tr>
@@ -2535,7 +2635,7 @@ values are available, it falls back to a constant sowing DOY derived from
 </table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/simplace.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_simplace</span><span class="p">(</span><span class="n">shell</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">SimplaceConfig</span><span class="p">,</span> <span class="n">project_lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_simplace</span><span class="p">(</span><span class="n">shell</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">SimplaceConfig</span><span class="p">,</span> <span class="n">project_lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run a Simplace project for the specified project lines.</span>
 
@@ -2631,7 +2731,7 @@ values are available, it falls back to a constant sowing DOY derived from
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Copyright &copy; 2024 - 2024 Kazi Jahidur Rahaman
+      Copyright &copy; 2024 - 2026 Kazi Jahidur Rahaman
     </div>
   
   
@@ -2658,7 +2758,7 @@ values are available, it falls back to a constant sowing DOY derived from
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../js/timeago.min.js"></script>
       
