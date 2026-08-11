@@ -108,5 +108,5 @@ ENV/
 claude-prompts/
 claude-prompts/
 claude-prompts/
-docs/examples/torchcrop-docs/
+torchcrop-docs/
 UNITS_INVESTIGATION.md
