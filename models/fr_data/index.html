@@ -1660,16 +1660,16 @@ CropModelData        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">CropModelData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Output from an external crop model, used as input to damage mechanisms.</span>
+<span class="w">    </span><span class="sd">"""Output from an external crop model, used as input to damage mechanisms.</span>
 
 <span class="sd">    Keys are datetime.date objects (year, month, day).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">f_int</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>          <span class="c1"># fraction 0-1: light interception</span>
     <span class="n">yield_</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>         <span class="c1"># kg ha⁻¹: dynamic crop yield</span>
     <span class="n">agb</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>            <span class="c1"># kg ha⁻¹: above-ground biomass</span>
     <span class="n">cycle_percentage</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>  <span class="c1"># %: crop cycle completion</span>
     <span class="c1"># Growing degree days (thermal time) carried alongside the crop series. It is</span>
-    <span class="c1"># populated from the external crop model&#39;s thermal-time column and used to</span>
+    <span class="c1"># populated from the external crop model's thermal-time column and used to</span>
     <span class="c1"># derive cycle progress when GDD-based phenology is enabled.</span>
     <span class="n">gdd</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>            <span class="c1"># °C·day: growing degree days</span>
 </code></pre></div>
@@ -1728,7 +1728,7 @@ CropOutputs        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">CropOutputs</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Crop growth state variables output each day.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Crop growth state variables output each day."""</span>
     <span class="n">growing_season</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>             <span class="c1"># season identifier</span>
     <span class="n">day_after_sowing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>           <span class="c1"># days since sowing</span>
     <span class="n">pheno_code</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>             <span class="c1"># phenological code (1 = vegetative, 2 = reproductive)</span>
@@ -1806,7 +1806,7 @@ DamageMechanisms        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">DamageMechanisms</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Damage outputs (one per day) that feed into crop loss calculations.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Damage outputs (one per day) that feed into crop loss calculations."""</span>
     <span class="n">light_stealers</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>         <span class="c1"># fraction: reduction in light interception</span>
     <span class="n">senescence_accelerators</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># fraction: acceleration of tissue aging</span>
     <span class="n">rue_reducers</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>           <span class="c1"># fraction: reduction in radiation use efficiency</span>
@@ -1866,7 +1866,7 @@ DiseaseOutputs        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">DiseaseOutputs</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;All disease state variables output each day.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""All disease state variables output each day."""</span>
     <span class="n">counter_dry</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>            <span class="c1"># hours since last wet period</span>
     <span class="n">temp_function</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>          <span class="c1"># temperature suitability (0-1)</span>
     <span class="n">rh_function</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>            <span class="c1"># RH suitability (0-1)</span>
@@ -1975,7 +1975,7 @@ FungicideOutputs        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FungicideOutputs</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fungicide state variables output each day.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Fungicide state variables output each day."""</span>
     <span class="n">concentration_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>   <span class="c1"># fraction - fungicide concentration</span>
     <span class="n">tenacity_function</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>      <span class="c1"># unitless - fungicide tenacity function</span>
     <span class="n">tenacity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>               <span class="c1"># fraction - fungicide tenacity (potential efficacy after wash-off)     </span>
@@ -2039,7 +2039,7 @@ FungicideTreatmentSchedule        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FungicideTreatmentSchedule</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Holds all scheduled fungicide treatment dates for a simulation unit.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Holds all scheduled fungicide treatment dates for a simulation unit."""</span>
     <span class="n">treatments</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">add_treatment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">treatment_date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -2097,7 +2097,7 @@ InputsDaily        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">InputsDaily</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Daily input record (assembled from 24 hourly records each day).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Daily input record (assembled from 24 hourly records each day)."""</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">min</span>
     <span class="n">tmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>                   <span class="c1"># °C</span>
     <span class="n">tmin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>                   <span class="c1"># °C</span>
@@ -2109,7 +2109,7 @@ InputsDaily        </code>
     <span class="n">dew_point</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>              <span class="c1"># °C</span>
     <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>               <span class="c1"># degrees</span>
     <span class="n">date_treatment_last</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">min</span>
-    <span class="n">crop_model_data</span><span class="p">:</span> <span class="s2">&quot;CropModelData&quot;</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># populated from external crop model CSV</span>
+    <span class="n">crop_model_data</span><span class="p">:</span> <span class="s2">"CropModelData"</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># populated from external crop model CSV</span>
 </code></pre></div>
         </details>
 
@@ -2173,7 +2173,7 @@ InputsHourly        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">InputsHourly</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Hourly input record for the disease model.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Hourly input record for the disease model."""</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">min</span>
     <span class="n">air_temperature</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>        <span class="c1"># °C</span>
     <span class="n">precipitation</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>          <span class="c1"># mm</span>
@@ -2243,7 +2243,7 @@ Outputs        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Outputs</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Top-level daily output bundle.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Top-level daily output bundle."""</span>
     <span class="n">disease</span><span class="p">:</span> <span class="n">DiseaseOutputs</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">DiseaseOutputs</span><span class="p">)</span>
     <span class="n">crop</span><span class="p">:</span> <span class="n">CropOutputs</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">CropOutputs</span><span class="p">)</span>
     <span class="n">inputs_daily</span><span class="p">:</span> <span class="n">InputsDaily</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">InputsDaily</span><span class="p">)</span>
@@ -2303,7 +2303,7 @@ ParCrop        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ParCrop</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Crop model parameters.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Crop model parameters."""</span>
     <span class="n">tbase_crop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>             <span class="c1"># °C – base temperature for crop growth</span>
     <span class="n">topt_crop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>              <span class="c1"># °C – optimum temperature</span>
     <span class="n">tmax_crop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>              <span class="c1"># °C – maximum temperature</span>
@@ -2379,7 +2379,7 @@ ParDisease        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ParDisease</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Disease model parameters.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Disease model parameters."""</span>
     <span class="n">outer_inoculum_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>             <span class="c1"># unitless – initial inoculum level</span>
     <span class="n">outer_inoculum_shape_release</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>   <span class="c1"># 0/1/2 – release shape</span>
     <span class="n">outer_inoculum_shape_parameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># empirical parameter for shape 1 or 2</span>
@@ -2475,7 +2475,7 @@ ParFungicide        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ParFungicide</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fungicide model parameters.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Fungicide model parameters."""</span>
     <span class="n">a_shape_parameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>      <span class="c1"># empirical degradation shape A</span>
     <span class="n">b_shape_parameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>      <span class="c1"># empirical degradation shape B</span>
     <span class="n">degradation_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>       <span class="c1"># first-order degradation rate</span>
@@ -2543,20 +2543,20 @@ the model runner and the calibration optimizer.</p>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Parameter</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A single parameter definition with calibration bounds.</span>
+<span class="w">    </span><span class="sd">"""A single parameter definition with calibration bounds.</span>
 
 <span class="sd">    Holds the numeric value, the lower and upper bounds used as the calibration</span>
-<span class="sd">    search space, and metadata describing the parameter&#39;s class and whether it is</span>
+<span class="sd">    search space, and metadata describing the parameter's class and whether it is</span>
 <span class="sd">    boolean. Instances are produced by the parameter readers and consumed by both</span>
 <span class="sd">    the model runner and the calibration optimizer.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">minimum</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>                <span class="c1"># Lower bound (e.g., calibration search space)</span>
     <span class="n">maximum</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>                <span class="c1"># Upper bound (e.g., calibration search space)</span>
     <span class="n">value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>                  <span class="c1"># Current numeric value (e.g., for simulation or optimization)</span>
-    <span class="n">calibration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>               <span class="c1"># calibration subset tag (e.g., &quot;included&quot;, &quot;excluded&quot;)</span>
-    <span class="n">param_class</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>               <span class="c1"># class/category of the parameter (e.g., &quot;disease&quot;, &quot;crop&quot;)</span>
-    <span class="n">value_bool</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>            <span class="c1"># For boolean parameters, the value is stored here instead of &#39;value&#39;</span>
-    <span class="n">is_boolean</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>            <span class="c1"># True if this parameter is boolean (e.g., &quot;IsSplashBorne&quot;), in which case &#39;value_bool&#39; is used instead of &#39;value&#39;</span>
+    <span class="n">calibration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>               <span class="c1"># calibration subset tag (e.g., "included", "excluded")</span>
+    <span class="n">param_class</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>               <span class="c1"># class/category of the parameter (e.g., "disease", "crop")</span>
+    <span class="n">value_bool</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>            <span class="c1"># For boolean parameters, the value is stored here instead of 'value'</span>
+    <span class="n">is_boolean</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>            <span class="c1"># True if this parameter is boolean (e.g., "IsSplashBorne"), in which case 'value_bool' is used instead of 'value'</span>
 </code></pre></div>
         </details>
 
@@ -2615,7 +2615,7 @@ Parameters        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Parameters</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Container for all three parameter groups.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Container for all three parameter groups."""</span>
     <span class="n">par_disease</span><span class="p">:</span> <span class="n">ParDisease</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">ParDisease</span><span class="p">)</span>
     <span class="n">par_crop</span><span class="p">:</span> <span class="n">ParCrop</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">ParCrop</span><span class="p">)</span>
     <span class="n">par_fungicide</span><span class="p">:</span> <span class="n">ParFungicide</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">ParFungicide</span><span class="p">)</span>
@@ -2673,7 +2673,7 @@ ReferenceData        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ReferenceData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Observed / reference data for validation (field measurements).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Observed / reference data for validation (field measurements)."""</span>
     <span class="n">date_fint</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">date_agb</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">date_yield_actual</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
@@ -2736,13 +2736,13 @@ SimulationUnit        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SimulationUnit</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Everything needed to run one site × variety combination.&quot;&quot;&quot;</span>
-    <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>                  <span class="c1"># site identifier (e.g., location name)</span>
-    <span class="n">crop</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>                  <span class="c1"># crop identifier (e.g., crop name)</span>
+<span class="w">    </span><span class="sd">"""Everything needed to run one site × variety combination."""</span>
+    <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>                  <span class="c1"># site identifier (e.g., location name)</span>
+    <span class="n">crop</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>                  <span class="c1"># crop identifier (e.g., crop name)</span>
     <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>           <span class="c1"># degrees - site latitude</span>
     <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>          <span class="c1"># degrees - site longitude</span>
-    <span class="n">variety</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>               <span class="c1"># variety identifier (e.g., variety name)</span>
-    <span class="n">pathogen</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>              <span class="c1"># pathogen identifier</span>
+    <span class="n">variety</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>               <span class="c1"># variety identifier (e.g., variety name)</span>
+    <span class="n">pathogen</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>              <span class="c1"># pathogen identifier</span>
     <span class="n">variety_resistance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># 0–1 – varietal resistance to pathogen</span>
 
     <span class="n">year_sowing_doy</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>           <span class="c1"># Maps simulation year → sowing day-of-year</span>
@@ -2812,7 +2812,7 @@ TissueState        </code>
           <summary>Source code in <code>simpest/models/fr_data.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TissueState</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;State of a single tissue cohort (SEIR disease model).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""State of a single tissue cohort (SEIR disease model)."""</span>
     <span class="n">latent_state</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>           <span class="c1"># fraction currently in latent phase</span>
     <span class="n">sporulating_state</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>      <span class="c1"># fraction currently sporulating</span>
     <span class="n">dead_state</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>             <span class="c1"># fraction dead</span>

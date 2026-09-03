@@ -1538,7 +1538,7 @@ for per-year sowing CSVs.</p></td>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_runner.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FranchestynRunner</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    End-to-end crop-disease-fungicide simulation runner.</span>
 
 <span class="sd">    Args:</span>
@@ -1577,15 +1577,15 @@ for per-year sowing CSVs.</p></td>
 <span class="sd">            series); set ``True`` to use the thermal-time (GDD) based cycle</span>
 <span class="sd">            percentage, which ties phenology more directly to accumulated heat.</span>
 <span class="sd">        use_prev_day_alignment (bool): Day alignment used by the calibration</span>
-<span class="sd">            objective. Defaults to ``True``, which compares the previous day&#39;s</span>
-<span class="sd">            simulated output to the current day&#39;s reference observation</span>
+<span class="sd">            objective. Defaults to ``True``, which compares the previous day's</span>
+<span class="sd">            simulated output to the current day's reference observation</span>
 <span class="sd">            (sim[d-1] vs ref[d]). Set ``False`` for same-day alignment</span>
 <span class="sd">            (sim[d] vs ref[d]), which matches the daily output table.</span>
-<span class="sd">        all_row_includes_end_year (bool): How far an ``&quot;All&quot;`` sowing row is</span>
+<span class="sd">        all_row_includes_end_year (bool): How far an ``"All"`` sowing row is</span>
 <span class="sd">            applied. Defaults to ``False`` (the final year is omitted); set</span>
 <span class="sd">            ``True`` to apply it through ``end_year`` inclusive. Has no effect</span>
 <span class="sd">            for per-year sowing CSVs.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1599,8 +1599,8 @@ for per-year sowing CSVs.</p></td>
         <span class="n">disease</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">start_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">end_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">weather_time_step</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;daily&quot;</span><span class="p">,</span>
-        <span class="n">calibration_variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span>
+        <span class="n">weather_time_step</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"daily"</span><span class="p">,</span>
+        <span class="n">calibration_variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"all"</span><span class="p">,</span>
         <span class="n">is_calibration</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">crop_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1648,11 +1648,11 @@ for per-year sowing CSVs.</p></td>
 
         <span class="k">if</span> <span class="n">crop_param_specs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Modular loading from in-memory spec dicts</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">build_params_from_specs</span><span class="p">(</span><span class="n">crop_param_specs</span><span class="p">,</span> <span class="s2">&quot;crop&quot;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">build_params_from_specs</span><span class="p">(</span><span class="n">crop_param_specs</span><span class="p">,</span> <span class="s2">"crop"</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">disease_param_specs</span> <span class="ow">and</span> <span class="n">disease_type</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">build_params_from_specs</span><span class="p">(</span><span class="n">disease_param_specs</span><span class="p">,</span> <span class="s2">&quot;disease&quot;</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">build_params_from_specs</span><span class="p">(</span><span class="n">disease_param_specs</span><span class="p">,</span> <span class="s2">"disease"</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">fungicide_param_specs</span> <span class="ow">and</span> <span class="n">fungicide_type</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">build_params_from_specs</span><span class="p">(</span><span class="n">fungicide_param_specs</span><span class="p">,</span> <span class="s2">&quot;fungicide&quot;</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">build_params_from_specs</span><span class="p">(</span><span class="n">fungicide_param_specs</span><span class="p">,</span> <span class="s2">"fungicide"</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">crop_param_file</span> <span class="ow">and</span> <span class="n">crop_type</span><span class="p">:</span>
             <span class="c1"># Modular loading: always load crop</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">read_crop_parameters</span><span class="p">(</span><span class="n">crop_param_file</span><span class="p">,</span> <span class="n">crop_type</span><span class="p">))</span>
@@ -1662,8 +1662,8 @@ for per-year sowing CSVs.</p></td>
                 <span class="n">disease_catalog</span> <span class="o">=</span> <span class="n">read_disease_parameters</span><span class="p">(</span><span class="n">disease_param_file</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">disease_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">disease_catalog</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Disease type &#39;</span><span class="si">{</span><span class="n">disease_type</span><span class="si">}</span><span class="s2">&#39; not found. &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;Available: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">disease_catalog</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Disease type '</span><span class="si">{</span><span class="n">disease_type</span><span class="si">}</span><span class="s2">' not found. "</span>
+                        <span class="sa">f</span><span class="s2">"Available: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">disease_catalog</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">disease_catalog</span><span class="p">[</span><span class="n">disease_type</span><span class="p">])</span>
 
@@ -1700,7 +1700,7 @@ for per-year sowing CSVs.</p></td>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">param_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">Outputs</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run the model for all configured years and return daily outputs.</span>
 
 <span class="sd">        Args:</span>
@@ -1710,7 +1710,7 @@ for per-year sowing CSVs.</p></td>
 <span class="sd">        Returns:</span>
 <span class="sd">            Dict[datetime, Outputs]: Mapping of end-of-day timestamp to model</span>
 <span class="sd">            outputs.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_parameters</span><span class="p">(</span><span class="n">param_values</span> <span class="ow">or</span> <span class="p">{})</span>
         <span class="n">weather_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_weather</span><span class="p">()</span>
 
@@ -1769,7 +1769,7 @@ for per-year sowing CSVs.</p></td>
 
                 <span class="c1"># Skip the hourly disease step when disease is disabled, and also</span>
                 <span class="c1"># for crop-only calibration runs where disease plays no role.</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_type</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="o">!=</span> <span class="s2">&quot;crop&quot;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_calibration</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_type</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="o">!=</span> <span class="s2">"crop"</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_calibration</span><span class="p">):</span>
                     <span class="n">disease_model</span><span class="o">.</span><span class="n">run_hourly</span><span class="p">(</span><span class="n">hourly_rec</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">output_t1</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">hour_dt</span><span class="o">.</span><span class="n">hour</span> <span class="o">==</span> <span class="mi">23</span><span class="p">:</span>
@@ -1845,7 +1845,7 @@ for per-year sowing CSVs.</p></td>
         <span class="n">include_crop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">include_disease</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the root-mean-square error against reference data.</span>
+<span class="w">        </span><span class="sd">"""Compute the root-mean-square error against reference data.</span>
 
 <span class="sd">        This is the calibration objective. For each simulated day that has a</span>
 <span class="sd">        matching reference observation, it accumulates the squared, scaled</span>
@@ -1867,7 +1867,7 @@ for per-year sowing CSVs.</p></td>
 <span class="sd">        Returns:</span>
 <span class="sd">            float: The root-mean-square error, rounded to three decimals; ``0.0``</span>
 <span class="sd">            when no reference observations overlap the simulated days.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">errors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span><span class="o">.</span><span class="n">reference_data</span>
 
@@ -1879,7 +1879,7 @@ for per-year sowing CSVs.</p></td>
             <span class="n">sim_day</span><span class="p">:</span> <span class="n">date_type</span> <span class="o">=</span> <span class="n">hour_dt</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
             <span class="c1"># Day alignment between simulated output and reference data.</span>
             <span class="c1">#   Previous-day alignment (default): compare this simulated day to</span>
-            <span class="c1">#   the next day&#39;s reference, i.e. sim[d] vs ref[d+1], which is</span>
+            <span class="c1">#   the next day's reference, i.e. sim[d] vs ref[d+1], which is</span>
             <span class="c1">#   equivalent to sim[d-1] vs ref[d].</span>
             <span class="c1">#   Same-day alignment: sim[d] vs ref[d], matching the daily table.</span>
             <span class="n">ref_key</span><span class="p">:</span> <span class="n">date_type</span> <span class="o">=</span> <span class="p">(</span>
@@ -1955,12 +1955,12 @@ for per-year sowing CSVs.</p></td>
     <span class="k">def</span><span class="w"> </span><span class="nf">_build_parameters</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">param_values</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Parameters</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assemble a Parameters object from CSV defaults + overrides.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Assemble a Parameters object from CSV defaults + overrides."""</span>
         <span class="n">parameters</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_param</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="c1"># key = &quot;class_ParamName&quot;, e.g. &quot;crop_TbaseCrop&quot;</span>
-            <span class="n">parts</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># key = "class_ParamName", e.g. "crop_TbaseCrop"</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="n">param_class</span><span class="p">,</span> <span class="n">param_name</span> <span class="o">=</span> <span class="n">parts</span>
@@ -1978,19 +1978,19 @@ for per-year sowing CSVs.</p></td>
         <span class="k">return</span> <span class="n">parameters</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_load_weather</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">InputsHourly</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load weather data for the configured site and time step.</span>
+<span class="w">        </span><span class="sd">"""Load weather data for the configured site and time step.</span>
 
 <span class="sd">        If ``self.weather_dir`` is itself an existing CSV file, it is used</span>
 <span class="sd">        directly (i.e. the caller already resolved the full path).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">wd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather_dir</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">wd</span><span class="p">):</span>
             <span class="n">weather_file</span> <span class="o">=</span> <span class="n">wd</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">weather_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="n">wd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather_time_step</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="si">}</span><span class="s2">.csv&quot;</span>
+                <span class="n">wd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather_time_step</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="si">}</span><span class="s2">.csv"</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather_time_step</span> <span class="o">==</span> <span class="s2">&quot;hourly&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather_time_step</span> <span class="o">==</span> <span class="s2">"hourly"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">read_hourly</span><span class="p">(</span>
                 <span class="n">weather_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_year</span><span class="p">,</span>
                 <span class="n">site</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">latitude</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">latitude</span>
@@ -2096,7 +2096,7 @@ when no reference observations overlap the simulated days.</p></td>
     <span class="n">include_crop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">include_disease</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the root-mean-square error against reference data.</span>
+<span class="w">    </span><span class="sd">"""Compute the root-mean-square error against reference data.</span>
 
 <span class="sd">    This is the calibration objective. For each simulated day that has a</span>
 <span class="sd">    matching reference observation, it accumulates the squared, scaled</span>
@@ -2118,7 +2118,7 @@ when no reference observations overlap the simulated days.</p></td>
 <span class="sd">    Returns:</span>
 <span class="sd">        float: The root-mean-square error, rounded to three decimals; ``0.0``</span>
 <span class="sd">        when no reference observations overlap the simulated days.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">errors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span><span class="o">.</span><span class="n">reference_data</span>
 
@@ -2130,7 +2130,7 @@ when no reference observations overlap the simulated days.</p></td>
         <span class="n">sim_day</span><span class="p">:</span> <span class="n">date_type</span> <span class="o">=</span> <span class="n">hour_dt</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
         <span class="c1"># Day alignment between simulated output and reference data.</span>
         <span class="c1">#   Previous-day alignment (default): compare this simulated day to</span>
-        <span class="c1">#   the next day&#39;s reference, i.e. sim[d] vs ref[d+1], which is</span>
+        <span class="c1">#   the next day's reference, i.e. sim[d] vs ref[d+1], which is</span>
         <span class="c1">#   equivalent to sim[d-1] vs ref[d].</span>
         <span class="c1">#   Same-day alignment: sim[d] vs ref[d], matching the daily table.</span>
         <span class="n">ref_key</span><span class="p">:</span> <span class="n">date_type</span> <span class="o">=</span> <span class="p">(</span>
@@ -2262,7 +2262,7 @@ outputs.</p></td>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">param_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">Outputs</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Run the model for all configured years and return daily outputs.</span>
 
 <span class="sd">    Args:</span>
@@ -2272,7 +2272,7 @@ outputs.</p></td>
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[datetime, Outputs]: Mapping of end-of-day timestamp to model</span>
 <span class="sd">        outputs.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_parameters</span><span class="p">(</span><span class="n">param_values</span> <span class="ow">or</span> <span class="p">{})</span>
     <span class="n">weather_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_weather</span><span class="p">()</span>
 
@@ -2331,7 +2331,7 @@ outputs.</p></td>
 
             <span class="c1"># Skip the hourly disease step when disease is disabled, and also</span>
             <span class="c1"># for crop-only calibration runs where disease plays no role.</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_type</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="o">!=</span> <span class="s2">&quot;crop&quot;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_calibration</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_type</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="o">!=</span> <span class="s2">"crop"</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_calibration</span><span class="p">):</span>
                 <span class="n">disease_model</span><span class="o">.</span><span class="n">run_hourly</span><span class="p">(</span><span class="n">hourly_rec</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">output_t1</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">hour_dt</span><span class="o">.</span><span class="n">hour</span> <span class="o">==</span> <span class="mi">23</span><span class="p">:</span>

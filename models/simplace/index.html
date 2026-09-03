@@ -1533,7 +1533,7 @@ SimplaceConfig        </code>
           <summary>Source code in <code>simpest/models/simplace.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SimplaceConfig</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Configuration for Simplace runs.</span>
 
 <span class="sd">    Attributes:</span>
@@ -1542,12 +1542,12 @@ SimplaceConfig        </code>
 <span class="sd">        output_dir (str): Path to Simplace output directory.</span>
 <span class="sd">        solution_path (str): Path to Simplace solution XML file.</span>
 <span class="sd">        project_path (str): Path to Simplace project XML file.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">install_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;C:/ParamVC/Research/simplace+/simplace_portable/workspace/&quot;</span>
-    <span class="n">work_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;C:/ParamVC/Research/simplace+/simplace_portable/workspace/simplace_run/simulation/&quot;</span>
-    <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;C:/ParamVC/Research/simplace+/simplace_out/&quot;</span>
-    <span class="n">solution_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;SimulationExperimentTemplate/solution/Lintul5_indiana.sol.xml&quot;</span>
-    <span class="n">project_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;SimulationExperimentTemplate/project/Lintul5All_indiana.proj.xml&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">install_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"C:/ParamVC/Research/simplace+/simplace_portable/workspace/"</span>
+    <span class="n">work_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"C:/ParamVC/Research/simplace+/simplace_portable/workspace/simplace_run/simulation/"</span>
+    <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"C:/ParamVC/Research/simplace+/simplace_out/"</span>
+    <span class="n">solution_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"SimulationExperimentTemplate/solution/Lintul5_indiana.sol.xml"</span>
+    <span class="n">project_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"SimulationExperimentTemplate/project/Lintul5All_indiana.proj.xml"</span>
 </code></pre></div>
         </details>
 
@@ -1590,7 +1590,7 @@ SimplaceConfig        </code>
 
 
 <h3 id="simpest.models.simplace.build_management" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">build_management</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">,</span> <span class="n">crop</span><span class="o">=</span><span class="s1">&#39;wheat&#39;</span><span class="p">,</span> <span class="n">variety</span><span class="o">=</span><span class="s1">&#39;generic&#39;</span><span class="p">,</span> <span class="n">yearly_sowing_doy</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">build_management</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">,</span> <span class="n">crop</span><span class="o">=</span><span class="s1">'wheat'</span><span class="p">,</span> <span class="n">variety</span><span class="o">=</span><span class="s1">'generic'</span><span class="p">,</span> <span class="n">yearly_sowing_doy</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 
 <a href="#simpest.models.simplace.build_management" class="headerlink" title="Permanent link">&para;</a></h3>
@@ -1664,61 +1664,61 @@ is written to preserve backward compatibility.</p></td>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_management</span><span class="p">(</span>
     <span class="n">output_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">project_row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
-    <span class="n">crop</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
-    <span class="n">variety</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;generic&quot;</span><span class="p">,</span>
+    <span class="n">crop</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"wheat"</span><span class="p">,</span>
+    <span class="n">variety</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"generic"</span><span class="p">,</span>
     <span class="n">yearly_sowing_doy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build and save a management CSV file for the disease/fungicide simulation.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        output_root (Path): Output root directory.</span>
 <span class="sd">        project_row (dict): Project row dictionary.</span>
-<span class="sd">        crop (str, optional): Crop name. Defaults to &quot;wheat&quot;.</span>
-<span class="sd">        variety (str, optional): Variety name. Defaults to &quot;generic&quot;.</span>
+<span class="sd">        crop (str, optional): Crop name. Defaults to "wheat".</span>
+<span class="sd">        variety (str, optional): Variety name. Defaults to "generic".</span>
 <span class="sd">        yearly_sowing_doy (dict[int, int] | None, optional): Mapping of</span>
-<span class="sd">            simulation year to sowing DOY. If omitted, a single &quot;All&quot; row</span>
+<span class="sd">            simulation year to sowing DOY. If omitted, a single "All" row</span>
 <span class="sd">            is written to preserve backward compatibility.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Path: Path to the management CSV file.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">sowing_doy</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">project_row</span><span class="p">[</span><span class="s2">&quot;idem&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">7</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">sowing_doy</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">project_row</span><span class="p">[</span><span class="s2">"idem"</span><span class="p">]</span> <span class="o">-</span> <span class="mi">7</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">yearly_sowing_doy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">candidate</span> <span class="o">=</span> <span class="n">project_row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;yearly_sowing_doy&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">project_row</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">candidate</span> <span class="o">=</span> <span class="n">project_row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"yearly_sowing_doy"</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">project_row</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">candidate</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">candidate</span><span class="p">:</span>
             <span class="n">yearly_sowing_doy</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="p">):</span> <span class="nb">int</span><span class="p">(</span><span class="n">doy</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">year</span><span class="p">,</span> <span class="n">doy</span> <span class="ow">in</span> <span class="n">candidate</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">}</span>
 
-    <span class="n">management_dst</span> <span class="o">=</span> <span class="n">output_root</span> <span class="o">/</span> <span class="s2">&quot;SimulationExperimentTemplate&quot;</span> <span class="o">/</span> <span class="s2">&quot;management_franchestyn.csv&quot;</span>
-    <span class="k">with</span> <span class="n">management_dst</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+    <span class="n">management_dst</span> <span class="o">=</span> <span class="n">output_root</span> <span class="o">/</span> <span class="s2">"SimulationExperimentTemplate"</span> <span class="o">/</span> <span class="s2">"management_franchestyn.csv"</span>
+    <span class="k">with</span> <span class="n">management_dst</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
         <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span>
             <span class="n">f_out</span><span class="p">,</span>
-            <span class="n">fieldnames</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;site&quot;</span><span class="p">,</span> <span class="s2">&quot;crop&quot;</span><span class="p">,</span> <span class="s2">&quot;variety&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;sowingDOY&quot;</span><span class="p">],</span>
-            <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span>
+            <span class="n">fieldnames</span><span class="o">=</span><span class="p">[</span><span class="s2">"site"</span><span class="p">,</span> <span class="s2">"crop"</span><span class="p">,</span> <span class="s2">"variety"</span><span class="p">,</span> <span class="s2">"year"</span><span class="p">,</span> <span class="s2">"sowingDOY"</span><span class="p">],</span>
+            <span class="n">delimiter</span><span class="o">=</span><span class="s2">","</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">yearly_sowing_doy</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">yearly_sowing_doy</span><span class="p">):</span>
                 <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;site&quot;</span><span class="p">:</span> <span class="n">project_row</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">],</span>
-                        <span class="s2">&quot;crop&quot;</span><span class="p">:</span> <span class="n">crop</span><span class="p">,</span>
-                        <span class="s2">&quot;variety&quot;</span><span class="p">:</span> <span class="n">variety</span><span class="p">,</span>
-                        <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">year</span><span class="p">,</span>
-                        <span class="s2">&quot;sowingDOY&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">yearly_sowing_doy</span><span class="p">[</span><span class="n">year</span><span class="p">])),</span>
+                        <span class="s2">"site"</span><span class="p">:</span> <span class="n">project_row</span><span class="p">[</span><span class="s2">"location"</span><span class="p">],</span>
+                        <span class="s2">"crop"</span><span class="p">:</span> <span class="n">crop</span><span class="p">,</span>
+                        <span class="s2">"variety"</span><span class="p">:</span> <span class="n">variety</span><span class="p">,</span>
+                        <span class="s2">"year"</span><span class="p">:</span> <span class="n">year</span><span class="p">,</span>
+                        <span class="s2">"sowingDOY"</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">yearly_sowing_doy</span><span class="p">[</span><span class="n">year</span><span class="p">])),</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;site&quot;</span><span class="p">:</span> <span class="n">project_row</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">],</span>
-                    <span class="s2">&quot;crop&quot;</span><span class="p">:</span> <span class="n">crop</span><span class="p">,</span>
-                    <span class="s2">&quot;variety&quot;</span><span class="p">:</span> <span class="n">variety</span><span class="p">,</span>
-                    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;sowingDOY&quot;</span><span class="p">:</span> <span class="n">sowing_doy</span><span class="p">,</span>
+                    <span class="s2">"site"</span><span class="p">:</span> <span class="n">project_row</span><span class="p">[</span><span class="s2">"location"</span><span class="p">],</span>
+                    <span class="s2">"crop"</span><span class="p">:</span> <span class="n">crop</span><span class="p">,</span>
+                    <span class="s2">"variety"</span><span class="p">:</span> <span class="n">variety</span><span class="p">,</span>
+                    <span class="s2">"year"</span><span class="p">:</span> <span class="s2">"All"</span><span class="p">,</span>
+                    <span class="s2">"sowingDOY"</span><span class="p">:</span> <span class="n">sowing_doy</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
 
@@ -1794,7 +1794,7 @@ is written to preserve backward compatibility.</p></td>
         <details class="quote">
           <summary>Source code in <code>simpest/models/simplace.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">convert_weather</span><span class="p">(</span><span class="n">work_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">output_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert a Simplace weather file to the simpest weather CSV format.</span>
 
 <span class="sd">    Args:</span>
@@ -1804,28 +1804,28 @@ is written to preserve backward compatibility.</p></td>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Path: Path to the converted weather CSV file.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">weather_src</span> <span class="o">=</span> <span class="n">work_root</span> <span class="o">/</span> <span class="s2">&quot;SimulationExperimentTemplate&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span> <span class="o">/</span> <span class="s2">&quot;weather&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s2">.txt&quot;</span>
-    <span class="n">weather_dst</span> <span class="o">=</span> <span class="n">output_root</span> <span class="o">/</span> <span class="s2">&quot;SimulationExperimentTemplate&quot;</span> <span class="o">/</span> <span class="s2">&quot;weather_franchestyn.csv&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">weather_src</span> <span class="o">=</span> <span class="n">work_root</span> <span class="o">/</span> <span class="s2">"SimulationExperimentTemplate"</span> <span class="o">/</span> <span class="s2">"data"</span> <span class="o">/</span> <span class="s2">"weather"</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s2">.txt"</span>
+    <span class="n">weather_dst</span> <span class="o">=</span> <span class="n">output_root</span> <span class="o">/</span> <span class="s2">"SimulationExperimentTemplate"</span> <span class="o">/</span> <span class="s2">"weather_franchestyn.csv"</span>
 
-    <span class="k">with</span> <span class="n">weather_src</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8-sig&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">,</span> <span class="n">weather_dst</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
-        <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="k">with</span> <span class="n">weather_src</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">,</span> <span class="n">weather_dst</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+        <span class="s2">"w"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span>
     <span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
-        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">reader</span><span class="o">.</span><span class="n">fieldnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\ufeff</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">reader</span><span class="o">.</span><span class="n">fieldnames</span><span class="p">]</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">reader</span><span class="o">.</span><span class="n">fieldnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"</span><span class="se">\ufeff</span><span class="s2">"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">reader</span><span class="o">.</span><span class="n">fieldnames</span><span class="p">]</span>
 
         <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span>
             <span class="n">f_out</span><span class="p">,</span>
-            <span class="n">fieldnames</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;site&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;month&quot;</span><span class="p">,</span> <span class="s2">&quot;day&quot;</span><span class="p">,</span> <span class="s2">&quot;tx&quot;</span><span class="p">,</span> <span class="s2">&quot;tn&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;rad&quot;</span><span class="p">,</span> <span class="s2">&quot;vp&quot;</span><span class="p">,</span> <span class="s2">&quot;rhx&quot;</span><span class="p">,</span> <span class="s2">&quot;rhn&quot;</span><span class="p">],</span>
-            <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span>
+            <span class="n">fieldnames</span><span class="o">=</span><span class="p">[</span><span class="s2">"site"</span><span class="p">,</span> <span class="s2">"year"</span><span class="p">,</span> <span class="s2">"month"</span><span class="p">,</span> <span class="s2">"day"</span><span class="p">,</span> <span class="s2">"tx"</span><span class="p">,</span> <span class="s2">"tn"</span><span class="p">,</span> <span class="s2">"p"</span><span class="p">,</span> <span class="s2">"rad"</span><span class="p">,</span> <span class="s2">"vp"</span><span class="p">,</span> <span class="s2">"rhx"</span><span class="p">,</span> <span class="s2">"rhn"</span><span class="p">],</span>
+            <span class="n">delimiter</span><span class="o">=</span><span class="s2">","</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;CURRENTDAY&quot;</span><span class="p">],</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">.%m.%Y&quot;</span><span class="p">)</span>
-            <span class="n">tmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Tmax&quot;</span><span class="p">])</span>
-            <span class="n">tmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Tmin&quot;</span><span class="p">])</span>
-            <span class="n">vp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;VapourPressure&quot;</span><span class="p">])</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"CURRENTDAY"</span><span class="p">],</span> <span class="s2">"</span><span class="si">%d</span><span class="s2">.%m.%Y"</span><span class="p">)</span>
+            <span class="n">tmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"Tmax"</span><span class="p">])</span>
+            <span class="n">tmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"Tmin"</span><span class="p">])</span>
+            <span class="n">vp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"VapourPressure"</span><span class="p">])</span>
 
             <span class="n">es_tmax</span> <span class="o">=</span> <span class="n">_saturation_vapor_pressure</span><span class="p">(</span><span class="n">tmax</span><span class="p">)</span>
             <span class="n">es_tmin</span> <span class="o">=</span> <span class="n">_saturation_vapor_pressure</span><span class="p">(</span><span class="n">tmin</span><span class="p">)</span>
@@ -1834,17 +1834,17 @@ is written to preserve backward compatibility.</p></td>
 
             <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;site&quot;</span><span class="p">:</span> <span class="n">location</span><span class="p">,</span>
-                    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
-                    <span class="s2">&quot;month&quot;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
-                    <span class="s2">&quot;day&quot;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">day</span><span class="p">,</span>
-                    <span class="s2">&quot;tx&quot;</span><span class="p">:</span> <span class="n">tmax</span><span class="p">,</span>
-                    <span class="s2">&quot;tn&quot;</span><span class="p">:</span> <span class="n">tmin</span><span class="p">,</span>
-                    <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Precipitation&quot;</span><span class="p">],</span>
-                    <span class="s2">&quot;rad&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Irradiation&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span>
-                    <span class="s2">&quot;vp&quot;</span><span class="p">:</span> <span class="n">vp</span><span class="p">,</span>
-                    <span class="s2">&quot;rhx&quot;</span><span class="p">:</span> <span class="n">rhx</span><span class="p">,</span>
-                    <span class="s2">&quot;rhn&quot;</span><span class="p">:</span> <span class="n">rhn</span><span class="p">,</span>
+                    <span class="s2">"site"</span><span class="p">:</span> <span class="n">location</span><span class="p">,</span>
+                    <span class="s2">"year"</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+                    <span class="s2">"month"</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
+                    <span class="s2">"day"</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">day</span><span class="p">,</span>
+                    <span class="s2">"tx"</span><span class="p">:</span> <span class="n">tmax</span><span class="p">,</span>
+                    <span class="s2">"tn"</span><span class="p">:</span> <span class="n">tmin</span><span class="p">,</span>
+                    <span class="s2">"p"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"Precipitation"</span><span class="p">],</span>
+                    <span class="s2">"rad"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"Irradiation"</span><span class="p">])</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span>
+                    <span class="s2">"vp"</span><span class="p">:</span> <span class="n">vp</span><span class="p">,</span>
+                    <span class="s2">"rhx"</span><span class="p">:</span> <span class="n">rhx</span><span class="p">,</span>
+                    <span class="s2">"rhn"</span><span class="p">:</span> <span class="n">rhn</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
 
@@ -1952,7 +1952,7 @@ the keys <code>location</code> and <code>iopt</code>.</p></td>
         <details class="quote">
           <summary>Source code in <code>simpest/models/simplace.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">export_crop_model_data</span><span class="p">(</span><span class="n">output_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">project_row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exports daily SIMPLACE outputs to the simpest crop-model input format.</span>
+<span class="w">    </span><span class="sd">"""Exports daily SIMPLACE outputs to the simpest crop-model input format.</span>
 
 <span class="sd">    The exported CSV contains the variables required by the disease and</span>
 <span class="sd">    fungicide sub-models for coupling with an external crop model.</span>
@@ -1981,46 +1981,46 @@ the keys <code>location</code> and <code>iopt</code>.</p></td>
 <span class="sd">        FileNotFoundError: If the SIMPLACE daily output file does not exist.</span>
 <span class="sd">        KeyError: If required columns are missing from the input CSV.</span>
 <span class="sd">        ValueError: If numeric conversion of required variables fails.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">sim_dir</span> <span class="o">=</span> <span class="n">output_root</span> <span class="o">/</span> <span class="s2">&quot;SimulationExperimentTemplate&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">sim_dir</span> <span class="o">=</span> <span class="n">output_root</span> <span class="o">/</span> <span class="s2">"SimulationExperimentTemplate"</span>
 
-    <span class="n">src</span> <span class="o">=</span> <span class="n">sim_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">project_row</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">]</span><span class="si">}{</span><span class="n">project_row</span><span class="p">[</span><span class="s1">&#39;iopt&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_daily.csv&quot;</span>
-    <span class="n">dst</span> <span class="o">=</span> <span class="n">sim_dir</span> <span class="o">/</span> <span class="s2">&quot;cropModel_data.csv&quot;</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">sim_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">project_row</span><span class="p">[</span><span class="s1">'location'</span><span class="p">]</span><span class="si">}{</span><span class="n">project_row</span><span class="p">[</span><span class="s1">'iopt'</span><span class="p">]</span><span class="si">}</span><span class="s2">_daily.csv"</span>
+    <span class="n">dst</span> <span class="o">=</span> <span class="n">sim_dir</span> <span class="o">/</span> <span class="s2">"cropModel_data.csv"</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SIMPLACE daily output not found: </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SIMPLACE daily output not found: </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="n">src</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">,</span> \
-         <span class="n">dst</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">src</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"r"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">,</span> \
+         <span class="n">dst</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
 
-        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">";"</span><span class="p">)</span>
 
-        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">f_out</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;doy&quot;</span><span class="p">,</span> <span class="s2">&quot;agb&quot;</span><span class="p">,</span> <span class="s2">&quot;yield&quot;</span><span class="p">,</span> <span class="s2">&quot;fint&quot;</span><span class="p">,</span> <span class="s2">&quot;lai&quot;</span><span class="p">,</span> <span class="s2">&quot;gdd&quot;</span><span class="p">],)</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">f_out</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="p">[</span><span class="s2">"year"</span><span class="p">,</span> <span class="s2">"doy"</span><span class="p">,</span> <span class="s2">"agb"</span><span class="p">,</span> <span class="s2">"yield"</span><span class="p">,</span> <span class="s2">"fint"</span><span class="p">,</span> <span class="s2">"lai"</span><span class="p">,</span> <span class="s2">"gdd"</span><span class="p">],)</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
 
-            <span class="n">agb</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;TAGB&quot;</span><span class="p">])</span>
-            <span class="n">yield_</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;WSO&quot;</span><span class="p">])</span>
-            <span class="n">fint</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;FINT&quot;</span><span class="p">])</span>
-            <span class="n">lai</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;LAI&quot;</span><span class="p">])</span>
-            <span class="n">gdd</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;TSUM&quot;</span><span class="p">])</span>
+            <span class="n">agb</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"TAGB"</span><span class="p">])</span>
+            <span class="n">yield_</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"WSO"</span><span class="p">])</span>
+            <span class="n">fint</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"FINT"</span><span class="p">])</span>
+            <span class="n">lai</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"LAI"</span><span class="p">])</span>
+            <span class="n">gdd</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"TSUM"</span><span class="p">])</span>
 
             <span class="c1"># Skip rows before crop emergence.</span>
             <span class="k">if</span> <span class="n">agb</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">yield_</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">fint</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">lai</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
                 <span class="k">continue</span>
 
-            <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;CURRENT.DATE&quot;</span><span class="p">],</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">.%m.%Y&quot;</span><span class="p">)</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"CURRENT.DATE"</span><span class="p">],</span> <span class="s2">"</span><span class="si">%d</span><span class="s2">.%m.%Y"</span><span class="p">)</span>
 
             <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">date</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
-                    <span class="s2">&quot;doy&quot;</span><span class="p">:</span> <span class="n">date</span><span class="o">.</span><span class="n">timetuple</span><span class="p">()</span><span class="o">.</span><span class="n">tm_yday</span><span class="p">,</span>
-                    <span class="s2">&quot;agb&quot;</span><span class="p">:</span> <span class="n">agb</span><span class="p">,</span>
-                    <span class="s2">&quot;yield&quot;</span><span class="p">:</span> <span class="n">yield_</span><span class="p">,</span>
-                    <span class="s2">&quot;fint&quot;</span><span class="p">:</span> <span class="n">fint</span><span class="p">,</span>
-                    <span class="s2">&quot;lai&quot;</span><span class="p">:</span> <span class="n">lai</span><span class="p">,</span>
-                    <span class="s2">&quot;gdd&quot;</span><span class="p">:</span> <span class="n">gdd</span><span class="p">,</span>
+                    <span class="s2">"year"</span><span class="p">:</span> <span class="n">date</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+                    <span class="s2">"doy"</span><span class="p">:</span> <span class="n">date</span><span class="o">.</span><span class="n">timetuple</span><span class="p">()</span><span class="o">.</span><span class="n">tm_yday</span><span class="p">,</span>
+                    <span class="s2">"agb"</span><span class="p">:</span> <span class="n">agb</span><span class="p">,</span>
+                    <span class="s2">"yield"</span><span class="p">:</span> <span class="n">yield_</span><span class="p">,</span>
+                    <span class="s2">"fint"</span><span class="p">:</span> <span class="n">fint</span><span class="p">,</span>
+                    <span class="s2">"lai"</span><span class="p">:</span> <span class="n">lai</span><span class="p">,</span>
+                    <span class="s2">"gdd"</span><span class="p">:</span> <span class="n">gdd</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
 
@@ -2110,7 +2110,7 @@ values are available, it falls back to a constant sowing DOY derived from
     <span class="n">start_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">end_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Extract per-year sowing DOY from projectdata CSV files.</span>
 
 <span class="sd">    The function prefers explicit `ISOW` values when present. If no per-year</span>
@@ -2125,33 +2125,33 @@ values are available, it falls back to a constant sowing DOY derived from
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict[int, int]: Mapping year -&gt; sowing DOY.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">projectdata_dir</span> <span class="o">=</span> <span class="n">work_root</span> <span class="o">/</span> <span class="s2">&quot;SimulationExperimentTemplate&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span> <span class="o">/</span> <span class="s2">&quot;projectdata&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">projectdata_dir</span> <span class="o">=</span> <span class="n">work_root</span> <span class="o">/</span> <span class="s2">"SimulationExperimentTemplate"</span> <span class="o">/</span> <span class="s2">"data"</span> <span class="o">/</span> <span class="s2">"projectdata"</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">projectdata_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="k">return</span> <span class="p">{}</span>
 
-    <span class="n">location</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="n">iopt</span> <span class="o">=</span> <span class="n">_to_int</span><span class="p">(</span><span class="n">project_row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iopt&quot;</span><span class="p">))</span>
-    <span class="n">idem</span> <span class="o">=</span> <span class="n">_to_int</span><span class="p">(</span><span class="n">project_row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;idem&quot;</span><span class="p">))</span>
+    <span class="n">location</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"location"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">iopt</span> <span class="o">=</span> <span class="n">_to_int</span><span class="p">(</span><span class="n">project_row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"iopt"</span><span class="p">))</span>
+    <span class="n">idem</span> <span class="o">=</span> <span class="n">_to_int</span><span class="p">(</span><span class="n">project_row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"idem"</span><span class="p">))</span>
     <span class="n">default_sowing_doy</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">idem</span> <span class="ow">or</span> <span class="mi">8</span><span class="p">)</span> <span class="o">-</span> <span class="mi">7</span><span class="p">)</span>
 
     <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">project_csv</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">projectdata_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.csv&quot;</span><span class="p">)):</span>
-        <span class="k">with</span> <span class="n">project_csv</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8-sig&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_proj</span><span class="p">:</span>
-            <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f_proj</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">project_csv</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">projectdata_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*.csv"</span><span class="p">)):</span>
+        <span class="k">with</span> <span class="n">project_csv</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_proj</span><span class="p">:</span>
+            <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f_proj</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">";"</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">reader</span><span class="o">.</span><span class="n">fieldnames</span><span class="p">:</span>
                 <span class="k">continue</span>
 
             <span class="n">name_to_col</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">reader</span><span class="o">.</span><span class="n">fieldnames</span><span class="p">}</span>
-            <span class="n">col_location</span> <span class="o">=</span> <span class="n">name_to_col</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;location&quot;</span><span class="p">)</span>
-            <span class="n">col_iopt</span> <span class="o">=</span> <span class="n">name_to_col</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iopt&quot;</span><span class="p">)</span>
-            <span class="n">col_start</span> <span class="o">=</span> <span class="n">name_to_col</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;startdate&quot;</span><span class="p">)</span>
-            <span class="n">col_end</span> <span class="o">=</span> <span class="n">name_to_col</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;enddate&quot;</span><span class="p">)</span>
-            <span class="n">col_isow</span> <span class="o">=</span> <span class="n">name_to_col</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;isow&quot;</span><span class="p">)</span>
-            <span class="n">col_idem</span> <span class="o">=</span> <span class="n">name_to_col</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;idem&quot;</span><span class="p">)</span>
+            <span class="n">col_location</span> <span class="o">=</span> <span class="n">name_to_col</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"location"</span><span class="p">)</span>
+            <span class="n">col_iopt</span> <span class="o">=</span> <span class="n">name_to_col</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"iopt"</span><span class="p">)</span>
+            <span class="n">col_start</span> <span class="o">=</span> <span class="n">name_to_col</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"startdate"</span><span class="p">)</span>
+            <span class="n">col_end</span> <span class="o">=</span> <span class="n">name_to_col</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"enddate"</span><span class="p">)</span>
+            <span class="n">col_isow</span> <span class="o">=</span> <span class="n">name_to_col</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"isow"</span><span class="p">)</span>
+            <span class="n">col_idem</span> <span class="o">=</span> <span class="n">name_to_col</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"idem"</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">raw</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
-                <span class="n">row_location</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col_location</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">col_location</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">row_location</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col_location</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">col_location</span> <span class="k">else</span> <span class="s2">""</span>
                 <span class="k">if</span> <span class="n">location</span> <span class="ow">and</span> <span class="n">row_location</span> <span class="ow">and</span> <span class="n">row_location</span> <span class="o">!=</span> <span class="n">location</span><span class="p">:</span>
                     <span class="k">continue</span>
 
@@ -2159,8 +2159,8 @@ values are available, it falls back to a constant sowing DOY derived from
                 <span class="k">if</span> <span class="n">iopt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">row_iopt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">row_iopt</span> <span class="o">!=</span> <span class="n">iopt</span><span class="p">:</span>
                     <span class="k">continue</span>
 
-                <span class="n">start_dt</span> <span class="o">=</span> <span class="n">_parse_project_date</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col_start</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span> <span class="k">if</span> <span class="n">col_start</span> <span class="k">else</span> <span class="kc">None</span>
-                <span class="n">end_dt</span> <span class="o">=</span> <span class="n">_parse_project_date</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col_end</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span> <span class="k">if</span> <span class="n">col_end</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="n">start_dt</span> <span class="o">=</span> <span class="n">_parse_project_date</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col_start</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span> <span class="k">if</span> <span class="n">col_start</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="n">end_dt</span> <span class="o">=</span> <span class="n">_parse_project_date</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col_end</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span> <span class="k">if</span> <span class="n">col_end</span> <span class="k">else</span> <span class="kc">None</span>
                 <span class="k">if</span> <span class="n">start_dt</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">end_dt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">continue</span>
 
@@ -2175,16 +2175,16 @@ values are available, it falls back to a constant sowing DOY derived from
 
                 <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">year</span><span class="p">,</span>
-                        <span class="s2">&quot;sowing_doy&quot;</span><span class="p">:</span> <span class="n">sow_doy</span><span class="p">,</span>
-                        <span class="s2">&quot;span_days&quot;</span><span class="p">:</span> <span class="p">((</span><span class="n">end_dt</span> <span class="o">-</span> <span class="n">start_dt</span><span class="p">)</span><span class="o">.</span><span class="n">days</span> <span class="k">if</span> <span class="n">start_dt</span> <span class="ow">and</span> <span class="n">end_dt</span> <span class="k">else</span> <span class="mi">999999</span><span class="p">),</span>
+                        <span class="s2">"year"</span><span class="p">:</span> <span class="n">year</span><span class="p">,</span>
+                        <span class="s2">"sowing_doy"</span><span class="p">:</span> <span class="n">sow_doy</span><span class="p">,</span>
+                        <span class="s2">"span_days"</span><span class="p">:</span> <span class="p">((</span><span class="n">end_dt</span> <span class="o">-</span> <span class="n">start_dt</span><span class="p">)</span><span class="o">.</span><span class="n">days</span> <span class="k">if</span> <span class="n">start_dt</span> <span class="ow">and</span> <span class="n">end_dt</span> <span class="k">else</span> <span class="mi">999999</span><span class="p">),</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
 
     <span class="c1"># Prefer the most specific row per year (shortest start-end span).</span>
     <span class="n">yearly_sowing</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;span_days&quot;</span><span class="p">])):</span>
-        <span class="n">yearly_sowing</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;sowing_doy&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">"year"</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s2">"span_days"</span><span class="p">])):</span>
+        <span class="n">yearly_sowing</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">"year"</span><span class="p">]]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"sowing_doy"</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">yearly_sowing</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">yearly_sowing</span>
@@ -2256,7 +2256,7 @@ values are available, it falls back to a constant sowing DOY derived from
         <details class="quote">
           <summary>Source code in <code>simpest/models/simplace.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_project_row</span><span class="p">(</span><span class="n">work_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">selected_line</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get a row from the project CSV file by line index.</span>
 
 <span class="sd">    Args:</span>
@@ -2265,22 +2265,22 @@ values are available, it falls back to a constant sowing DOY derived from
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: Dictionary with project row data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">project_csv</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">work_root</span>
-        <span class="o">/</span> <span class="s2">&quot;SimulationExperimentTemplate&quot;</span>
-        <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
-        <span class="o">/</span> <span class="s2">&quot;projectdata&quot;</span>
-        <span class="o">/</span> <span class="s2">&quot;lintul5all_indiana.csv&quot;</span>
+        <span class="o">/</span> <span class="s2">"SimulationExperimentTemplate"</span>
+        <span class="o">/</span> <span class="s2">"data"</span>
+        <span class="o">/</span> <span class="s2">"projectdata"</span>
+        <span class="o">/</span> <span class="s2">"lintul5all_indiana.csv"</span>
     <span class="p">)</span>
-    <span class="k">with</span> <span class="n">project_csv</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8-sig&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_proj</span><span class="p">:</span>
-        <span class="n">proj_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f_proj</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">project_csv</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_proj</span><span class="p">:</span>
+        <span class="n">proj_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f_proj</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">";"</span><span class="p">)</span>
         <span class="n">project_rows</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">proj_reader</span><span class="p">)</span>
 
     <span class="n">row</span> <span class="o">=</span> <span class="n">project_rows</span><span class="p">[</span><span class="n">selected_line</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
     <span class="n">key_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">field</span><span class="p">(</span><span class="o">*</span><span class="n">aliases</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">field</span><span class="p">(</span><span class="o">*</span><span class="n">aliases</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">aliases</span><span class="p">:</span>
             <span class="n">key</span> <span class="o">=</span> <span class="n">key_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">alias</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
             <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2288,20 +2288,20 @@ values are available, it falls back to a constant sowing DOY derived from
         <span class="k">return</span> <span class="n">default</span>
 
     <span class="n">project_row</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;projectid&quot;</span><span class="p">:</span> <span class="n">field</span><span class="p">(</span><span class="s2">&quot;projectid&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;simulationid&quot;</span><span class="p">:</span> <span class="n">field</span><span class="p">(</span><span class="s2">&quot;simulationid&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;startdate&quot;</span><span class="p">:</span> <span class="n">field</span><span class="p">(</span><span class="s2">&quot;startdate&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;enddate&quot;</span><span class="p">:</span> <span class="n">field</span><span class="p">(</span><span class="s2">&quot;enddate&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="n">field</span><span class="p">(</span><span class="s2">&quot;location&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;iopt&quot;</span><span class="p">:</span> <span class="n">field</span><span class="p">(</span><span class="s2">&quot;iopt&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;idem&quot;</span><span class="p">:</span> <span class="n">_to_int</span><span class="p">(</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;idem&quot;</span><span class="p">))</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;irri&quot;</span><span class="p">:</span> <span class="n">field</span><span class="p">(</span><span class="s2">&quot;irri&quot;</span><span class="p">),</span>
+        <span class="s2">"projectid"</span><span class="p">:</span> <span class="n">field</span><span class="p">(</span><span class="s2">"projectid"</span><span class="p">),</span>
+        <span class="s2">"simulationid"</span><span class="p">:</span> <span class="n">field</span><span class="p">(</span><span class="s2">"simulationid"</span><span class="p">),</span>
+        <span class="s2">"startdate"</span><span class="p">:</span> <span class="n">field</span><span class="p">(</span><span class="s2">"startdate"</span><span class="p">),</span>
+        <span class="s2">"enddate"</span><span class="p">:</span> <span class="n">field</span><span class="p">(</span><span class="s2">"enddate"</span><span class="p">),</span>
+        <span class="s2">"location"</span><span class="p">:</span> <span class="n">field</span><span class="p">(</span><span class="s2">"location"</span><span class="p">),</span>
+        <span class="s2">"iopt"</span><span class="p">:</span> <span class="n">field</span><span class="p">(</span><span class="s2">"iopt"</span><span class="p">),</span>
+        <span class="s2">"idem"</span><span class="p">:</span> <span class="n">_to_int</span><span class="p">(</span><span class="n">field</span><span class="p">(</span><span class="s2">"idem"</span><span class="p">))</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"irri"</span><span class="p">:</span> <span class="n">field</span><span class="p">(</span><span class="s2">"irri"</span><span class="p">),</span>
     <span class="p">}</span>
 
-    <span class="n">start_dt</span> <span class="o">=</span> <span class="n">_parse_project_date</span><span class="p">(</span><span class="n">project_row</span><span class="p">[</span><span class="s2">&quot;startdate&quot;</span><span class="p">])</span>
-    <span class="n">end_dt</span> <span class="o">=</span> <span class="n">_parse_project_date</span><span class="p">(</span><span class="n">project_row</span><span class="p">[</span><span class="s2">&quot;enddate&quot;</span><span class="p">])</span>
+    <span class="n">start_dt</span> <span class="o">=</span> <span class="n">_parse_project_date</span><span class="p">(</span><span class="n">project_row</span><span class="p">[</span><span class="s2">"startdate"</span><span class="p">])</span>
+    <span class="n">end_dt</span> <span class="o">=</span> <span class="n">_parse_project_date</span><span class="p">(</span><span class="n">project_row</span><span class="p">[</span><span class="s2">"enddate"</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">start_dt</span> <span class="ow">and</span> <span class="n">end_dt</span><span class="p">:</span>
-        <span class="n">project_row</span><span class="p">[</span><span class="s2">&quot;yearly_sowing_doy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_yearly_sowing_doy</span><span class="p">(</span>
+        <span class="n">project_row</span><span class="p">[</span><span class="s2">"yearly_sowing_doy"</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_yearly_sowing_doy</span><span class="p">(</span>
             <span class="n">work_root</span><span class="p">,</span>
             <span class="n">project_row</span><span class="p">,</span>
             <span class="n">start_dt</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
@@ -2368,7 +2368,7 @@ values are available, it falls back to a constant sowing DOY derived from
         <details class="quote">
           <summary>Source code in <code>simpest/models/simplace.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_simplace_directories</span><span class="p">(</span><span class="n">shell</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Wrapper for simplace.getSimplaceDirectories to avoid exposing simplace in notebooks.</span>
 
 <span class="sd">    Args:</span>
@@ -2376,7 +2376,7 @@ values are available, it falls back to a constant sowing DOY derived from
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: Simplace directories information.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">simplace</span><span class="o">.</span><span class="n">getSimplaceDirectories</span><span class="p">(</span><span class="n">shell</span><span class="p">)</span>
 </code></pre></div>
         </details>
@@ -2437,7 +2437,7 @@ values are available, it falls back to a constant sowing DOY derived from
         <details class="quote">
           <summary>Source code in <code>simpest/models/simplace.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">init_simplace</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">SimplaceConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Initialize and return a Simplace instance using the given configuration.</span>
 
 <span class="sd">    Args:</span>
@@ -2445,14 +2445,14 @@ values are available, it falls back to a constant sowing DOY derived from
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Any: Simplace shell instance (an opaque jpype-backed object).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">global</span> <span class="n">_SIMPLACE_INSTANCE</span>
 
     <span class="k">if</span> <span class="n">_SIMPLACE_INSTANCE</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">jpype</span><span class="o">.</span><span class="n">isJVMStarted</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">_SIMPLACE_INSTANCE</span>
 
     <span class="k">if</span> <span class="n">jpype</span><span class="o">.</span><span class="n">isJVMStarted</span><span class="p">():</span>
-        <span class="n">Wrapper</span> <span class="o">=</span> <span class="n">jpype</span><span class="o">.</span><span class="n">JClass</span><span class="p">(</span><span class="s1">&#39;net.simplace.sim.wrapper.SimplaceWrapper&#39;</span><span class="p">)</span>
+        <span class="n">Wrapper</span> <span class="o">=</span> <span class="n">jpype</span><span class="o">.</span><span class="n">JClass</span><span class="p">(</span><span class="s1">'net.simplace.sim.wrapper.SimplaceWrapper'</span><span class="p">)</span>
         <span class="n">_SIMPLACE_INSTANCE</span> <span class="o">=</span> <span class="n">Wrapper</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_SIMPLACE_INSTANCE</span>
 
@@ -2475,7 +2475,7 @@ values are available, it falls back to a constant sowing DOY derived from
 
 
 <h3 id="simpest.models.simplace.merge_simplace_and_franchestyn" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">merge_simplace_and_franchestyn</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">,</span> <span class="n">franchestyn_df</span><span class="p">,</span> <span class="n">out_name</span><span class="o">=</span><span class="s1">&#39;merged_simulation_data.csv&#39;</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">merge_simplace_and_franchestyn</span><span class="p">(</span><span class="n">output_root</span><span class="p">,</span> <span class="n">project_row</span><span class="p">,</span> <span class="n">franchestyn_df</span><span class="p">,</span> <span class="n">out_name</span><span class="o">=</span><span class="s1">'merged_simulation_data.csv'</span><span class="p">)</span></code>
 
 
 <a href="#simpest.models.simplace.merge_simplace_and_franchestyn" class="headerlink" title="Permanent link">&para;</a></h3>
@@ -2542,42 +2542,42 @@ values are available, it falls back to a constant sowing DOY derived from
     <span class="n">output_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">project_row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">franchestyn_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">out_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;merged_simulation_data.csv&quot;</span><span class="p">,</span>
+    <span class="n">out_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"merged_simulation_data.csv"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Merge Simplace crop-model and simpest daily disease outputs into one CSV file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        output_root (Path): Output root directory.</span>
 <span class="sd">        project_row (dict): Project row dictionary.</span>
 <span class="sd">        franchestyn_df (pd.DataFrame): Daily disease/fungicide output DataFrame.</span>
-<span class="sd">        out_name (str, optional): Output filename. Defaults to &quot;merged_simulation_data.csv&quot;.</span>
+<span class="sd">        out_name (str, optional): Output filename. Defaults to "merged_simulation_data.csv".</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Path: Path to the merged CSV file.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">simplace_daily_path</span> <span class="o">=</span> <span class="n">output_root</span> <span class="o">/</span> <span class="s2">&quot;SimulationExperimentTemplate&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">project_row</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">]</span><span class="si">}{</span><span class="n">project_row</span><span class="p">[</span><span class="s1">&#39;iopt&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_daily.csv&quot;</span>
-    <span class="n">simplace_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">simplace_daily_path</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">simplace_daily_path</span> <span class="o">=</span> <span class="n">output_root</span> <span class="o">/</span> <span class="s2">"SimulationExperimentTemplate"</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">project_row</span><span class="p">[</span><span class="s1">'location'</span><span class="p">]</span><span class="si">}{</span><span class="n">project_row</span><span class="p">[</span><span class="s1">'iopt'</span><span class="p">]</span><span class="si">}</span><span class="s2">_daily.csv"</span>
+    <span class="n">simplace_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">simplace_daily_path</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">";"</span><span class="p">)</span>
 
     <span class="n">simplace_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">simplace_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="n">franchestyn_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">franchestyn_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
-    <span class="n">simplace_df</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">simplace_df</span><span class="p">[</span><span class="s2">&quot;CURRENT.DATE&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">.%m.%Y&quot;</span><span class="p">)</span>
-    <span class="n">franchestyn_df</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">franchestyn_df</span><span class="p">[</span><span class="s2">&quot;Date&quot;</span><span class="p">],</span> <span class="n">dayfirst</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">simplace_df</span><span class="p">[</span><span class="s2">"date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">simplace_df</span><span class="p">[</span><span class="s2">"CURRENT.DATE"</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"</span><span class="si">%d</span><span class="s2">.%m.%Y"</span><span class="p">)</span>
+    <span class="n">franchestyn_df</span><span class="p">[</span><span class="s2">"date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">franchestyn_df</span><span class="p">[</span><span class="s2">"Date"</span><span class="p">],</span> <span class="n">dayfirst</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">sim_df</span> <span class="o">=</span> <span class="n">simplace_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">_S&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">simplace_df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">&quot;date&quot;</span><span class="p">})</span>
-    <span class="n">fran_df</span> <span class="o">=</span> <span class="n">franchestyn_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">_F&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">franchestyn_df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">&quot;date&quot;</span><span class="p">})</span>
+    <span class="n">sim_df</span> <span class="o">=</span> <span class="n">simplace_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">_S"</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">simplace_df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">"date"</span><span class="p">})</span>
+    <span class="n">fran_df</span> <span class="o">=</span> <span class="n">franchestyn_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">_F"</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">franchestyn_df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">"date"</span><span class="p">})</span>
 
-    <span class="n">merged</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">sim_df</span><span class="p">,</span> <span class="n">fran_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    <span class="n">merged</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">sim_df</span><span class="p">,</span> <span class="n">fran_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
     <span class="n">merged</span> <span class="o">=</span> <span class="n">merged</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;WSO_S&quot;</span><span class="p">:</span> <span class="s2">&quot;WSO_S_g_m2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;YieldAttainable_F&quot;</span><span class="p">:</span> <span class="s2">&quot;YieldAttainable_F_kg_ha&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;YieldActual_F&quot;</span><span class="p">:</span> <span class="s2">&quot;YieldActual_F_kg_ha&quot;</span><span class="p">,</span>
+            <span class="s2">"WSO_S"</span><span class="p">:</span> <span class="s2">"WSO_S_g_m2"</span><span class="p">,</span>
+            <span class="s2">"YieldAttainable_F"</span><span class="p">:</span> <span class="s2">"YieldAttainable_F_kg_ha"</span><span class="p">,</span>
+            <span class="s2">"YieldActual_F"</span><span class="p">:</span> <span class="s2">"YieldActual_F_kg_ha"</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">)</span>
 
-    <span class="n">out_path</span> <span class="o">=</span> <span class="n">output_root</span> <span class="o">/</span> <span class="s2">&quot;SimulationExperimentTemplate&quot;</span> <span class="o">/</span> <span class="n">out_name</span>
+    <span class="n">out_path</span> <span class="o">=</span> <span class="n">output_root</span> <span class="o">/</span> <span class="s2">"SimulationExperimentTemplate"</span> <span class="o">/</span> <span class="n">out_name</span>
     <span class="n">merged</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">out_path</span>
 </code></pre></div>
@@ -2636,14 +2636,14 @@ values are available, it falls back to a constant sowing DOY derived from
         <details class="quote">
           <summary>Source code in <code>simpest/models/simplace.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_simplace</span><span class="p">(</span><span class="n">shell</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">SimplaceConfig</span><span class="p">,</span> <span class="n">project_lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Run a Simplace project for the specified project lines.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        shell: Simplace shell instance.</span>
 <span class="sd">        config (SimplaceConfig): Simplace configuration object.</span>
 <span class="sd">        project_lines (list[int]): List of project line indices to run.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">simplace</span><span class="o">.</span><span class="n">openProject</span><span class="p">(</span><span class="n">shell</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">solution_path</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">project_path</span><span class="p">)</span>
     <span class="n">simplace</span><span class="o">.</span><span class="n">setProjectLines</span><span class="p">(</span><span class="n">shell</span><span class="p">,</span> <span class="n">project_lines</span><span class="p">)</span>
     <span class="n">simplace</span><span class="o">.</span><span class="n">runProject</span><span class="p">(</span><span class="n">shell</span><span class="p">)</span>

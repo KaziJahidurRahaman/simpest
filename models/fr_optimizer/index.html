@@ -1406,17 +1406,17 @@ reproducible restarts. <code>None</code> (default) is non-deterministic.</p></td
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_optimizer.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FranchestynOptimizer</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Multi-start Nelder–Mead calibration for a simpest simulation run.</span>
+<span class="w">    </span><span class="sd">"""Multi-start Nelder–Mead calibration for a simpest simulation run.</span>
 
 <span class="sd">    Wraps a configured runner and searches for the parameter set that minimises</span>
-<span class="sd">    the run&#39;s RMSE against reference data. Only parameters flagged for</span>
+<span class="sd">    the run's RMSE against reference data. Only parameters flagged for</span>
 <span class="sd">    calibration (and not explicitly disabled) within the requested scope are</span>
 <span class="sd">    optimised; all others are held at their default values.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        runner (FranchestynRunner): Fully configured runner instance.</span>
-<span class="sd">        calibration_variable (str): Calibration target scope: ``&quot;crop&quot;``,</span>
-<span class="sd">            ``&quot;disease&quot;``, or ``&quot;all&quot;``.</span>
+<span class="sd">        calibration_variable (str): Calibration target scope: ``"crop"``,</span>
+<span class="sd">            ``"disease"``, or ``"all"``.</span>
 <span class="sd">        n_restarts (int): Number of independent simplexes (random restarts).</span>
 <span class="sd">        max_iter (int): Maximum iterations per simplex.</span>
 <span class="sd">        ftol (float): Convergence tolerance on the objective spread across the</span>
@@ -1425,12 +1425,12 @@ reproducible restarts. <code>None</code> (default) is non-deterministic.</p></td
 <span class="sd">            exclude from calibration, keyed by parameter class.</span>
 <span class="sd">        seed (Optional[int]): Seed for the random number generator, giving</span>
 <span class="sd">            reproducible restarts. ``None`` (default) is non-deterministic.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">runner</span><span class="p">:</span> <span class="n">FranchestynRunner</span><span class="p">,</span>
-        <span class="n">calibration_variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span>
+        <span class="n">calibration_variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"all"</span><span class="p">,</span>
         <span class="n">n_restarts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">ftol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">,</span>
@@ -1459,23 +1459,23 @@ reproducible restarts. <code>None</code> (default) is non-deterministic.</p></td
     <span class="c1"># -----------------------------------------------------------------------</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run multi-start simplex and return the best parameter set.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Dict[str, float]: Best-fit parameter values keyed by</span>
 <span class="sd">            ``class_ParamName``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No calibration parameters found — returning defaults.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"No calibration parameters found — returning defaults."</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">{}</span>
 
         <span class="n">best_rmse</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
         <span class="n">best_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Calibrating </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">)</span><span class="si">}</span><span class="s2"> using multi-start simplex method.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="sa">f</span><span class="s2">&quot;- Parameters:</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"- Calibrating </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">)</span><span class="si">}</span><span class="s2"> using multi-start simplex method.</span><span class="se">\n</span><span class="s2">"</span><span class="sa">f</span><span class="s2">"- Parameters:</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">restart</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_restarts</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_current_restart</span> <span class="o">=</span> <span class="n">restart</span> <span class="o">+</span> <span class="mi">1</span>
@@ -1489,7 +1489,7 @@ reproducible restarts. <code>None</code> (default) is non-deterministic.</p></td
                 <span class="n">best_rmse</span> <span class="o">=</span> <span class="n">rmse</span>
                 <span class="n">best_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">,</span> <span class="n">simplex</span><span class="p">[</span><span class="n">best_idx</span><span class="p">]))</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Best RMSE: </span><span class="si">{</span><span class="n">best_rmse</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Best RMSE: </span><span class="si">{</span><span class="n">best_rmse</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="n">best_params</span><span class="p">)</span>
 
@@ -1500,13 +1500,13 @@ reproducible restarts. <code>None</code> (default) is non-deterministic.</p></td
     <span class="c1"># -----------------------------------------------------------------------</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_objective</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the calibration objective at parameter vector ``x``.</span>
+<span class="w">        </span><span class="sd">"""Evaluate the calibration objective at parameter vector ``x``.</span>
 
 <span class="sd">        Runs the model with the candidate parameters and returns the resulting</span>
 <span class="sd">        RMSE. Candidates that violate the parameter bounds, or that raise during</span>
 <span class="sd">        the run, return a large penalty (``1e300``) so the search avoids the</span>
 <span class="sd">        infeasible region.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_n_eval</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="c1"># Penalise out-of-bounds candidates with a large finite objective value</span>
@@ -1520,8 +1520,8 @@ reproducible restarts. <code>None</code> (default) is non-deterministic.</p></td
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">return</span> <span class="mf">1e300</span>
 
-        <span class="n">include_crop</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;crop&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">)</span>
-        <span class="n">include_disease</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;disease&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">)</span>
+        <span class="n">include_crop</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"crop"</span><span class="p">,</span> <span class="s2">"all"</span><span class="p">)</span>
+        <span class="n">include_disease</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"disease"</span><span class="p">,</span> <span class="s2">"all"</span><span class="p">)</span>
 
         <span class="n">rmse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">compute_rmse</span><span class="p">(</span>
             <span class="n">date_outputs</span><span class="p">,</span>
@@ -1532,15 +1532,15 @@ reproducible restarts. <code>None</code> (default) is non-deterministic.</p></td
         <span class="k">return</span> <span class="n">rmse</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_on_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_xk</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Progress callback for each simplex iteration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Progress callback for each simplex iteration."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_iter_in_restart</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">Run </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_restart</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_restarts</span><span class="si">}</span><span class="s2"> Iteration </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_iter_in_restart</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span><span class="si">}</span><span class="s2"> CURR RMSE=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_rmse</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="se">\r</span><span class="s2">Run </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_restart</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_restarts</span><span class="si">}</span><span class="s2"> Iteration </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_iter_in_restart</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span><span class="si">}</span><span class="s2"> CURR RMSE=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_rmse</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_select_calib_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return (keys, bounds) for parameters flagged for calibration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return (keys, bounds) for parameters flagged for calibration."""</span>
         <span class="n">calib_keys</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">bounds</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -1550,12 +1550,12 @@ reproducible restarts. <code>None</code> (default) is non-deterministic.</p></td
                 <span class="k">continue</span>
 
             <span class="c1"># Restrict to the requested calibration variable</span>
-            <span class="n">param_class</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">param_class</span><span class="p">):</span>
+            <span class="n">param_class</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"all"</span><span class="p">,</span> <span class="n">param_class</span><span class="p">):</span>
                 <span class="k">continue</span>
 
             <span class="c1"># Explicitly exclude user-deactivated parameters by name.</span>
-            <span class="n">param_name</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">key</span> <span class="k">else</span> <span class="n">key</span>
+            <span class="n">param_name</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="s2">"_"</span> <span class="ow">in</span> <span class="n">key</span> <span class="k">else</span> <span class="n">key</span>
             <span class="k">if</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">disabled_by_class</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param_class</span><span class="p">,</span> <span class="nb">set</span><span class="p">()):</span>
                 <span class="k">continue</span>
 
@@ -1569,7 +1569,7 @@ reproducible restarts. <code>None</code> (default) is non-deterministic.</p></td
         <span class="k">return</span> <span class="n">calib_keys</span><span class="p">,</span> <span class="n">bounds</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_random_simplex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a random initial simplex fully contained in parameter bounds.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Create a random initial simplex fully contained in parameter bounds."""</span>
         <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">)</span>
         <span class="n">simplex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
@@ -1591,7 +1591,7 @@ reproducible restarts. <code>None</code> (default) is non-deterministic.</p></td
     <span class="k">def</span><span class="w"> </span><span class="nf">_nelder_mead_single_restart</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run one Nelder-Mead restart using standard coefficients.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Run one Nelder-Mead restart using standard coefficients."""</span>
         <span class="c1"># Standard Nelder-Mead coefficients</span>
         <span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># reflection</span>
         <span class="n">gamma</span> <span class="o">=</span> <span class="mf">2.0</span>  <span class="c1"># expansion</span>
@@ -1713,23 +1713,23 @@ reproducible restarts. <code>None</code> (default) is non-deterministic.</p></td
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_optimizer.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Run multi-start simplex and return the best parameter set.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, float]: Best-fit parameter values keyed by</span>
 <span class="sd">        ``class_ParamName``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No calibration parameters found — returning defaults.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"No calibration parameters found — returning defaults."</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{}</span>
 
     <span class="n">best_rmse</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
     <span class="n">best_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Calibrating </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">)</span><span class="si">}</span><span class="s2"> using multi-start simplex method.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="sa">f</span><span class="s2">&quot;- Parameters:</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"- Calibrating </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">)</span><span class="si">}</span><span class="s2"> using multi-start simplex method.</span><span class="se">\n</span><span class="s2">"</span><span class="sa">f</span><span class="s2">"- Parameters:</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">restart</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_restarts</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_restart</span> <span class="o">=</span> <span class="n">restart</span> <span class="o">+</span> <span class="mi">1</span>
@@ -1743,7 +1743,7 @@ reproducible restarts. <code>None</code> (default) is non-deterministic.</p></td
             <span class="n">best_rmse</span> <span class="o">=</span> <span class="n">rmse</span>
             <span class="n">best_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib_keys</span><span class="p">,</span> <span class="n">simplex</span><span class="p">[</span><span class="n">best_idx</span><span class="p">]))</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Best RMSE: </span><span class="si">{</span><span class="n">best_rmse</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Best RMSE: </span><span class="si">{</span><span class="n">best_rmse</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="n">best_params</span><span class="p">)</span>
 

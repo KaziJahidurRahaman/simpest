@@ -1376,13 +1376,13 @@ the last treatment date.</p></td>
     <span class="n">output</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">,</span>
     <span class="n">output1</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Advance the fungicide state by one day.</span>
+<span class="w">    </span><span class="sd">"""Advance the fungicide state by one day.</span>
 
 <span class="sd">    Updates the concentration factor, tenacity, degradation, and protective</span>
 <span class="sd">    efficacy for the current day. The calculation proceeds in stages:</span>
 
 <span class="sd">    1. **Concentration.** On the application day the concentration factor is</span>
-<span class="sd">       reset to 1; thereafter it decays exponentially with the previous day&#39;s</span>
+<span class="sd">       reset to 1; thereafter it decays exponentially with the previous day's</span>
 <span class="sd">       effective degradation.</span>
 <span class="sd">    2. **Potential degradation.** First-order decay of the initial dose,</span>
 <span class="sd">       ``initial_dose · exp(-degradation_rate · days)``.</span>
@@ -1402,12 +1402,12 @@ the last treatment date.</p></td>
 <span class="sd">        input_ (InputsDaily): Daily inputs, including date, precipitation, and</span>
 <span class="sd">            the last treatment date.</span>
 <span class="sd">        parameters (Parameters): Model parameters, including the fungicide group.</span>
-<span class="sd">        output (Outputs): Previous day&#39;s output state.</span>
-<span class="sd">        output1 (Outputs): Current day&#39;s output state, updated in place.</span>
+<span class="sd">        output (Outputs): Previous day's output state.</span>
+<span class="sd">        output1 (Outputs): Current day's output state, updated in place.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None: The function mutates ``output1`` in place.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">pf</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">par_fungicide</span>
     <span class="n">last</span> <span class="o">=</span> <span class="n">input_</span><span class="o">.</span><span class="n">date_treatment_last</span>
 
@@ -1427,7 +1427,7 @@ the last treatment date.</p></td>
         <span class="n">output1</span><span class="o">.</span><span class="n">fungicide</span><span class="o">.</span><span class="n">tenacity_function</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="n">output</span><span class="o">.</span><span class="n">fungicide</span><span class="o">.</span><span class="n">tenacity</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># After application: exponential decay based on yesterday&#39;s actual degradation</span>
+        <span class="c1"># After application: exponential decay based on yesterday's actual degradation</span>
         <span class="n">output1</span><span class="o">.</span><span class="n">fungicide</span><span class="o">.</span><span class="n">concentration_factor</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
             <span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">fungicide</span><span class="o">.</span><span class="n">actual_degradation</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">3.0</span>
         <span class="p">)</span>

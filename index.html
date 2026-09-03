@@ -1478,18 +1478,18 @@ reference data are available (as CSVs or otherwise):</p>
 <span class="normal">28</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">simpest.models.franchestyn</span><span class="w"> </span><span class="kn">import</span> <span class="n">FranchestynConfig</span><span class="p">,</span> <span class="n">run_franchestyn</span>
 
-<span class="n">weather_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;weather.csv&quot;</span><span class="p">)</span>
-<span class="n">management_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;management.csv&quot;</span><span class="p">)</span>
-<span class="n">crop_model_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;crop_model.csv&quot;</span><span class="p">)</span>
-<span class="n">ref_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;reference.csv&quot;</span><span class="p">)</span>
+<span class="n">weather_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"weather.csv"</span><span class="p">)</span>
+<span class="n">management_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"management.csv"</span><span class="p">)</span>
+<span class="n">crop_model_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"crop_model.csv"</span><span class="p">)</span>
+<span class="n">ref_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"reference.csv"</span><span class="p">)</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">FranchestynConfig</span><span class="p">(</span>
-    <span class="n">crop_type</span><span class="o">=</span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
-    <span class="n">disease_type</span><span class="o">=</span><span class="s2">&quot;septoria&quot;</span><span class="p">,</span>
+    <span class="n">crop_type</span><span class="o">=</span><span class="s2">"wheat"</span><span class="p">,</span>
+    <span class="n">disease_type</span><span class="o">=</span><span class="s2">"septoria"</span><span class="p">,</span>
     <span class="n">fungicide_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">site</span><span class="o">=</span><span class="s2">&quot;indiana&quot;</span><span class="p">,</span>
-    <span class="n">variety</span><span class="o">=</span><span class="s2">&quot;Generic&quot;</span><span class="p">,</span>
-    <span class="n">disease</span><span class="o">=</span><span class="s2">&quot;thisDisease&quot;</span><span class="p">,</span>
+    <span class="n">site</span><span class="o">=</span><span class="s2">"indiana"</span><span class="p">,</span>
+    <span class="n">variety</span><span class="o">=</span><span class="s2">"Generic"</span><span class="p">,</span>
+    <span class="n">disease</span><span class="o">=</span><span class="s2">"thisDisease"</span><span class="p">,</span>
     <span class="n">is_calibration</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -1502,7 +1502,7 @@ reference data are available (as CSVs or otherwise):</p>
     <span class="n">crop_model_df</span><span class="o">=</span><span class="n">crop_model_df</span><span class="p">,</span>
     <span class="n">ref_df</span><span class="o">=</span><span class="n">ref_df</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;outputs&quot;</span><span class="p">][</span><span class="s2">&quot;summary&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">"outputs"</span><span class="p">][</span><span class="s2">"summary"</span><span class="p">])</span>
 </code></pre></div></td></tr></table></div>
 <p>See the example notebooks at
 <a href="examples/1_Run%20Simpest/">examples/1_Run Simpest.ipynb</a> and

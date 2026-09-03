@@ -1387,14 +1387,14 @@ After hour 23 (handled by the runner): call run_daily().</p>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_disease_model.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DiseaseModel</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stateful SEIR disease model.</span>
+<span class="w">    </span><span class="sd">"""Stateful SEIR disease model.</span>
 
 <span class="sd">    Lifecycle</span>
 <span class="sd">    ---------</span>
 <span class="sd">    Create a fresh instance at the start of each growing season (sowing date).</span>
 <span class="sd">    For each hour: call run_hourly().</span>
 <span class="sd">    After hour 23 (handled by the runner): call run_daily().</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Hourly accumulators – cleared at end of each day by run_hourly()</span>
@@ -1417,7 +1417,7 @@ After hour 23 (handled by the runner): call run_daily().</p>
         <span class="n">output</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">,</span>
         <span class="n">output1</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process one hour of weather data.</span>
+<span class="w">        </span><span class="sd">"""Process one hour of weather data.</span>
 
 <span class="sd">        During hours 0–22 this accumulates the hydro-thermal time rate (the</span>
 <span class="sd">        product of temperature and relative-humidity suitability) and tracks the</span>
@@ -1429,15 +1429,15 @@ After hour 23 (handled by the runner): call run_daily().</p>
 <span class="sd">        daily state advance happens only after the hour-23 call returns.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input_ (InputsHourly): The current hour&#39;s weather record.</span>
+<span class="sd">            input_ (InputsHourly): The current hour's weather record.</span>
 <span class="sd">            parameters (Parameters): Model parameters, including the disease group.</span>
-<span class="sd">            output (Outputs): Previous day&#39;s output state, used to carry forward</span>
+<span class="sd">            output (Outputs): Previous day's output state, used to carry forward</span>
 <span class="sd">                the accumulated hydro-thermal time state.</span>
-<span class="sd">            output1 (Outputs): Current day&#39;s output state, updated in place.</span>
+<span class="sd">            output1 (Outputs): Current day's output state, updated in place.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None: The function mutates ``output1`` in place.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">par</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">par_disease</span>
 
         <span class="c1"># Accumulate hourly observations</span>
@@ -1535,9 +1535,9 @@ After hour 23 (handled by the runner): call run_daily().</p>
         <span class="n">output</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">,</span>
         <span class="n">output1</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the daily SEIR tissue progression.</span>
+<span class="w">        </span><span class="sd">"""Run the daily SEIR tissue progression.</span>
 
-<span class="sd">        Given the day&#39;s accumulated infection pressure, this step (1) creates a</span>
+<span class="sd">        Given the day's accumulated infection pressure, this step (1) creates a</span>
 <span class="sd">        new latent tissue cohort when onset conditions are met, combining</span>
 <span class="sd">        external (primary) and internal (secondary) infection sources scaled by</span>
 <span class="sd">        susceptible tissue, host resistance, and fungicide efficacy; (2) advances</span>
@@ -1552,15 +1552,15 @@ After hour 23 (handled by the runner): call run_daily().</p>
 <span class="sd">        already been carried forward by the runner.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input_ (InputsDaily): The day&#39;s aggregated inputs.</span>
+<span class="sd">            input_ (InputsDaily): The day's aggregated inputs.</span>
 <span class="sd">            parameters (Parameters): Model parameters, including the disease and</span>
 <span class="sd">                crop groups.</span>
 <span class="sd">            output (Outputs): Previous (hourly-accumulated) state for the day.</span>
-<span class="sd">            output1 (Outputs): Current day&#39;s output state, updated in place.</span>
+<span class="sd">            output1 (Outputs): Current day's output state, updated in place.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None: The function mutates ``output1`` and the cohort list in place.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">par</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">par_disease</span>
         <span class="n">pc</span>  <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">par_crop</span>
 
@@ -1813,9 +1813,9 @@ crop groups.</p></td>
     <span class="n">output</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">,</span>
     <span class="n">output1</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the daily SEIR tissue progression.</span>
+<span class="w">    </span><span class="sd">"""Run the daily SEIR tissue progression.</span>
 
-<span class="sd">    Given the day&#39;s accumulated infection pressure, this step (1) creates a</span>
+<span class="sd">    Given the day's accumulated infection pressure, this step (1) creates a</span>
 <span class="sd">    new latent tissue cohort when onset conditions are met, combining</span>
 <span class="sd">    external (primary) and internal (secondary) infection sources scaled by</span>
 <span class="sd">    susceptible tissue, host resistance, and fungicide efficacy; (2) advances</span>
@@ -1830,15 +1830,15 @@ crop groups.</p></td>
 <span class="sd">    already been carried forward by the runner.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        input_ (InputsDaily): The day&#39;s aggregated inputs.</span>
+<span class="sd">        input_ (InputsDaily): The day's aggregated inputs.</span>
 <span class="sd">        parameters (Parameters): Model parameters, including the disease and</span>
 <span class="sd">            crop groups.</span>
 <span class="sd">        output (Outputs): Previous (hourly-accumulated) state for the day.</span>
-<span class="sd">        output1 (Outputs): Current day&#39;s output state, updated in place.</span>
+<span class="sd">        output1 (Outputs): Current day's output state, updated in place.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None: The function mutates ``output1`` and the cohort list in place.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">par</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">par_disease</span>
     <span class="n">pc</span>  <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">par_crop</span>
 
@@ -2078,7 +2078,7 @@ the accumulated hydro-thermal time state.</p></td>
     <span class="n">output</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">,</span>
     <span class="n">output1</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process one hour of weather data.</span>
+<span class="w">    </span><span class="sd">"""Process one hour of weather data.</span>
 
 <span class="sd">    During hours 0–22 this accumulates the hydro-thermal time rate (the</span>
 <span class="sd">    product of temperature and relative-humidity suitability) and tracks the</span>
@@ -2090,15 +2090,15 @@ the accumulated hydro-thermal time state.</p></td>
 <span class="sd">    daily state advance happens only after the hour-23 call returns.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        input_ (InputsHourly): The current hour&#39;s weather record.</span>
+<span class="sd">        input_ (InputsHourly): The current hour's weather record.</span>
 <span class="sd">        parameters (Parameters): Model parameters, including the disease group.</span>
-<span class="sd">        output (Outputs): Previous day&#39;s output state, used to carry forward</span>
+<span class="sd">        output (Outputs): Previous day's output state, used to carry forward</span>
 <span class="sd">            the accumulated hydro-thermal time state.</span>
-<span class="sd">        output1 (Outputs): Current day&#39;s output state, updated in place.</span>
+<span class="sd">        output1 (Outputs): Current day's output state, updated in place.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None: The function mutates ``output1`` in place.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">par</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">par_disease</span>
 
     <span class="c1"># Accumulate hourly observations</span>

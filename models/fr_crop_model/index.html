@@ -1379,7 +1379,7 @@ groups.</p></td>
           <summary>Source code in <code>simpest/models/fr_crop_model.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">input_</span><span class="p">:</span> <span class="n">InputsDaily</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">Parameters</span><span class="p">,</span>
         <span class="n">output</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">,</span> <span class="n">output1</span><span class="p">:</span> <span class="n">Outputs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute one daily crop growth step.</span>
+<span class="w">    </span><span class="sd">"""Compute one daily crop growth step.</span>
 
 <span class="sd">    The four disease damage mechanisms are derived first from the current</span>
 <span class="sd">    severity, then crop growth is advanced through either the internal growth</span>
@@ -1390,16 +1390,16 @@ groups.</p></td>
 <span class="sd">    yield are written to ``output1``.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        input_ (InputsDaily): Today&#39;s daily inputs, including the optional</span>
+<span class="sd">        input_ (InputsDaily): Today's daily inputs, including the optional</span>
 <span class="sd">            external crop-model series.</span>
 <span class="sd">        parameters (Parameters): Model parameters, including the crop and disease</span>
 <span class="sd">            groups.</span>
-<span class="sd">        output (Outputs): Previous day&#39;s output state, used as the starting state.</span>
-<span class="sd">        output1 (Outputs): Today&#39;s output state, updated in place.</span>
+<span class="sd">        output (Outputs): Previous day's output state, used as the starting state.</span>
+<span class="sd">        output1 (Outputs): Today's output state, updated in place.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None: This function updates ``output1`` in place.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">pc</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">par_crop</span>
     <span class="n">pd</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">par_disease</span>
 
@@ -1597,7 +1597,7 @@ groups.</p></td>
             <span class="n">output1</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">cycle_completion_percentage</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">cycle_percentage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 
             <span class="c1"># Track the crop calendar: increment days-after-sowing so the</span>
-            <span class="c1"># maturity/safety stop and the calibration objective&#39;s is-planted</span>
+            <span class="c1"># maturity/safety stop and the calibration objective's is-planted</span>
             <span class="c1"># logic operate correctly (see the module docstring).</span>
             <span class="n">output1</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">day_after_sowing</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">day_after_sowing</span> <span class="o">+</span> <span class="mi">1</span>
 

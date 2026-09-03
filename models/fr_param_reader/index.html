@@ -1573,36 +1573,36 @@ callers that already hold an (optionally edited) spec dict.</p>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_param_reader.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_params_from_specs</span><span class="p">(</span><span class="n">specs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">param_class</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a ``{class_ParamName: Parameter}`` dict from a raw spec dict.</span>
+<span class="w">    </span><span class="sd">"""Build a ``{class_ParamName: Parameter}`` dict from a raw spec dict.</span>
 
 <span class="sd">    The ``specs`` mapping is the JSON structure for a single crop / disease /</span>
-<span class="sd">    fungicide type, i.e. ``{ParamName: {&quot;value&quot;: .., &quot;min&quot;: .., &quot;max&quot;: ..,</span>
-<span class="sd">    &quot;calibration&quot;: bool}}``. This is the single place that translates a spec</span>
+<span class="sd">    fungicide type, i.e. ``{ParamName: {"value": .., "min": .., "max": ..,</span>
+<span class="sd">    "calibration": bool}}``. This is the single place that translates a spec</span>
 <span class="sd">    dict into :class:`Parameter` objects, shared by the file readers and by</span>
 <span class="sd">    callers that already hold an (optionally edited) spec dict.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        specs:       Mapping of parameter name to its specification dict.</span>
-<span class="sd">        param_class: Parameter class tag (&quot;crop&quot;, &quot;disease&quot;, or &quot;fungicide&quot;).</span>
+<span class="sd">        param_class: Parameter class tag ("crop", "disease", or "fungicide").</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Dictionary mapping ``f&quot;{param_class}_{ParamName}&quot;`` → Parameter.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        Dictionary mapping ``f"{param_class}_{ParamName}"`` → Parameter.</span>
+<span class="sd">    """</span>
     <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">specs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">param</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">param_class</span><span class="o">=</span><span class="n">param_class</span><span class="p">)</span>
 
         <span class="c1"># IsSplashBorne is the only boolean parameter (disease only).</span>
-        <span class="k">if</span> <span class="n">param_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;issplashborne&quot;</span><span class="p">:</span>
-            <span class="n">param</span><span class="o">.</span><span class="n">value_bool</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">param_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"issplashborne"</span><span class="p">:</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">value_bool</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
             <span class="n">param</span><span class="o">.</span><span class="n">is_boolean</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">param</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
-            <span class="n">param</span><span class="o">.</span><span class="n">minimum</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
-            <span class="n">param</span><span class="o">.</span><span class="n">maximum</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">minimum</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"min"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">maximum</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"max"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
 
-        <span class="n">param</span><span class="o">.</span><span class="n">calibration</span> <span class="o">=</span> <span class="s2">&quot;x&quot;</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param_class</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span>
+        <span class="n">param</span><span class="o">.</span><span class="n">calibration</span> <span class="o">=</span> <span class="s2">"x"</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"calibration"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="s2">""</span>
+        <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">param_class</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span>
 
     <span class="k">return</span> <span class="n">result</span>
 </code></pre></div>
@@ -1665,22 +1665,22 @@ callers that already hold an (optionally edited) spec dict.</p>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_param_reader.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calibrated_read</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a calibrated output CSV and return a dict keyed &#39;Name_Class&#39;.</span>
+<span class="w">    </span><span class="sd">"""Read a calibrated output CSV and return a dict keyed 'Name_Class'.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        file: Path to the calibrated parameters CSV. If the file does not</span>
 <span class="sd">              exist, an empty dict is returned.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Dictionary mapping &#39;ParamName_ClassName&#39; → calibrated float value.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        Dictionary mapping 'ParamName_ClassName' → calibrated float value.</span>
+<span class="sd">    """</span>
     <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">result</span>
 
-    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8-sig&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
         <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
         <span class="nb">next</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># skip header</span>
 
@@ -1693,7 +1693,7 @@ callers that already hold an (optionally edited) spec dict.</p>
                 <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="k">return</span> <span class="n">result</span>
 </code></pre></div>
@@ -1709,7 +1709,7 @@ callers that already hold an (optionally edited) spec dict.</p>
 
 
 <h3 id="simpest.models.fr_param_reader.load_crop_specs" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">load_crop_specs</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">crop_type</span><span class="o">=</span><span class="s1">&#39;wheat&#39;</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">load_crop_specs</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">crop_type</span><span class="o">=</span><span class="s1">'wheat'</span><span class="p">)</span></code>
 
 
 <a href="#simpest.models.fr_param_reader.load_crop_specs" class="headerlink" title="Permanent link">&para;</a></h3>
@@ -1761,20 +1761,20 @@ Raises ValueError if <code>crop_type</code> is not present.</p></td>
 </table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_param_reader.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_crop_specs</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">crop_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wheat&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load the raw parameter spec dict for a single crop type.</span>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_crop_specs</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">crop_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"wheat"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Load the raw parameter spec dict for a single crop type.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        file:      Path to the crop parameters JSON file.</span>
-<span class="sd">        crop_type: Crop type key (e.g., &quot;wheat&quot;, &quot;rice&quot;). Defaults to &quot;wheat&quot;.</span>
+<span class="sd">        crop_type: Crop type key (e.g., "wheat", "rice"). Defaults to "wheat".</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Mapping of ``ParamName`` → spec dict for the requested crop type.</span>
 <span class="sd">        Raises ValueError if ``crop_type`` is not present.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">_load_json</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;Crop&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_load_json</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">"Crop"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">crop_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Crop type &#39;</span><span class="si">{</span><span class="n">crop_type</span><span class="si">}</span><span class="s2">&#39; not found. Available: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Crop type '</span><span class="si">{</span><span class="n">crop_type</span><span class="si">}</span><span class="s2">' not found. Available: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">crop_type</span><span class="p">]</span>
 </code></pre></div>
         </details>
@@ -1842,19 +1842,19 @@ Raises ValueError if <code>disease_type</code> is not present.</p></td>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_param_reader.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_disease_specs</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">disease_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load the raw parameter spec dict for a single disease type.</span>
+<span class="w">    </span><span class="sd">"""Load the raw parameter spec dict for a single disease type.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        file:         Path to the disease parameters JSON file.</span>
-<span class="sd">        disease_type: Disease type key (e.g., &quot;septoria&quot;, &quot;brown_rust&quot;).</span>
+<span class="sd">        disease_type: Disease type key (e.g., "septoria", "brown_rust").</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Mapping of ``ParamName`` → spec dict for the requested disease type.</span>
 <span class="sd">        Raises ValueError if ``disease_type`` is not present.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">_load_json</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;Disease&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_load_json</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">"Disease"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">disease_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Disease type &#39;</span><span class="si">{</span><span class="n">disease_type</span><span class="si">}</span><span class="s2">&#39; not found. Available: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Disease type '</span><span class="si">{</span><span class="n">disease_type</span><span class="si">}</span><span class="s2">' not found. Available: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">disease_type</span><span class="p">]</span>
 </code></pre></div>
         </details>
@@ -1869,7 +1869,7 @@ Raises ValueError if <code>disease_type</code> is not present.</p></td>
 
 
 <h3 id="simpest.models.fr_param_reader.load_fungicide_specs" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">load_fungicide_specs</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fungicide_type</span><span class="o">=</span><span class="s1">&#39;protectant&#39;</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">load_fungicide_specs</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fungicide_type</span><span class="o">=</span><span class="s1">'protectant'</span><span class="p">)</span></code>
 
 
 <a href="#simpest.models.fr_param_reader.load_fungicide_specs" class="headerlink" title="Permanent link">&para;</a></h3>
@@ -1921,20 +1921,20 @@ Raises ValueError if <code>fungicide_type</code> is not present.</p></td>
 </table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_param_reader.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_fungicide_specs</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">fungicide_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;protectant&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load the raw parameter spec dict for a single fungicide type.</span>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_fungicide_specs</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">fungicide_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"protectant"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Load the raw parameter spec dict for a single fungicide type.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        file:           Path to the fungicide parameters JSON file.</span>
-<span class="sd">        fungicide_type: Fungicide type key (e.g., &quot;protectant&quot;).</span>
+<span class="sd">        fungicide_type: Fungicide type key (e.g., "protectant").</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Mapping of ``ParamName`` → spec dict for the requested fungicide type.</span>
 <span class="sd">        Raises ValueError if ``fungicide_type`` is not present.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">_load_json</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;Fungicide&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_load_json</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">"Fungicide"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">fungicide_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fungicide type &#39;</span><span class="si">{</span><span class="n">fungicide_type</span><span class="si">}</span><span class="s2">&#39; not found. Available: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Fungicide type '</span><span class="si">{</span><span class="n">fungicide_type</span><span class="si">}</span><span class="s2">' not found. Available: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">fungicide_type</span><span class="p">]</span>
 </code></pre></div>
         </details>
@@ -1949,7 +1949,7 @@ Raises ValueError if <code>fungicide_type</code> is not present.</p></td>
 
 
 <h3 id="simpest.models.fr_param_reader.read" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">read</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">calibration_variable</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">read</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">calibration_variable</span><span class="o">=</span><span class="s1">''</span><span class="p">)</span></code>
 
 
 <a href="#simpest.models.fr_param_reader.read" class="headerlink" title="Permanent link">&para;</a></h3>
@@ -2001,8 +2001,8 @@ Raises ValueError if <code>fungicide_type</code> is not present.</p></td>
 </table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_param_reader.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">calibration_variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a parameter definition CSV and return a dict keyed &#39;Name_Class&#39;.</span>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">calibration_variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Read a parameter definition CSV and return a dict keyed 'Name_Class'.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        file:                 Path to the parameter CSV file.</span>
@@ -2010,35 +2010,35 @@ Raises ValueError if <code>fungicide_type</code> is not present.</p></td>
 <span class="sd">                              reserved for future use; not applied as a filter here).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Dictionary mapping &#39;ParamName_ClassName&#39; → Parameter.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        Dictionary mapping 'ParamName_ClassName' → Parameter.</span>
+<span class="sd">    """</span>
     <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8-sig&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
         <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
         <span class="nb">next</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># skip header</span>
 
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">row</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">""</span> <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">row</span><span class="p">):</span>
                 <span class="k">continue</span>
             <span class="c1"># Ensure we have at least 8 columns</span>
             <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">:</span>
-                <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
 
-            <span class="n">model_class</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>   <span class="c1"># col 0: Model  (e.g., &quot;crop&quot;, &quot;disease&quot;)</span>
-            <span class="n">param_name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>    <span class="c1"># col 1: Parameter (e.g., &quot;TbaseCrop&quot;)</span>
+            <span class="n">model_class</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>   <span class="c1"># col 0: Model  (e.g., "crop", "disease")</span>
+            <span class="n">param_name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>    <span class="c1"># col 1: Parameter (e.g., "TbaseCrop")</span>
             <span class="n">raw_value</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
             <span class="n">param</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">param_class</span><span class="o">=</span><span class="n">model_class</span><span class="p">)</span>
 
-            <span class="c1"># IsSplashBorne is the only boolean parameter (values are &quot;0&quot; or &quot;1&quot;)</span>
-            <span class="n">is_bool_param</span> <span class="o">=</span> <span class="n">param_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;issplashborne&quot;</span> <span class="ow">and</span> <span class="n">raw_value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span>
-                <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span>
+            <span class="c1"># IsSplashBorne is the only boolean parameter (values are "0" or "1")</span>
+            <span class="n">is_bool_param</span> <span class="o">=</span> <span class="n">param_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"issplashborne"</span> <span class="ow">and</span> <span class="n">raw_value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span>
+                <span class="s2">"true"</span><span class="p">,</span> <span class="s2">"false"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">,</span> <span class="s2">"0"</span>
             <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">is_bool_param</span><span class="p">:</span>
-                <span class="n">param</span><span class="o">.</span><span class="n">value_bool</span> <span class="o">=</span> <span class="n">raw_value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+                <span class="n">param</span><span class="o">.</span><span class="n">value_bool</span> <span class="o">=</span> <span class="n">raw_value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"true"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">)</span>
                 <span class="n">param</span><span class="o">.</span><span class="n">is_boolean</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -2049,9 +2049,9 @@ Raises ValueError if <code>fungicide_type</code> is not present.</p></td>
                     <span class="c1"># Skip malformed rows</span>
                     <span class="k">continue</span>
 
-            <span class="n">param</span><span class="o">.</span><span class="n">calibration</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">7</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">calibration</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">7</span> <span class="k">else</span> <span class="s2">""</span>
 
-            <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_class</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">model_class</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2">"</span>
             <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span>
 
     <span class="k">return</span> <span class="n">result</span>
@@ -2068,7 +2068,7 @@ Raises ValueError if <code>fungicide_type</code> is not present.</p></td>
 
 
 <h3 id="simpest.models.fr_param_reader.read_crop_parameters" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">read_crop_parameters</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">crop_type</span><span class="o">=</span><span class="s1">&#39;wheat&#39;</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">read_crop_parameters</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">crop_type</span><span class="o">=</span><span class="s1">'wheat'</span><span class="p">)</span></code>
 
 
 <a href="#simpest.models.fr_param_reader.read_crop_parameters" class="headerlink" title="Permanent link">&para;</a></h3>
@@ -2120,18 +2120,18 @@ Raises ValueError if crop_type not found.</p></td>
 </table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_param_reader.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">read_crop_parameters</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">crop_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wheat&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read crop parameters from crop_parameters.json.</span>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">read_crop_parameters</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">crop_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"wheat"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Read crop parameters from crop_parameters.json.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        file:      Path to the crop_parameters.json file.</span>
-<span class="sd">        crop_type: Crop type key (e.g., &quot;wheat&quot;, &quot;rice&quot;). Defaults to &quot;wheat&quot;.</span>
+<span class="sd">        crop_type: Crop type key (e.g., "wheat", "rice"). Defaults to "wheat".</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Dictionary mapping &#39;crop_ParamName&#39; → Parameter for the specified crop type.</span>
+<span class="sd">        Dictionary mapping 'crop_ParamName' → Parameter for the specified crop type.</span>
 <span class="sd">        Raises ValueError if crop_type not found.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">build_params_from_specs</span><span class="p">(</span><span class="n">load_crop_specs</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">crop_type</span><span class="p">),</span> <span class="s2">&quot;crop&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">build_params_from_specs</span><span class="p">(</span><span class="n">load_crop_specs</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">crop_type</span><span class="p">),</span> <span class="s2">"crop"</span><span class="p">)</span>
 </code></pre></div>
         </details>
     </div>
@@ -2192,7 +2192,7 @@ Raises ValueError if crop_type not found.</p></td>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_param_reader.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">read_disease_parameters</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read all disease parameters from disease_parameters.json.</span>
+<span class="w">    </span><span class="sd">"""Read all disease parameters from disease_parameters.json.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        file: Path to the disease_parameters.json file.</span>
@@ -2200,10 +2200,10 @@ Raises ValueError if crop_type not found.</p></td>
 <span class="sd">    Returns:</span>
 <span class="sd">        Dictionary mapping ``disease_type`` to a parameter dictionary keyed as</span>
 <span class="sd">        ``disease_ParamName``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">_load_json</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;Disease&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_load_json</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">"Disease"</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="n">disease_type</span><span class="p">:</span> <span class="n">build_params_from_specs</span><span class="p">(</span><span class="n">disease_specs</span><span class="p">,</span> <span class="s2">&quot;disease&quot;</span><span class="p">)</span>
+        <span class="n">disease_type</span><span class="p">:</span> <span class="n">build_params_from_specs</span><span class="p">(</span><span class="n">disease_specs</span><span class="p">,</span> <span class="s2">"disease"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">disease_type</span><span class="p">,</span> <span class="n">disease_specs</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
     <span class="p">}</span>
 </code></pre></div>
@@ -2219,7 +2219,7 @@ Raises ValueError if crop_type not found.</p></td>
 
 
 <h3 id="simpest.models.fr_param_reader.read_fungicide_parameters" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">read_fungicide_parameters</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fungicide_type</span><span class="o">=</span><span class="s1">&#39;protectant&#39;</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">read_fungicide_parameters</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fungicide_type</span><span class="o">=</span><span class="s1">'protectant'</span><span class="p">)</span></code>
 
 
 <a href="#simpest.models.fr_param_reader.read_fungicide_parameters" class="headerlink" title="Permanent link">&para;</a></h3>
@@ -2271,18 +2271,18 @@ Raises ValueError if fungicide_type not found.</p></td>
 </table>
         <details class="quote">
           <summary>Source code in <code>simpest/models/fr_param_reader.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">read_fungicide_parameters</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">fungicide_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;protectant&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read fungicide parameters from fungicide_parameters.json.</span>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">read_fungicide_parameters</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">fungicide_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"protectant"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Read fungicide parameters from fungicide_parameters.json.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        file:           Path to the fungicide_parameters.json file.</span>
-<span class="sd">        fungicide_type: Fungicide type key (e.g., &quot;protectant&quot;). Defaults to &quot;protectant&quot;.</span>
+<span class="sd">        fungicide_type: Fungicide type key (e.g., "protectant"). Defaults to "protectant".</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Dictionary mapping &#39;fungicide_ParamName&#39; → Parameter for the specified type.</span>
+<span class="sd">        Dictionary mapping 'fungicide_ParamName' → Parameter for the specified type.</span>
 <span class="sd">        Raises ValueError if fungicide_type not found.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">build_params_from_specs</span><span class="p">(</span><span class="n">load_fungicide_specs</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fungicide_type</span><span class="p">),</span> <span class="s2">&quot;fungicide&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">build_params_from_specs</span><span class="p">(</span><span class="n">load_fungicide_specs</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fungicide_type</span><span class="p">),</span> <span class="s2">"fungicide"</span><span class="p">)</span>
 </code></pre></div>
         </details>
     </div>
