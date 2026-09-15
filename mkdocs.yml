@@ -111,7 +111,11 @@ nav:
               - fr_crop module: models/fr_crop_model.md
               - fr_disease module: models/fr_disease_model.md
               - fr_fungicide module: models/fr_fungicide_model.md
+              - fr_optimizer_base module: models/fr_optimizer_base.md
               - fr_optimizer module: models/fr_optimizer.md
+              - fr_optimizer_scipy module: models/fr_optimizer_scipy.md
+              - fr_optimizer_optuna module: models/fr_optimizer_optuna.md
+              - fr_sensitivity module: models/fr_sensitivity.md
               - fr_runner module: models/fr_runner.md
               - fr_data module: models/fr_data.md
               - fr_utilities module: models/fr_utilities.md

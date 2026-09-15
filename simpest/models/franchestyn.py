@@ -3,12 +3,13 @@ from __future__ import annotations
 import csv
 import json
 import tempfile
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from .fr_optimizer import FranchestynOptimizer
+from .fr_optimizer_base import build_optimizer
 from .fr_param_reader import load_crop_specs, load_disease_specs, load_fungicide_specs
 from .fr_runner import FranchestynRunner
 
@@ -75,6 +76,22 @@ class FranchestynConfig:
         disease (str): Disease name.
         is_calibration (bool): Whether to run calibration.
         calibration_variable (str): Calibration variable ('all', 'crop', 'disease').
+        optimizer (str): Calibration optimizer to use. ``"nelder-mead"``
+            (default) runs the built-in multi-start Nelder–Mead simplex search;
+            ``"scipy-nelder-mead"`` runs the same algorithm via
+            :func:`scipy.optimize.minimize`, also multi-start;
+            ``"optuna"`` runs an Optuna (TPE / Bayesian) search.
+        n_trials (int): Optuna trial budget (number of parameter sets to
+            evaluate). Only used when ``optimizer="optuna"``.
+        optuna_timeout (float|None): Optional wall-clock cap in seconds for the
+            Optuna search. ``None`` (default) means no time limit. Only used
+            when ``optimizer="optuna"``.
+        seed (int|None): RNG seed for the optimizer, making the search
+            reproducible. ``None`` (default) is non-deterministic. Applies to
+            all optimizers.
+        ftol (float): Nelder–Mead convergence tolerance on the objective spread
+            across the simplex vertices. Used by ``optimizer="nelder-mead"``
+            and ``optimizer="scipy-nelder-mead"``.
         use_gdd (bool): Method for crop cycle completion. ``False`` (default)
             uses calendar-day interpolation of the external crop-model series;
             ``True`` uses the thermal-time (GDD) based cycle percentage.
@@ -85,8 +102,10 @@ class FranchestynConfig:
         all_row_includes_end_year (bool): Whether an ``"All"`` sowing row covers
             the final year. ``False`` (default) omits ``end_year``; ``True``
             includes it. Has no effect for per-year sowing CSVs.
-        n_restarts (int): Number of calibration restarts.
-        max_iter (int): Maximum calibration iterations.
+        n_restarts (int): Number of calibration restarts. Used by
+            ``optimizer="nelder-mead"`` and ``optimizer="scipy-nelder-mead"``.
+        max_iter (int): Maximum calibration iterations per simplex. Used by
+            ``optimizer="nelder-mead"`` and ``optimizer="scipy-nelder-mead"``.
         crop_parameters (dict): Raw crop parameter spec dict for ``crop_type``,
             loaded from ``crop_param_file`` at construction. Editable in place;
             pass it through :func:`deactivate_calibration` to turn off
@@ -114,6 +133,11 @@ class FranchestynConfig:
     disease: str = "thisDisease"
     is_calibration: bool = True
     calibration_variable: str = "all"
+    optimizer: str = "nelder-mead"
+    n_trials: int = 100
+    optuna_timeout: float | None = None
+    seed: int | None = None
+    ftol: float = 1e-12
     use_gdd: bool = False
     use_prev_day_alignment: bool = True
     all_row_includes_end_year: bool = False
@@ -189,7 +213,8 @@ def _outputs_to_records(date_outputs):
     return records
 
 
-def run_franchestyn(
+@contextmanager
+def _build_franchestyn_runner(
     start_year: int,
     end_year: int,
     config: FranchestynConfig,
@@ -200,9 +225,15 @@ def run_franchestyn(
     crop_param_file: str | None = None,
     disease_param_file: str | None = None,
     fungicide_param_file: str | None = None,
-) -> dict:
+):
     """
-    Run the crop-disease-fungicide simulation with in-memory DataFrame inputs.
+    Yield a configured :class:`FranchestynRunner` backed by temporary CSVs of the
+    in-memory input frames.
+
+    The runner is valid only inside the ``with`` block; the temporary directory
+    holding its input CSVs is removed on exit. Shared by :func:`run_franchestyn`
+    and :func:`simpest.models.fr_sensitivity.run_morris_sensitivity` so both use
+    one runner-construction path.
 
     Args:
         start_year (int): Start year for simulation.
@@ -216,8 +247,8 @@ def run_franchestyn(
         disease_param_file (str|None, optional): Path to disease parameter file.
         fungicide_param_file (str|None, optional): Path to fungicide parameter file.
 
-    Returns:
-        dict: Dictionary with simulation outputs and summary.
+    Yields:
+        FranchestynRunner: Fully configured runner.
     """
     crop_param_file = crop_param_file or config.crop_param_file
     disease_param_file = disease_param_file or config.disease_param_file
@@ -270,34 +301,66 @@ def run_franchestyn(
             disease_param_specs=config.disease_parameters or None,
             fungicide_param_specs=config.fungicide_parameters or None,
         )
+        yield runner
 
+
+def run_franchestyn(
+    start_year: int,
+    end_year: int,
+    config: FranchestynConfig,
+    weather_df: pd.DataFrame,
+    management_df: pd.DataFrame,
+    crop_model_df: pd.DataFrame,
+    ref_df: pd.DataFrame,
+    crop_param_file: str | None = None,
+    disease_param_file: str | None = None,
+    fungicide_param_file: str | None = None,
+) -> dict:
+    """
+    Run the crop-disease-fungicide simulation with in-memory DataFrame inputs.
+
+    Args:
+        start_year (int): Start year for simulation.
+        end_year (int): End year for simulation.
+        config (FranchestynConfig): Simulation configuration object.
+        weather_df (pd.DataFrame): In-memory weather input.
+        management_df (pd.DataFrame): In-memory management input.
+        crop_model_df (pd.DataFrame): In-memory crop model input.
+        ref_df (pd.DataFrame): In-memory reference input.
+        crop_param_file (str|None, optional): Path to crop parameter file.
+        disease_param_file (str|None, optional): Path to disease parameter file.
+        fungicide_param_file (str|None, optional): Path to fungicide parameter file.
+
+    Returns:
+        dict: Dictionary with simulation outputs and summary.
+    """
+    with _build_franchestyn_runner(
+        start_year, end_year, config, weather_df, management_df, crop_model_df,
+        ref_df, crop_param_file, disease_param_file, fungicide_param_file,
+    ) as runner:
         best_params = {}
         if config.is_calibration:
             disabled_by_class = {
                 "crop": set(config.crop_disabled_params),
                 "disease": set(config.disease_disabled_params),
             }
-            optimizer = FranchestynOptimizer(
-                runner=runner,
-                calibration_variable=config.calibration_variable,
-                n_restarts=config.n_restarts,
-                max_iter=config.max_iter,
-                disabled_by_class=disabled_by_class,
+            optimizer = build_optimizer(
+                config.optimizer, runner, config, disabled_by_class
             )
             best_params = optimizer.calibrate()
             date_outputs = runner.run(param_values=best_params)
         else:
             date_outputs = runner.run()
 
-    include_crop = config.calibration_variable in ("crop", "all")
-    include_disease = config.calibration_variable in ("disease", "all")
-    rmse = runner.compute_rmse(
-        date_outputs,
-        include_crop=include_crop,
-        include_disease=include_disease,
-    )
+        include_crop = config.calibration_variable in ("crop", "all")
+        include_disease = config.calibration_variable in ("disease", "all")
+        rmse = runner.compute_rmse(
+            date_outputs,
+            include_crop=include_crop,
+            include_disease=include_disease,
+        )
+        records = _outputs_to_records(date_outputs)
 
-    records = _outputs_to_records(date_outputs)
     return {
         "outputs": {
             "simulation": records,

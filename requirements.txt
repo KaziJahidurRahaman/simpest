@@ -4,3 +4,5 @@ simplace
 seaborn
 matplotlib
 scipy
+optuna
+SALib

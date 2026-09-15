@@ -240,9 +240,12 @@ def build_report(runner, cs_params, cs_best, py_params, py_best,
 # --------------------------------------------------------------------------
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--restarts", type=int, default=1, help="Python n_restarts")
-    ap.add_argument("--iters", type=int, default=100, help="Python max_iter")
+    ap.add_argument("--restarts", type=int, default=1, help="Python n_restarts (nelder-mead)")
+    ap.add_argument("--iters", type=int, default=100, help="Python max_iter (nelder-mead)")
     ap.add_argument("--seed", type=int, default=0, help="Python RNG seed")
+    ap.add_argument("--optimizer", choices=["nelder-mead", "scipy-nelder-mead", "optuna"],
+                    default="nelder-mead", help="Python calibration optimizer")
+    ap.add_argument("--n-trials", type=int, default=100, help="Python n_trials (optuna)")
     ap.add_argument("--cs-simplexes", type=int, default=3)
     ap.add_argument("--cs-iters", type=int, default=150)
     ap.add_argument("--python-only", action="store_true")
@@ -271,19 +274,36 @@ def main() -> None:
     print(f"  default RMSE={rmse_default}   C#-params RMSE (Py obj)={rmse_at_cs}")
     print(f"  parity@C#-optimum: C# output={cs_file_rmse}  Python same-day={py_sameday_at_cs}")
 
-    print(f"[4/5] Python calibration (restarts={args.restarts}, iters={args.iters}, seed={args.seed})")
+    print(f"[4/5] Python calibration (optimizer={args.optimizer}, restarts={args.restarts}, "
+          f"iters={args.iters}, n_trials={args.n_trials}, seed={args.seed})")
     sys.path.insert(0, str(REPO))
-    from simpest.models.fr_optimizer import FranchestynOptimizer
-    opt = FranchestynOptimizer(
-        runner=runner, calibration_variable=CALIB_VARIABLE,
-        n_restarts=args.restarts, max_iter=args.iters, seed=args.seed,
-    )
+    if args.optimizer == "optuna":
+        from simpest.models.fr_optimizer_optuna import OptunaOptimizer
+        opt = OptunaOptimizer(
+            runner=runner, calibration_variable=CALIB_VARIABLE,
+            n_trials=args.n_trials, seed=args.seed,
+        )
+    elif args.optimizer == "scipy-nelder-mead":
+        from simpest.models.fr_optimizer_scipy import ScipyNelderMeadOptimizer
+        opt = ScipyNelderMeadOptimizer(
+            runner=runner, calibration_variable=CALIB_VARIABLE,
+            n_restarts=args.restarts, max_iter=args.iters, seed=args.seed,
+        )
+    else:
+        from simpest.models.fr_optimizer import FranchestynOptimizer
+        opt = FranchestynOptimizer(
+            runner=runner, calibration_variable=CALIB_VARIABLE,
+            n_restarts=args.restarts, max_iter=args.iters, seed=args.seed,
+        )
     py_params = opt.calibrate()
     rmse_at_py = _rmse(runner, py_params) if py_params else rmse_default
     print(f"  Python optimum RMSE (Py obj)={rmse_at_py}")
 
     print("[5/5] report")
-    settings = f"py(restarts={args.restarts},iters={args.iters},seed={args.seed}) cs(simplexes={args.cs_simplexes},iters={args.cs_iters})"
+    if args.optimizer == "optuna":
+        settings = f"py(optuna,n_trials={args.n_trials},seed={args.seed}) cs(simplexes={args.cs_simplexes},iters={args.cs_iters})"
+    else:
+        settings = f"py({args.optimizer},restarts={args.restarts},iters={args.iters},seed={args.seed}) cs(simplexes={args.cs_simplexes},iters={args.cs_iters})"
     report = build_report(runner, cs_params, cs_best, py_params, py_params,
                           rmse_default, rmse_at_cs, rmse_at_py, settings,
                           cs_file_rmse=cs_file_rmse, py_sameday_at_cs=py_sameday_at_cs)

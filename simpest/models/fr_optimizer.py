@@ -16,18 +16,24 @@ by three knobs: ``n_restarts`` (number of independent simplexes), ``max_iter``
 Because the initial simplex is drawn at random, results vary from run to run
 unless a fixed ``seed`` is supplied. For deterministic, fixed-parameter
 validation, run the model directly rather than through calibration.
+
+Parameter selection and the model-run objective are shared with the other
+optimizers via :class:`~simpest.models.fr_optimizer_base.BaseFranchestynOptimizer`.
 """
 
 from __future__ import annotations
 
 import math
 import sys
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, Optional, Set, Tuple
 
 import numpy as np
 
+from .fr_optimizer_base import BaseFranchestynOptimizer
 from .fr_runner import FranchestynRunner
-class FranchestynOptimizer:
+
+
+class FranchestynOptimizer(BaseFranchestynOptimizer):
     """Multi-start Nelder–Mead calibration for a simpest simulation run.
 
     Wraps a configured runner and searches for the parameter set that minimises
@@ -59,22 +65,32 @@ class FranchestynOptimizer:
         disabled_by_class: Optional[Dict[str, Set[str]]] = None,
         seed: Optional[int] = None,
     ) -> None:
-        self.runner = runner
-        self.calibration_variable = calibration_variable.lower()
+        super().__init__(
+            runner=runner,
+            calibration_variable=calibration_variable,
+            disabled_by_class=disabled_by_class,
+            seed=seed,
+        )
         self.n_restarts = n_restarts
         self.max_iter = max_iter
         self.ftol = ftol
-        self.disabled_by_class = disabled_by_class or {}
-        # Optional RNG seed making the multi-start search reproducible.
-        self.seed = seed
 
-        # Select calibration parameters and record their bounds
-        self.calib_keys, self.bounds = self._select_calib_params()
-
-        self._n_eval = 0
         self._current_restart = 0
         self._iter_in_restart = 0
-        self._last_rmse = math.inf
+
+    @classmethod
+    def from_config(cls, runner, config, disabled_by_class=None) -> "FranchestynOptimizer":
+        """Build from a :class:`FranchestynConfig` (reads ``n_restarts`` /
+        ``max_iter`` / ``ftol`` / ``seed``)."""
+        return cls(
+            runner=runner,
+            calibration_variable=config.calibration_variable,
+            n_restarts=config.n_restarts,
+            max_iter=config.max_iter,
+            ftol=getattr(config, "ftol", 1e-12),
+            disabled_by_class=disabled_by_class,
+            seed=getattr(config, "seed", None),
+        )
 
     # -----------------------------------------------------------------------
     # Public API
@@ -88,7 +104,7 @@ class FranchestynOptimizer:
             Dict[str, float]: Best-fit parameter values keyed by
             ``class_ParamName``.
         """
-        
+
         if not self.calib_keys:
             print("No calibration parameters found — returning defaults.")
             return {}
@@ -110,7 +126,7 @@ class FranchestynOptimizer:
             if rmse < best_rmse:
                 best_rmse = rmse
                 best_params = dict(zip(self.calib_keys, simplex[best_idx]))
-    
+
         print(f"\nBest RMSE: {best_rmse:.4f}")
 
         print(best_params)
@@ -129,29 +145,12 @@ class FranchestynOptimizer:
         the run, return a large penalty (``1e300``) so the search avoids the
         infeasible region.
         """
-        self._n_eval += 1
-
         # Penalise out-of-bounds candidates with a large finite objective value
         for val, (lo, hi) in zip(x, self.bounds):
             if val <= lo or val > hi:
                 return 1e300
 
-        param_values = dict(zip(self.calib_keys, x))
-        try:
-            date_outputs = self.runner.run(param_values)
-        except Exception:
-            return 1e300
-
-        include_crop    = self.calibration_variable in ("crop", "all")
-        include_disease = self.calibration_variable in ("disease", "all")
-
-        rmse = self.runner.compute_rmse(
-            date_outputs,
-            include_crop=include_crop,
-            include_disease=include_disease,
-        )
-        self._last_rmse = rmse
-        return rmse
+        return self._evaluate_rmse(x)
 
     def _on_iteration(self, _xk: np.ndarray) -> None:
         """Progress callback for each simplex iteration."""
@@ -160,35 +159,6 @@ class FranchestynOptimizer:
             f"\rRun {self._current_restart}/{self.n_restarts} Iteration {self._iter_in_restart}/{self.max_iter} CURR RMSE={self._last_rmse:.4f}"
         )
         sys.stdout.flush()
-
-    def _select_calib_params(self) -> Tuple[List[str], List[Tuple[float, float]]]:
-        """Return (keys, bounds) for parameters flagged for calibration."""
-        calib_keys: List[str] = []
-        bounds: List[Tuple[float, float]] = []
-
-        for key, p in self.runner.name_param.items():
-            # Skip non-calibrated params
-            if not p.calibration.strip():
-                continue
-
-            # Restrict to the requested calibration variable
-            param_class = key.split("_", 1)[0].lower()
-            if self.calibration_variable not in ("all", param_class):
-                continue
-
-            # Explicitly exclude user-deactivated parameters by name.
-            param_name = key.split("_", 1)[1] if "_" in key else key
-            if param_name in self.disabled_by_class.get(param_class, set()):
-                continue
-
-            # Skip boolean parameters
-            if p.is_boolean:
-                continue
-
-            calib_keys.append(key)
-            bounds.append((p.minimum, p.maximum))
-
-        return calib_keys, bounds
 
     def _random_simplex(self, rng: np.random.Generator) -> np.ndarray:
         """Create a random initial simplex fully contained in parameter bounds."""

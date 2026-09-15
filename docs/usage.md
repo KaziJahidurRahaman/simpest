@@ -161,6 +161,69 @@ For a fixed-parameter run (no search), set `is_calibration=False`; the model
 runs once with the JSON defaults (or with `crop_parameters` /
 `disease_parameters` values you've edited in place).
 
+### Choosing the optimizer
+
+`optimizer` selects the search strategy:
+
+- `"nelder-mead"` (default) — the built-in multi-start Nelder–Mead simplex
+  search described above, controlled by `n_restarts`, `max_iter`, and `ftol`.
+- `"scipy-nelder-mead"` — the same algorithm run through
+  [`scipy.optimize.minimize`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html),
+  also multi-start and sharing the `n_restarts` / `max_iter` / `ftol` knobs.
+  Useful as a maintained reference to cross-check the built-in optimizer.
+- `"optuna"` — an [Optuna](https://optuna.org/) TPE (Bayesian) search,
+  controlled by `n_trials` (number of parameter sets to evaluate) and an
+  optional `optuna_timeout` (seconds). It keeps every candidate inside the
+  parameter bounds and tends to handle the noisy objective surface with fewer
+  evaluations than restart-heavy Nelder–Mead.
+
+`seed` makes any of the searches reproducible.
+
+```python
+fr_cfg = FranchestynConfig(
+    is_calibration=True,
+    optimizer="optuna",
+    n_trials=200,
+    seed=0,
+)
+```
+
+### Screening parameters before calibration
+
+When many parameters are flagged for calibration it is worth checking which
+ones actually move the objective. `run_morris_sensitivity` runs a Morris
+elementary-effects screen over the same parameters calibration would use
+(flagged for `calibration`, within `calibration_variable` scope, minus the
+disabled ones):
+
+```python
+from simpest.models import run_morris_sensitivity
+from simpest.models.franchestyn import deactivate_calibration
+
+sa = run_morris_sensitivity(
+    start_year, end_year, config=fr_cfg,
+    weather_df=weather_df, management_df=management_df,
+    crop_model_df=crop_model_df, ref_df=ref_df,
+    n_trajectories=20, seed=0,
+)
+table = sa["table"]   # ranked by mu_star
+```
+
+The table has one row per parameter with `mu_star` (mean absolute effect on the
+run's RMSE — higher is more influential), `sigma` (spread — high relative to
+`mu_star` means non-linear or interacting), and `mu_star_conf` (bootstrap CI on
+`mu_star`). The screen costs about `n_trajectories * (k + 1)` model runs for `k`
+parameters.
+
+Then freeze the parameters whose effect is indistinguishable from zero and
+calibrate the rest:
+
+```python
+inert = table.loc[table["mu_star"] <= 2 * table["mu_star_conf"], "parameter"]
+deactivate_calibration(fr_cfg.disease_parameters, set(inert))
+# ... now run calibration as usual over the remaining parameters
+```
+
 ## Crop-only or disease-only runs
 
 - `disease_type=None` skips the epidemiological model entirely (disease
