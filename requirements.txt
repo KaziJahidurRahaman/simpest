@@ -6,3 +6,6 @@ matplotlib
 scipy
 optuna
 SALib
+torch
+torchvision
+torchcrop
