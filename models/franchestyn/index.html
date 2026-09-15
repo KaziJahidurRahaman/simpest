@@ -1050,6 +1050,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../fr_optimizer_base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fr_optimizer_base module
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../fr_optimizer/" class="md-nav__link">
         
   
@@ -1058,6 +1086,90 @@
     
   
     fr_optimizer module
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fr_optimizer_scipy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fr_optimizer_scipy module
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fr_optimizer_optuna/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fr_optimizer_optuna module
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fr_sensitivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fr_sensitivity module
   
 
     
@@ -1535,6 +1647,42 @@ whenever treatments are scheduled, or they will be ignored.</p></td>
         <td><p>Calibration variable ('all', 'crop', 'disease').</p></td>
       </tr>
       <tr>
+        <td><code>optimizer</code></td>
+        <td><code>str</code></td>
+        <td><p>Calibration optimizer to use. <code>"nelder-mead"</code>
+(default) runs the built-in multi-start Nelder–Mead simplex search;
+<code>"scipy-nelder-mead"</code> runs the same algorithm via
+:func:<code>scipy.optimize.minimize</code>, also multi-start;
+<code>"optuna"</code> runs an Optuna (TPE / Bayesian) search.</p></td>
+      </tr>
+      <tr>
+        <td><code>n_trials</code></td>
+        <td><code>int</code></td>
+        <td><p>Optuna trial budget (number of parameter sets to
+evaluate). Only used when <code>optimizer="optuna"</code>.</p></td>
+      </tr>
+      <tr>
+        <td><code>optuna_timeout</code></td>
+        <td><code>float|None</code></td>
+        <td><p>Optional wall-clock cap in seconds for the
+Optuna search. <code>None</code> (default) means no time limit. Only used
+when <code>optimizer="optuna"</code>.</p></td>
+      </tr>
+      <tr>
+        <td><code>seed</code></td>
+        <td><code>int|None</code></td>
+        <td><p>RNG seed for the optimizer, making the search
+reproducible. <code>None</code> (default) is non-deterministic. Applies to
+all optimizers.</p></td>
+      </tr>
+      <tr>
+        <td><code>ftol</code></td>
+        <td><code>float</code></td>
+        <td><p>Nelder–Mead convergence tolerance on the objective spread
+across the simplex vertices. Used by <code>optimizer="nelder-mead"</code>
+and <code>optimizer="scipy-nelder-mead"</code>.</p></td>
+      </tr>
+      <tr>
         <td><code>use_gdd</code></td>
         <td><code>bool</code></td>
         <td><p>Method for crop cycle completion. <code>False</code> (default)
@@ -1559,12 +1707,14 @@ includes it. Has no effect for per-year sowing CSVs.</p></td>
       <tr>
         <td><code>n_restarts</code></td>
         <td><code>int</code></td>
-        <td><p>Number of calibration restarts.</p></td>
+        <td><p>Number of calibration restarts. Used by
+<code>optimizer="nelder-mead"</code> and <code>optimizer="scipy-nelder-mead"</code>.</p></td>
       </tr>
       <tr>
         <td><code>max_iter</code></td>
         <td><code>int</code></td>
-        <td><p>Maximum calibration iterations.</p></td>
+        <td><p>Maximum calibration iterations per simplex. Used by
+<code>optimizer="nelder-mead"</code> and <code>optimizer="scipy-nelder-mead"</code>.</p></td>
       </tr>
       <tr>
         <td><code>crop_parameters</code></td>
@@ -1626,6 +1776,22 @@ hard-exclude from calibration. Legacy alternative to editing
 <span class="sd">        disease (str): Disease name.</span>
 <span class="sd">        is_calibration (bool): Whether to run calibration.</span>
 <span class="sd">        calibration_variable (str): Calibration variable ('all', 'crop', 'disease').</span>
+<span class="sd">        optimizer (str): Calibration optimizer to use. ``"nelder-mead"``</span>
+<span class="sd">            (default) runs the built-in multi-start Nelder–Mead simplex search;</span>
+<span class="sd">            ``"scipy-nelder-mead"`` runs the same algorithm via</span>
+<span class="sd">            :func:`scipy.optimize.minimize`, also multi-start;</span>
+<span class="sd">            ``"optuna"`` runs an Optuna (TPE / Bayesian) search.</span>
+<span class="sd">        n_trials (int): Optuna trial budget (number of parameter sets to</span>
+<span class="sd">            evaluate). Only used when ``optimizer="optuna"``.</span>
+<span class="sd">        optuna_timeout (float|None): Optional wall-clock cap in seconds for the</span>
+<span class="sd">            Optuna search. ``None`` (default) means no time limit. Only used</span>
+<span class="sd">            when ``optimizer="optuna"``.</span>
+<span class="sd">        seed (int|None): RNG seed for the optimizer, making the search</span>
+<span class="sd">            reproducible. ``None`` (default) is non-deterministic. Applies to</span>
+<span class="sd">            all optimizers.</span>
+<span class="sd">        ftol (float): Nelder–Mead convergence tolerance on the objective spread</span>
+<span class="sd">            across the simplex vertices. Used by ``optimizer="nelder-mead"``</span>
+<span class="sd">            and ``optimizer="scipy-nelder-mead"``.</span>
 <span class="sd">        use_gdd (bool): Method for crop cycle completion. ``False`` (default)</span>
 <span class="sd">            uses calendar-day interpolation of the external crop-model series;</span>
 <span class="sd">            ``True`` uses the thermal-time (GDD) based cycle percentage.</span>
@@ -1636,8 +1802,10 @@ hard-exclude from calibration. Legacy alternative to editing
 <span class="sd">        all_row_includes_end_year (bool): Whether an ``"All"`` sowing row covers</span>
 <span class="sd">            the final year. ``False`` (default) omits ``end_year``; ``True``</span>
 <span class="sd">            includes it. Has no effect for per-year sowing CSVs.</span>
-<span class="sd">        n_restarts (int): Number of calibration restarts.</span>
-<span class="sd">        max_iter (int): Maximum calibration iterations.</span>
+<span class="sd">        n_restarts (int): Number of calibration restarts. Used by</span>
+<span class="sd">            ``optimizer="nelder-mead"`` and ``optimizer="scipy-nelder-mead"``.</span>
+<span class="sd">        max_iter (int): Maximum calibration iterations per simplex. Used by</span>
+<span class="sd">            ``optimizer="nelder-mead"`` and ``optimizer="scipy-nelder-mead"``.</span>
 <span class="sd">        crop_parameters (dict): Raw crop parameter spec dict for ``crop_type``,</span>
 <span class="sd">            loaded from ``crop_param_file`` at construction. Editable in place;</span>
 <span class="sd">            pass it through :func:`deactivate_calibration` to turn off</span>
@@ -1665,6 +1833,11 @@ hard-exclude from calibration. Legacy alternative to editing
     <span class="n">disease</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"thisDisease"</span>
     <span class="n">is_calibration</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">calibration_variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"all"</span>
+    <span class="n">optimizer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"nelder-mead"</span>
+    <span class="n">n_trials</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">optuna_timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ftol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span>
     <span class="n">use_gdd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">use_prev_day_alignment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">all_row_includes_end_year</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
@@ -1698,6 +1871,11 @@ hard-exclude from calibration. Legacy alternative to editing
 
 
   <div class="doc doc-children">
+
+
+
+
+
 
 
 
@@ -2198,85 +2376,33 @@ should be forced to <code>False</code>.</p></td>
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: Dictionary with simulation outputs and summary.</span>
 <span class="sd">    """</span>
-    <span class="n">crop_param_file</span> <span class="o">=</span> <span class="n">crop_param_file</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">crop_param_file</span>
-    <span class="n">disease_param_file</span> <span class="o">=</span> <span class="n">disease_param_file</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">disease_param_file</span>
-    <span class="n">fungicide_param_file</span> <span class="o">=</span> <span class="n">fungicide_param_file</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">fungicide_param_file</span>
-
-    <span class="k">if</span> <span class="n">weather_df</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">weather_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"weather_df must be a non-empty DataFrame."</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">management_df</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">management_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"management_df must be a non-empty DataFrame."</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">crop_model_df</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">crop_model_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"crop_model_df must be a non-empty DataFrame."</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">ref_df</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ref_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ref_df must be a non-empty DataFrame."</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_write_temp_csv</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">name</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-
-    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">"simpest_franchestyn_"</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
-        <span class="n">weather_input</span> <span class="o">=</span> <span class="n">_write_temp_csv</span><span class="p">(</span><span class="n">weather_df</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">,</span> <span class="s2">"weather.csv"</span><span class="p">)</span>
-        <span class="n">management_input</span> <span class="o">=</span> <span class="n">_write_temp_csv</span><span class="p">(</span><span class="n">management_df</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">,</span> <span class="s2">"management.csv"</span><span class="p">)</span>
-        <span class="n">crop_model_input</span> <span class="o">=</span> <span class="n">_write_temp_csv</span><span class="p">(</span><span class="n">crop_model_df</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">,</span> <span class="s2">"crop_model.csv"</span><span class="p">)</span>
-        <span class="n">reference_input</span> <span class="o">=</span> <span class="n">_write_temp_csv</span><span class="p">(</span><span class="n">ref_df</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">,</span> <span class="s2">"reference.csv"</span><span class="p">)</span>
-
-        <span class="n">runner</span> <span class="o">=</span> <span class="n">FranchestynRunner</span><span class="p">(</span>
-            <span class="n">weather_dir</span><span class="o">=</span><span class="n">weather_input</span><span class="p">,</span>
-            <span class="n">param_file</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">param_file</span><span class="p">,</span>
-            <span class="n">sowing_file</span><span class="o">=</span><span class="n">management_input</span><span class="p">,</span>
-            <span class="n">ref_dir</span><span class="o">=</span><span class="n">reference_input</span><span class="p">,</span>
-            <span class="n">crop_model_dir</span><span class="o">=</span><span class="n">crop_model_input</span><span class="p">,</span>
-            <span class="n">site</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">site</span><span class="p">,</span>
-            <span class="n">variety</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">variety</span><span class="p">,</span>
-            <span class="n">disease</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">disease</span><span class="p">,</span>
-            <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
-            <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
-            <span class="n">weather_time_step</span><span class="o">=</span><span class="s2">"daily"</span><span class="p">,</span>
-            <span class="n">calibration_variable</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">calibration_variable</span><span class="p">,</span>
-            <span class="n">is_calibration</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">is_calibration</span><span class="p">,</span>
-            <span class="n">use_gdd</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">use_gdd</span><span class="p">,</span>
-            <span class="n">use_prev_day_alignment</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">use_prev_day_alignment</span><span class="p">,</span>
-            <span class="n">all_row_includes_end_year</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">all_row_includes_end_year</span><span class="p">,</span>
-            <span class="n">crop_type</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">crop_type</span><span class="p">,</span>
-            <span class="n">crop_param_file</span><span class="o">=</span><span class="n">crop_param_file</span><span class="p">,</span>
-            <span class="n">disease_param_file</span><span class="o">=</span><span class="n">disease_param_file</span><span class="p">,</span>
-            <span class="n">disease_type</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">disease_type</span><span class="p">,</span>
-            <span class="n">fungicide_param_file</span><span class="o">=</span><span class="n">fungicide_param_file</span><span class="p">,</span>
-            <span class="n">fungicide_type</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">fungicide_type</span><span class="p">,</span>
-            <span class="n">crop_param_specs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">crop_parameters</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">disease_param_specs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">disease_parameters</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">fungicide_param_specs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">fungicide_parameters</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="p">)</span>
-
+    <span class="k">with</span> <span class="n">_build_franchestyn_runner</span><span class="p">(</span>
+        <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">weather_df</span><span class="p">,</span> <span class="n">management_df</span><span class="p">,</span> <span class="n">crop_model_df</span><span class="p">,</span>
+        <span class="n">ref_df</span><span class="p">,</span> <span class="n">crop_param_file</span><span class="p">,</span> <span class="n">disease_param_file</span><span class="p">,</span> <span class="n">fungicide_param_file</span><span class="p">,</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">runner</span><span class="p">:</span>
         <span class="n">best_params</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">is_calibration</span><span class="p">:</span>
             <span class="n">disabled_by_class</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">"crop"</span><span class="p">:</span> <span class="nb">set</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">crop_disabled_params</span><span class="p">),</span>
                 <span class="s2">"disease"</span><span class="p">:</span> <span class="nb">set</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">disease_disabled_params</span><span class="p">),</span>
             <span class="p">}</span>
-            <span class="n">optimizer</span> <span class="o">=</span> <span class="n">FranchestynOptimizer</span><span class="p">(</span>
-                <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span>
-                <span class="n">calibration_variable</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">calibration_variable</span><span class="p">,</span>
-                <span class="n">n_restarts</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">n_restarts</span><span class="p">,</span>
-                <span class="n">max_iter</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">max_iter</span><span class="p">,</span>
-                <span class="n">disabled_by_class</span><span class="o">=</span><span class="n">disabled_by_class</span><span class="p">,</span>
+            <span class="n">optimizer</span> <span class="o">=</span> <span class="n">build_optimizer</span><span class="p">(</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">disabled_by_class</span>
             <span class="p">)</span>
             <span class="n">best_params</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">calibrate</span><span class="p">()</span>
             <span class="n">date_outputs</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">param_values</span><span class="o">=</span><span class="n">best_params</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">date_outputs</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 
-    <span class="n">include_crop</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"crop"</span><span class="p">,</span> <span class="s2">"all"</span><span class="p">)</span>
-    <span class="n">include_disease</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"disease"</span><span class="p">,</span> <span class="s2">"all"</span><span class="p">)</span>
-    <span class="n">rmse</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">compute_rmse</span><span class="p">(</span>
-        <span class="n">date_outputs</span><span class="p">,</span>
-        <span class="n">include_crop</span><span class="o">=</span><span class="n">include_crop</span><span class="p">,</span>
-        <span class="n">include_disease</span><span class="o">=</span><span class="n">include_disease</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="n">include_crop</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"crop"</span><span class="p">,</span> <span class="s2">"all"</span><span class="p">)</span>
+        <span class="n">include_disease</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">calibration_variable</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"disease"</span><span class="p">,</span> <span class="s2">"all"</span><span class="p">)</span>
+        <span class="n">rmse</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">compute_rmse</span><span class="p">(</span>
+            <span class="n">date_outputs</span><span class="p">,</span>
+            <span class="n">include_crop</span><span class="o">=</span><span class="n">include_crop</span><span class="p">,</span>
+            <span class="n">include_disease</span><span class="o">=</span><span class="n">include_disease</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">records</span> <span class="o">=</span> <span class="n">_outputs_to_records</span><span class="p">(</span><span class="n">date_outputs</span><span class="p">)</span>
 
-    <span class="n">records</span> <span class="o">=</span> <span class="n">_outputs_to_records</span><span class="p">(</span><span class="n">date_outputs</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">"outputs"</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">"simulation"</span><span class="p">:</span> <span class="n">records</span><span class="p">,</span>
