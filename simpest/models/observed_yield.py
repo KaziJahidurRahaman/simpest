@@ -5,9 +5,9 @@ disease control improve. A crop model run with one fixed variety and
 management has no such trend, so observed yields must be detrended before
 they are compared with, or used to calibrate, simulated yields.
 
-The functions here read USDA NASS yield exports, fit a two-segment linear
-trend, express observed yields at one technology level and line them up
-with simulated yields season by season.
+The functions here read USDA NASS yield exports, fit a linear or two-segment
+linear trend, express observed yields at one technology level and line them
+up with simulated yields season by season.
 """
 
 from __future__ import annotations
@@ -76,6 +76,47 @@ class TwoSegmentTrend:
                 + (self.slope_after - self.slope_before) * np.clip(dx, 0, None))
 
 
+@dataclass
+class LinearTrend:
+    """A single straight-line trend.
+
+    Use it when the record is too short for `fit_two_segment_trend`.
+
+    Attributes:
+        slope: Slope, per year.
+        intercept: Trend value in year 0.
+        rmse: Root-mean-square error of the fit.
+    """
+
+    slope: float
+    intercept: float
+    rmse: float
+
+    def __call__(self, years) -> np.ndarray:
+        """Evaluate the trend at ``years``."""
+        return self.intercept + self.slope * np.asarray(years, dtype=float)
+
+
+def fit_linear_trend(years, values) -> LinearTrend:
+    """Fit a straight-line trend by least squares.
+
+    Args:
+        years: 1-D array of years.
+        values: 1-D array of values, same length as ``years``.
+
+    Returns:
+        LinearTrend: The fitted trend.
+    """
+    x = np.asarray(years, dtype=float)
+    y = np.asarray(values, dtype=float)
+    slope, intercept = np.polyfit(x, y, 1)
+    return LinearTrend(
+        slope=float(slope),
+        intercept=float(intercept),
+        rmse=float(np.sqrt(np.mean((y - (intercept + slope * x)) ** 2))),
+    )
+
+
 def fit_two_segment_trend(years, values, min_segment_years: int = 10) -> TwoSegmentTrend:
     """Fit a two-segment linear trend by breakpoint grid search.
 
@@ -127,7 +168,7 @@ def compare_with_potential(
     obs_yield: pd.DataFrame,
     sow_years: Sequence[int],
     potential_kg_ha,
-    trend: TwoSegmentTrend,
+    trend: TwoSegmentTrend | LinearTrend,
     ref_harvest_year: int | None = None,
     dry_fraction: float = GRAIN_DRY_FRACTION,
 ) -> pd.DataFrame:

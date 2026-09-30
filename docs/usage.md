@@ -119,7 +119,9 @@ config = FranchestynConfig(..., weather_time_step="hourly", latitude=40.47)
 
 `tools/fetch_torchcrop_dataset.py --hourly` writes both a daily file (with
 `RHmax`/`RHmin`) and an hourly file in this layout from the Open-Meteo ERA5
-archive.
+archive. `fr_inputs.build_weather_df(..., mode="daily_rh")` takes `rhx`/`rhn`
+from the daily file's `RHmax`/`RHmin` columns, so a crop model and FraNchEstYN
+can run on the same daily file.
 
 ### Daily output fields
 

@@ -91,6 +91,38 @@ def season_rmse(err_df: pd.DataFrame) -> pd.Series:
     return err_df.groupby("season")["error"].apply(lambda e: np.sqrt((e ** 2).mean()))
 
 
+def season_audpc(err_df: pd.DataFrame) -> pd.DataFrame:
+    """Observed and simulated area under the disease progress curve, per season.
+
+    Both curves are integrated with the trapezoid rule over the season's
+    matched observation dates only, so they cover the same window, as a
+    field AUDPC does (it spans the first to the last assessment).
+
+    Args:
+        err_df: Matched observations from `match_ref_to_sim`.
+
+    Returns:
+        pd.DataFrame: One row per season (index ``season``) with ``n``
+        (observations), ``first`` and ``last`` (dates), and ``observed`` and
+        ``simulated`` AUDPC in the values' unit times days. Seasons with
+        fewer than two observations are dropped.
+    """
+    rows = {}
+    for season, g in err_df.sort_values("date").groupby("season"):
+        if len(g) < 2:
+            continue
+        dt = g["date"].diff().dt.days.to_numpy()[1:]
+        area = lambda v: float(np.sum((v[1:] + v[:-1]) / 2.0 * dt))
+        rows[season] = {
+            "n": len(g), "first": g["date"].iloc[0], "last": g["date"].iloc[-1],
+            "observed": area(g["observed"].to_numpy(float)),
+            "simulated": area(g["simulated"].to_numpy(float)),
+        }
+    out = pd.DataFrame.from_dict(rows, orient="index", columns=["n", "first", "last", "observed", "simulated"])
+    out.index.name = "season"
+    return out
+
+
 def error_stats(err_df: pd.DataFrame) -> dict:
     """Overall ``n``, ``RMSE`` and ``MAE`` of a `match_ref_to_sim` table."""
     err = err_df["error"]

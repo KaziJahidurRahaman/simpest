@@ -10,6 +10,7 @@ from simpest.models.fr_diagnostics import (
     error_stats,
     first_date,
     match_ref_to_sim,
+    season_audpc,
     season_diagnostics,
     season_rmse,
     simulation_frame,
@@ -51,6 +52,20 @@ class TestMatchRefToSim(unittest.TestCase):
         err = match_ref_to_sim(_sim_df(), _ref_df(), seasons=[1990], ref_col="sev", sim_col="DiseaseSeverity")
         self.assertTrue(err.empty)
         self.assertIn("error", err.columns)
+
+
+class TestSeasonAudpc(unittest.TestCase):
+    def test_trapezoid_over_matched_dates(self):
+        err = match_ref_to_sim(_sim_df(), _ref_df(), seasons=[1980], ref_col="sev", sim_col="DiseaseSeverity")
+        audpc = season_audpc(err)
+        # 20 days between the two matched dates; DOY 200 is outside the season.
+        self.assertEqual(audpc.loc[1980, "n"], 2)
+        self.assertAlmostEqual(audpc.loc[1980, "observed"], (10 + 25) / 2 * 20)
+        self.assertAlmostEqual(audpc.loc[1980, "simulated"], (9 + 29) / 2 * 20)
+
+    def test_single_observation_is_dropped(self):
+        err = match_ref_to_sim(_sim_df(), _ref_df().iloc[[0]], seasons=[1980], ref_col="sev", sim_col="DiseaseSeverity")
+        self.assertTrue(season_audpc(err).empty)
 
 
 class TestThresholdDates(unittest.TestCase):

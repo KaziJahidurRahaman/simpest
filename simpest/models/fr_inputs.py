@@ -90,14 +90,18 @@ def build_weather_df(
 
     Args:
         weather_raw: Daily weather with ``Date``, ``TempMax``, ``TempMin``,
-            ``Precipitation`` and ``Radiation`` (kJ m-2 d-1) columns.
+            ``Precipitation`` and ``Radiation`` (kJ m-2 d-1) columns, and
+            optionally ``RHmax`` and ``RHmin`` [%].
         site: Site name written into the frame.
         mode: ``"daily"`` (Tmax/Tmin/rain/radiation only), ``"daily_rh"``
-            (daily plus RHmax/RHmin taken from the hourly records) or
-            ``"hourly"`` (the hourly records as they are).
+            (daily plus daily RH extremes) or ``"hourly"`` (the hourly
+            records as they are). In ``"daily_rh"`` the extremes come from
+            ``weather_raw``'s ``RHmax``/``RHmin`` columns, so every value
+            comes from the same daily table; without those columns they are
+            taken from the hourly records.
         weather_hourly: Hourly records with ``date``, ``rh`` and the other
-            hourly columns FraNchEstYN reads. Required unless ``mode`` is
-            ``"daily"``.
+            hourly columns FraNchEstYN reads. Required for ``"hourly"``, and
+            for ``"daily_rh"`` when ``weather_raw`` has no RH columns.
 
     Returns:
         pd.DataFrame: The frame to pass as ``weather_df``. Set
@@ -109,8 +113,9 @@ def build_weather_df(
     """
     if mode not in WEATHER_MODES:
         raise ValueError(f"unknown weather mode {mode!r}; expected one of {WEATHER_MODES}")
-    if mode != "daily" and weather_hourly is None:
-        raise ValueError(f"weather mode {mode!r} needs weather_hourly")
+    has_rh = {"RHmax", "RHmin"} <= set(weather_raw.columns)
+    if weather_hourly is None and (mode == "hourly" or (mode == "daily_rh" and not has_rh)):
+        raise ValueError(f"weather mode {mode!r} needs weather_hourly or RHmax/RHmin columns")
     if mode == "hourly":
         return weather_hourly
 
@@ -127,6 +132,8 @@ def build_weather_df(
     if mode == "daily":
         return weather_daily
 
+    if has_rh:
+        return weather_daily.assign(rhx=weather_raw["RHmax"].values, rhn=weather_raw["RHmin"].values)
     rh = weather_hourly.groupby("date")["rh"].agg(["max", "min"])
     rh.index = pd.to_datetime(rh.index)
     return weather_daily.assign(

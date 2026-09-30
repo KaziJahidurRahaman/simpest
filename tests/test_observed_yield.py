@@ -10,8 +10,10 @@ import pandas as pd
 from simpest.models.observed_yield import (
     BU_ACRE_TO_KG_HA,
     GRAIN_DRY_FRACTION,
+    LinearTrend,
     TwoSegmentTrend,
     compare_with_potential,
+    fit_linear_trend,
     fit_stats,
     fit_two_segment_trend,
     read_nass_yield,
@@ -53,7 +55,27 @@ class TestTwoSegmentTrend(unittest.TestCase):
             fit_two_segment_trend(np.arange(1990, 2005), np.arange(15.0), min_segment_years=10)
 
 
+class TestLinearTrend(unittest.TestCase):
+    def test_recovers_a_known_line(self):
+        years = np.arange(1972, 1991)
+        trend = fit_linear_trend(years, 3000.0 + 50.0 * (years - 1972))
+        self.assertAlmostEqual(trend.slope, 50.0, places=6)
+        self.assertAlmostEqual(trend.rmse, 0.0, places=6)
+        self.assertTrue(np.allclose(trend([1972, 1990]), [3000.0, 3900.0]))
+
+    def test_short_record_is_fine(self):
+        trend = fit_linear_trend([1990, 1991, 1992], [1.0, 2.0, 4.0])
+        self.assertAlmostEqual(trend.slope, 1.5)
+
+
 class TestCompareWithPotential(unittest.TestCase):
+    def test_accepts_linear_trend(self):
+        trend = LinearTrend(slope=100.0, intercept=-190000.0, rmse=0.0)
+        obs = pd.DataFrame({"harvest_year": [1981], "yield_kg_ha": [8100.0]})
+        cmp_df = compare_with_potential(obs, sow_years=[1980], potential_kg_ha=[7000], trend=trend,
+                                        ref_harvest_year=1983)
+        self.assertAlmostEqual(cmp_df["observed_detrended"].iloc[0], 8300.0 * GRAIN_DRY_FRACTION)
+
     def test_detrends_to_reference_year(self):
         trend = TwoSegmentTrend(breakpoint=1900, slope_before=0.0, slope_after=100.0,
                                 level_at_breakpoint=0.0, rmse=0.0, rmse_single_line=0.0)

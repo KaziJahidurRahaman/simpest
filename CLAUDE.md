@@ -33,8 +33,8 @@ The crop trajectory can come from three places:
   non-editable** install, so it sees package changes only after
   `pip install --no-deps --force-reinstall /home/rahaman/param-vc/simpest`.
   Tests import the source tree directly, so they need no reinstall.
-- torchcrop code (dataset, collate, trajectory stacking, the WSO yield
-  calibration) stays in the torchcrop notebooks by the user's choice.
+- torchcrop code (dataset, collate, trajectory stacking, the phenology and WSO
+  yield calibrations) stays in the torchcrop notebooks by the user's choice.
 
 ## Commands
 
@@ -199,6 +199,9 @@ canonical FraNchEstYN CSV; `tools/check_parameters.py` checks this.
 - The notebooks in `notebooks/` are rendered into the docs through
   mkdocs-jupyter (via the `docs/examples` symlink, `execute: False`).
   `notebooks/torchcrop-integration/indiana_potential_(winter_wheat)-calibration.ipynb`
-  is the main end-to-end example: torchcrop crop growth, observed-yield
-  comparison and calibration, septoria calibration, Morris screening and
-  diagnostics. Notebook data paths are relative to each notebook's folder.
+  is the main end-to-end example: torchcrop phenology calibration (TSUM1/TSUM2
+  against `phenology/phenology.csv`), yield calibration against detrended NASS
+  yields, then FraNchEstYN driven by the calibrated crop run: Morris screening,
+  calibration of the sensitive septoria parameters, severity and yield loss,
+  diagnostics and a hold-out check. Notebook data paths are relative to each
+  notebook's folder.

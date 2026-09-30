@@ -60,6 +60,15 @@ class TestBuildWeatherDf(unittest.TestCase):
         self.assertEqual(df["rhx"].tolist(), [90.0, 95.0, 80.0])
         self.assertEqual(df["rhn"].tolist(), [60.0, 50.0, 70.0])
 
+    def test_daily_rh_prefers_daily_columns(self):
+        raw = self.raw.assign(RHmax=[91.0, 92, 93], RHmin=[41.0, 42, 43])
+        df = build_weather_df(raw, site="x", mode="daily_rh", weather_hourly=self.hourly)
+        self.assertEqual(df["rhx"].tolist(), [91.0, 92.0, 93.0])
+        self.assertEqual(df["rhn"].tolist(), [41.0, 42.0, 43.0])
+        # The daily columns are enough on their own.
+        df = build_weather_df(raw, site="x", mode="daily_rh")
+        self.assertEqual(df["rhx"].tolist(), [91.0, 92.0, 93.0])
+
     def test_hourly_returns_hourly_records(self):
         self.assertIs(build_weather_df(self.raw, "x", mode="hourly", weather_hourly=self.hourly), self.hourly)
 
