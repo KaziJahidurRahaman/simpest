@@ -120,13 +120,15 @@ class DiseaseModel:
             output1.disease.hydro_thermal_time_rate = rate_norm
 
             # Cumulate state (carried forward day to day via output)
-            output1.disease.hydro_thermal_time_state = (
-                output.disease.hydro_thermal_time_state + rate_norm
-            )
+            carried = output.disease.hydro_thermal_time_state
 
-            # Dry-spell interruption overrides infection for this day
+            # Dry-spell interruption overrides infection for this day, and
+            # optionally decays the accumulated state (see Parameters).
             if output1.disease.counter_dry > par.dry_critical_interruption:
                 output1.disease.hydro_thermal_time_infection = 0.0
+                carried *= parameters.htt_state_dry_decay
+
+            output1.disease.hydro_thermal_time_state = carried + rate_norm
 
             # Daily weather summary (for output only)
             output1.disease.tmax_daily  = max(self._temp)
@@ -242,8 +244,11 @@ class DiseaseModel:
                     output1.crop.light_interception_attainable,
                 )
 
-            # External infection (primary inoculum × HTT infection efficiency)
+            # External infection (primary inoculum × HTT infection efficiency),
+            # optionally requiring rain to detach the primary inoculum too.
             ext_inf = output.disease.hydro_thermal_time_infection * outer_ino
+            if parameters.rain_limited_primary_inoculum and par.is_splash_borne:
+                ext_inf *= (1.0 - spo_detach)
 
             # Internal infection (secondary spread from sporulating tissue)
             int_inf = (

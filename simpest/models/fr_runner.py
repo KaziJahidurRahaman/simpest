@@ -91,6 +91,16 @@ class FranchestynRunner:
             applied. Defaults to ``False`` (the final year is omitted); set
             ``True`` to apply it through ``end_year`` inclusive. Has no effect
             for per-year sowing CSVs.
+        rain_limited_primary_inoculum (bool): Scale primary (external) infection
+            by rain detachment for splash-borne diseases. Defaults to ``False``
+            (C# behaviour). See :class:`~simpest.models.fr_data.Parameters`.
+        htt_state_dry_decay (float): Fraction of accumulated hydro-thermal time
+            surviving a dry-interrupted day. Defaults to ``1.0`` (C# behaviour,
+            no decay). See :class:`~simpest.models.fr_data.Parameters`.
+        carry_dry_counter (bool): Carry the dry-hour counter across midnight.
+            Defaults to ``False`` (C# behaviour), where the counter resets with
+            each daily output and so never exceeds 23, making
+            ``DryCriticalInterruption`` values above 23 inert.
     """
 
     def __init__(
@@ -121,6 +131,9 @@ class FranchestynRunner:
         use_gdd: bool = False,
         use_prev_day_alignment: bool = True,
         all_row_includes_end_year: bool = False,
+        rain_limited_primary_inoculum: bool = False,
+        htt_state_dry_decay: float = 1.0,
+        carry_dry_counter: bool = False,
     ) -> None:
         self.weather_dir = weather_dir
         self.param_file = param_file
@@ -139,6 +152,9 @@ class FranchestynRunner:
         self.disease_type = disease_type
         self.fungicide_type = fungicide_type
         self.use_gdd = use_gdd
+        self.rain_limited_primary_inoculum = rain_limited_primary_inoculum
+        self.htt_state_dry_decay = htt_state_dry_decay
+        self.carry_dry_counter = carry_dry_counter
         self.use_prev_day_alignment = use_prev_day_alignment
         self.all_row_includes_end_year = all_row_includes_end_year
 
@@ -198,6 +214,13 @@ class FranchestynRunner:
         if crop_model_dir:
             self.crop_model_data = read_crop_model_data(crop_model_dir, use_gdd=self.use_gdd)
 
+        # Populated lazily by _load_weather() and reused for the runner's
+        # lifetime — weather_dir/site/start_year/end_year/latitude never
+        # change after construction, so re-parsing on every run() call (as
+        # calibration does, once per objective evaluation) is pure waste.
+        self._weather_cache: Optional[Dict[datetime, InputsHourly]] = None
+        self._weather_hours_cache: Optional[List[datetime]] = None
+
     # -----------------------------------------------------------------------
     # Public API
     # -----------------------------------------------------------------------
@@ -219,6 +242,7 @@ class FranchestynRunner:
         """
         parameters = self._build_parameters(param_values or {})
         weather_data = self._load_weather()
+        weather_hours = self._weather_hours()
 
         date_outputs: Dict[datetime, Outputs] = {}
 
@@ -236,7 +260,7 @@ class FranchestynRunner:
         is_planted = False
         last_treatment_date = datetime(1900, 1, 1)
 
-        for hour_dt in sorted(weather_data.keys()):
+        for hour_dt in weather_hours:
             year = hour_dt.year
             if year < self.start_year or year > self.end_year:
                 output = Outputs()
@@ -291,6 +315,10 @@ class FranchestynRunner:
                     output_t1.disease.is_primary_inoculum_started = (
                         output.disease.is_primary_inoculum_started
                     )
+                    if self.carry_dry_counter:
+                        # Optional: let a dry spell span midnight instead of
+                        # resetting with the daily output (see Parameters).
+                        output_t1.disease.counter_dry = output.disease.counter_dry
                     output_t1.disease.first_seasonal_infection = (
                         output.disease.first_seasonal_infection
                     )
@@ -462,7 +490,10 @@ class FranchestynRunner:
         self, param_values: Dict[str, float]
     ) -> Parameters:
         """Assemble a Parameters object from CSV defaults + overrides."""
-        parameters = Parameters()
+        parameters = Parameters(
+            rain_limited_primary_inoculum=self.rain_limited_primary_inoculum,
+            htt_state_dry_decay=self.htt_state_dry_decay,
+        )
 
         for key, p in self.name_param.items():
             # key = "class_ParamName", e.g. "crop_TbaseCrop"
@@ -488,7 +519,17 @@ class FranchestynRunner:
 
         If ``self.weather_dir`` is itself an existing CSV file, it is used
         directly (i.e. the caller already resolved the full path).
+
+        The parsed/synthesized hourly series is cached on the instance after
+        the first call: ``weather_dir``/``site``/``start_year``/``end_year``/
+        ``latitude`` are fixed for the runner's lifetime, so re-reading and
+        re-synthesizing (daily -> hourly involves physically based diurnal
+        curves, not just a CSV parse) on every ``run()`` call — as happens
+        once per calibration objective evaluation — would be pure waste.
         """
+        if self._weather_cache is not None:
+            return self._weather_cache
+
         wd = self.weather_dir
         if os.path.isfile(wd):
             weather_file = wd
@@ -497,15 +538,53 @@ class FranchestynRunner:
                 wd, self.weather_time_step, f"{self.site}.csv"
             )
         if self.weather_time_step == "hourly":
-            return read_hourly(
+            weather_data = read_hourly(
                 weather_file, self.start_year, self.end_year,
                 site=self.site, latitude=self.latitude
             )
         else:
-            return read_daily(
+            weather_data = read_daily(
                 weather_file, self.start_year, self.end_year,
                 latitude=self.latitude
             )
+
+        self._weather_cache = weather_data
+        return weather_data
+
+    def _weather_hours(self) -> List[datetime]:
+        """Return the cached weather series' timestamps, sorted once."""
+        if self._weather_hours_cache is None:
+            self._weather_hours_cache = sorted(self._load_weather().keys())
+        return self._weather_hours_cache
+
+    def update_param_specs(
+        self,
+        crop_param_specs: Optional[Dict[str, dict]] = None,
+        disease_param_specs: Optional[Dict[str, dict]] = None,
+        fungicide_param_specs: Optional[Dict[str, dict]] = None,
+    ) -> None:
+        """Refresh calibration flags/values from updated spec dicts in place.
+
+        Rebuilds only ``self.name_param`` (the cheap part) from the given
+        spec dicts — leaving weather, sowing, reference and crop-model data
+        untouched — so a single runner can be reused across an entire
+        calibration session (staged sweeps, repeated forward checks, …)
+        instead of being rebuilt from scratch for every call.
+
+        Args:
+            crop_param_specs: Updated crop parameter spec dict, or ``None`` to
+                leave the crop parameters as they are.
+            disease_param_specs: Updated disease parameter spec dict, or
+                ``None`` to leave the disease parameters as they are.
+            fungicide_param_specs: Updated fungicide parameter spec dict, or
+                ``None`` to leave the fungicide parameters as they are.
+        """
+        if crop_param_specs is not None:
+            self.name_param.update(build_params_from_specs(crop_param_specs, "crop"))
+        if disease_param_specs is not None and self.disease_type:
+            self.name_param.update(build_params_from_specs(disease_param_specs, "disease"))
+        if fungicide_param_specs is not None and self.fungicide_type:
+            self.name_param.update(build_params_from_specs(fungicide_param_specs, "fungicide"))
 
 
 # ---------------------------------------------------------------------------

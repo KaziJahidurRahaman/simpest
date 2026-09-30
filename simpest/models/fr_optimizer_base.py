@@ -99,8 +99,11 @@ class BaseFranchestynOptimizer:
 
         Runs that raise return a large penalty (``1e300``) so a search treats
         the region as infeasible. Bounds are *not* enforced here — an optimizer
-        that can propose out-of-bounds candidates must guard against that
-        itself (see :class:`~simpest.models.fr_optimizer.FranchestynOptimizer`).
+        whose search strategy can propose out-of-bounds candidates must guard
+        against that itself, e.g. with a penalty term in its own objective
+        wrapper (:class:`~simpest.models.fr_optimizer.NelderMeadOptimizer` and
+        :class:`~simpest.models.fr_optimizer_optuna.OptunaOptimizer` don't need
+        this — both keep candidates in bounds by construction).
         """
         self._n_eval += 1
 
@@ -158,8 +161,7 @@ class BaseFranchestynOptimizer:
 # Name -> "module:ClassName". Resolved lazily by build_optimizer so this module
 # does not import the concrete optimizer modules (and their dependencies).
 OPTIMIZERS: Dict[str, str] = {
-    "nelder-mead": "simpest.models.fr_optimizer:FranchestynOptimizer",
-    "scipy-nelder-mead": "simpest.models.fr_optimizer_scipy:ScipyNelderMeadOptimizer",
+    "nelder-mead": "simpest.models.fr_optimizer:NelderMeadOptimizer",
     "optuna": "simpest.models.fr_optimizer_optuna:OptunaOptimizer",
 }
 

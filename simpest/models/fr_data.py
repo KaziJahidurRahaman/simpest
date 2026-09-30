@@ -231,10 +231,31 @@ class ParFungicide:
 
 @dataclass
 class Parameters:
-    """Container for all three parameter groups."""
+    """Container for all three parameter groups.
+
+    The two switches below are *not* FraNchEstYN parameters: they are simpest
+    options, defaulting to the C#-equivalent behaviour, that let an epidemic
+    fail to establish in a season whose weather never favours it. See
+    :class:`~simpest.models.franchestyn.FranchestynConfig`.
+
+    Attributes:
+        rain_limited_primary_inoculum (bool): When True and the disease is
+            splash-borne, primary (external) infection is scaled by the same
+            rain-detachment efficiency that already scales secondary spread, so
+            a rainless spell supplies no primary inoculum. ``False`` (default)
+            leaves primary inoculum independent of rain, as in the C# model.
+        htt_state_dry_decay (float): Fraction of the accumulated hydro-thermal
+            time state that survives a day whose dry spell exceeds
+            ``DryCriticalInterruption``. ``1.0`` (default) keeps the state
+            monotonically accumulating, as in the C# model, so the onset gate
+            is eventually crossed in every season; a value below 1 lets a long
+            dry spell push onset back out of reach.
+    """
     par_disease: ParDisease = field(default_factory=ParDisease)
     par_crop: ParCrop = field(default_factory=ParCrop)
     par_fungicide: ParFungicide = field(default_factory=ParFungicide)
+    rain_limited_primary_inoculum: bool = False
+    htt_state_dry_decay: float = 1.0
 
 
 @dataclass

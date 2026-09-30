@@ -6,10 +6,9 @@ import unittest
 from dataclasses import dataclass
 from typing import Optional
 
-from simpest.models.fr_optimizer import FranchestynOptimizer
+from simpest.models.fr_optimizer import NelderMeadOptimizer
 from simpest.models.fr_optimizer_base import build_optimizer
 from simpest.models.fr_optimizer_optuna import OptunaOptimizer
-from simpest.models.fr_optimizer_scipy import ScipyNelderMeadOptimizer
 
 
 @dataclass
@@ -49,6 +48,7 @@ class _FakeConfig:
     n_trials: int = 80
     optuna_timeout: Optional[float] = None
     seed: Optional[int] = 0
+    n_jobs: int = 1
 
 
 def _two_param_setup():
@@ -65,11 +65,8 @@ class TestOptimizerRegistry(unittest.TestCase):
         runner, _ = _two_param_setup()
         cfg = _FakeConfig()
         self.assertIsInstance(
-            build_optimizer("nelder-mead", runner, cfg, None), FranchestynOptimizer
-        )
-        self.assertIsInstance(
-            build_optimizer("scipy-nelder-mead", runner, cfg, None),
-            ScipyNelderMeadOptimizer,
+            build_optimizer("nelder-mead", runner, cfg, None),
+            NelderMeadOptimizer,
         )
         self.assertIsInstance(
             build_optimizer("optuna", runner, cfg, None), OptunaOptimizer
@@ -79,8 +76,8 @@ class TestOptimizerRegistry(unittest.TestCase):
         runner, _ = _two_param_setup()
         opt = build_optimizer("  OptUna ", runner, _FakeConfig(), None)
         self.assertIsInstance(opt, OptunaOptimizer)
-        opt = build_optimizer(" SciPy-Nelder-Mead ", runner, _FakeConfig(), None)
-        self.assertIsInstance(opt, ScipyNelderMeadOptimizer)
+        opt = build_optimizer(" Nelder-Mead ", runner, _FakeConfig(), None)
+        self.assertIsInstance(opt, NelderMeadOptimizer)
 
     def test_unknown_name_raises_value_error(self):
         runner, _ = _two_param_setup()
@@ -117,11 +114,35 @@ class TestOptunaOptimizer(unittest.TestCase):
         runner = _FakeRunner(name_param, {})
         self.assertEqual(OptunaOptimizer(runner=runner, n_trials=10).calibrate(), {})
 
+    def test_parallel_trials_find_minimum_within_bounds(self):
+        runner, targets = _two_param_setup()
+        opt = OptunaOptimizer(runner=runner, n_trials=60, seed=11, n_jobs=2)
+        best = opt.calibrate()
 
-class TestScipyNelderMeadOptimizer(unittest.TestCase):
+        self.assertEqual(set(best), {"crop_A", "crop_B"})
+        for key, (lo, hi) in zip(opt.calib_keys, opt.bounds):
+            self.assertGreaterEqual(best[key], lo)
+            self.assertLessEqual(best[key], hi)
+
+        mid_rmse = sum(
+            ((lo + hi) / 2 - targets[k]) ** 2
+            for k, (lo, hi) in zip(opt.calib_keys, opt.bounds)
+        )
+        self.assertLess(runner.compute_rmse(best), mid_rmse)
+
+    def test_parallel_trials_reproducible(self):
+        """Batched ask/tell fixes the order of every ask and tell, so the
+        same seed and n_jobs must give the same result on every run."""
+        runner, _ = _two_param_setup()
+        a = OptunaOptimizer(runner=runner, n_trials=30, seed=5, n_jobs=3).calibrate()
+        b = OptunaOptimizer(runner=runner, n_trials=30, seed=5, n_jobs=3).calibrate()
+        self.assertEqual(a, b)
+
+
+class TestNelderMeadOptimizer(unittest.TestCase):
     def test_finds_minimum_within_bounds(self):
         runner, targets = _two_param_setup()
-        opt = ScipyNelderMeadOptimizer(
+        opt = NelderMeadOptimizer(
             runner=runner, n_restarts=4, max_iter=200, seed=0
         )
         best = opt.calibrate()
@@ -139,14 +160,37 @@ class TestScipyNelderMeadOptimizer(unittest.TestCase):
 
     def test_is_reproducible_with_seed(self):
         runner, _ = _two_param_setup()
-        a = ScipyNelderMeadOptimizer(runner=runner, n_restarts=3, seed=7).calibrate()
-        b = ScipyNelderMeadOptimizer(runner=runner, n_restarts=3, seed=7).calibrate()
+        a = NelderMeadOptimizer(runner=runner, n_restarts=3, seed=7).calibrate()
+        b = NelderMeadOptimizer(runner=runner, n_restarts=3, seed=7).calibrate()
         self.assertEqual(a, b)
 
     def test_no_calibratable_params_returns_empty(self):
         name_param = {"crop_A": _FakeParam(0.0, 1.0, calibration="")}
         runner = _FakeRunner(name_param, {})
-        self.assertEqual(ScipyNelderMeadOptimizer(runner=runner).calibrate(), {})
+        self.assertEqual(NelderMeadOptimizer(runner=runner).calibrate(), {})
+
+    def test_parallel_restarts_match_sequential(self):
+        """n_jobs>1 (joblib worker processes) must find the same optimum as
+        n_jobs=1, for the same seed -- restarts are independent, so where
+        they run shouldn't change the result, only the wall-clock time."""
+        runner, _ = _two_param_setup()
+        sequential = NelderMeadOptimizer(
+            runner=runner, n_restarts=3, max_iter=100, seed=11, n_jobs=1
+        ).calibrate()
+        parallel = NelderMeadOptimizer(
+            runner=runner, n_restarts=3, max_iter=100, seed=11, n_jobs=2
+        ).calibrate()
+        self.assertEqual(sequential, parallel)
+
+    def test_parallel_restarts_reproducible(self):
+        runner, _ = _two_param_setup()
+        a = NelderMeadOptimizer(
+            runner=runner, n_restarts=3, max_iter=100, seed=11, n_jobs=2
+        ).calibrate()
+        b = NelderMeadOptimizer(
+            runner=runner, n_restarts=3, max_iter=100, seed=11, n_jobs=2
+        ).calibrate()
+        self.assertEqual(a, b)
 
 
 if __name__ == "__main__":
