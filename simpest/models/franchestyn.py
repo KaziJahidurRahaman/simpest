@@ -54,6 +54,95 @@ def deactivate_calibration(params: dict, disable_list) -> dict:
     return params
 
 
+def apply_bound_overrides(params: dict, overrides: dict) -> dict:
+    """
+    Override parameter bounds (or any other spec field) in place.
+
+    Use this to widen a bound for one analysis without editing the canonical
+    ``fr_*_parameters.json`` files.
+
+    Args:
+        params (dict): Mapping of parameter name to parameter specification dict.
+        overrides (dict): Mapping of parameter name to the fields to set, e.g.
+            ``{"PathogenSpread": {"max": 0.6}}``.
+
+    Returns:
+        dict: The same ``params`` mapping.
+
+    Raises:
+        KeyError: If an override names a parameter that ``params`` lacks.
+    """
+    for name, fields in overrides.items():
+        if name not in params:
+            raise KeyError(f"no parameter {name!r} to override")
+        params[name].update(fields)
+    return params
+
+
+def apply_best_params(config: "FranchestynConfig", best_params: dict) -> None:
+    """
+    Write calibrated values back into a config's parameter specs.
+
+    Args:
+        config (FranchestynConfig): Config whose ``crop_parameters``,
+            ``disease_parameters`` and ``fungicide_parameters`` are updated in
+            place.
+        best_params (dict): Calibrated values keyed ``"<class>_<Name>"``, as
+            returned in ``summary["best_params"]`` by :func:`run_franchestyn`.
+
+    Raises:
+        KeyError: If a key has an unknown class or names a missing parameter.
+    """
+    sections = {
+        "crop": config.crop_parameters,
+        "disease": config.disease_parameters,
+        "fungicide": config.fungicide_parameters,
+    }
+    for key, value in best_params.items():
+        cls, name = key.split("_", 1)
+        sections[cls][name]["value"] = float(value)
+
+
+def inject_reference_params(params: dict, model_name: str, reference_df: pd.DataFrame) -> tuple[list, list]:
+    """
+    Copy parameter values from a FraNchEstYN calibrated-parameters table.
+
+    Each matching parameter gets the table's ``calibrated`` value and has its
+    ``calibration`` flag turned off, so a run reproduces the reference
+    engine's parameters instead of searching for its own. The ``calibrated``
+    column holds the value the reference engine used: the fitted value where
+    it calibrated the parameter, the default otherwise.
+
+    Args:
+        params (dict): Mapping of parameter name to parameter specification
+            dict, updated in place.
+        model_name (str): Which rows to use, by the table's ``Model`` column
+            (case-insensitive), e.g. ``"crop"`` or ``"disease"``.
+        reference_df (pd.DataFrame): Table with ``Model``, ``Parameter`` and
+            ``calibrated`` columns.
+
+    Returns:
+        tuple[list, list]: ``(matched, unmatched)`` parameter names, so naming
+        gaps between the table and ``params`` are visible. Rows whose value is
+        not numeric are skipped.
+    """
+    matched, unmatched = [], []
+    rows = reference_df[reference_df["Model"].astype(str).str.lower() == model_name.lower()]
+    for _, r in rows.iterrows():
+        name = str(r["Parameter"])
+        try:
+            val = float(r["calibrated"])
+        except (TypeError, ValueError):
+            continue
+        if name in params:
+            params[name]["value"] = val
+            params[name]["calibration"] = False
+            matched.append(name)
+        else:
+            unmatched.append(name)
+    return matched, unmatched
+
+
 @dataclass
 class FranchestynConfig:
     """

@@ -12,18 +12,38 @@ an explicit goal (see `tools/dual_run/`).
 
 The crop trajectory can come from three places:
 - **SIMPLACE/Lintul5**, through a JVM bridge (`simpest/models/simplace.py`).
-- **torchcrop**, a differentiable Lintul5 port. See
-  `docs/examples/torchcrop-integration/`.
+- **torchcrop**, a differentiable Lintul5 port. It is run in the notebooks
+  under `notebooks/torchcrop-integration/`, never inside the package: `simpest`
+  must not import or depend on torch or torchcrop. Its output reaches
+  FraNchEstYN as plain arrays through `fr_inputs.py`.
 - **The internal crop model** in `fr_crop_model.py`, used when no external
   crop-model series is given.
+
+## Package vs notebooks
+
+- `simpest/` holds all functionality. `notebooks/` holds demonstration
+  notebooks and their data; they only set inputs, call `simpest`, plot and
+  explain. `docs/examples` is a symlink to `../notebooks` so the docs site can
+  render them.
+- To change what a notebook does, change the package first (with tests and,
+  for a new module, a docs page), then reinstall and restart the kernel. Do
+  not re-implement package logic in notebook cells.
+- The notebook kernel (`simpest` conda env,
+  `/home/rahaman/miniforge3/envs/simpest/bin/python`) uses a **regular,
+  non-editable** install, so it sees package changes only after
+  `pip install --no-deps --force-reinstall /home/rahaman/param-vc/simpest`.
+  Tests import the source tree directly, so they need no reinstall.
+- torchcrop code (dataset, collate, trajectory stacking, the WSO yield
+  calibration) stays in the torchcrop notebooks by the user's choice.
 
 ## Commands
 
 ```bash
-# Tests. CI runs unittest, not pytest, and pytest is not installed in .venv.
-.venv/bin/python -m unittest discover tests
-.venv/bin/python -m unittest tests.test_optimizer              # one module
-.venv/bin/python -m unittest tests.test_optimizer.TestX.test_y # one test
+# Tests. CI runs unittest, not pytest. Run from the repo root so the source
+# tree (not the installed copy) is imported.
+python -m unittest discover tests
+python -m unittest tests.test_optimizer              # one module
+python -m unittest tests.test_optimizer.TestX.test_y # one test
 
 # Docs site (MkDocs Material and mkdocstrings)
 mkdocs serve
@@ -69,6 +89,10 @@ The public API is exported from `simpest/models/__init__.py`: `FranchestynConfig
   are reapplied, through `runner.update_param_specs`.
 - `deactivate_calibration(specs, names)` turns off the `calibration` flag on
   the named parameters, in place.
+- `apply_bound_overrides`, `apply_best_params` and `inject_reference_params`
+  edit parameter specs in place: override bounds for one analysis, write
+  calibrated `"<class>_<Name>"` values back, or copy values from a FraNchEstYN
+  calibrated-parameters table.
 - It also provides `build_season_summary` and the `save_*_csv` output helpers.
 
 **Simulation core: `fr_runner.py` (`FranchestynRunner`)**
@@ -141,6 +165,17 @@ canonical FraNchEstYN CSV; `tools/check_parameters.py` checks this.
   `from_config()`, and register it in `OPTIMIZERS`. Then add a docs page (see
   below).
 
+**Workflow helpers**
+- `fr_session.py`: `FranchestynSession` keeps one set of inputs, builds the
+  runner once, and offers `run`, `run_forward` and `calibrate_seeds` (best of
+  several optimizer seeds, written back into the config).
+- `fr_inputs.py`: builds `crop_model_df`, `weather_df` and `management_df`
+  from per-season arrays and DataFrames. NumPy/pandas only.
+- `fr_diagnostics.py`: result to DataFrame, same-date matching of reference
+  observations, per-season errors and threshold dates.
+- `observed_yield.py`: reads USDA NASS yield exports, fits a two-segment
+  trend, detrends to one technology level and compares with simulated yield.
+
 **Other modules**
 - `simplace.py`: SIMPLACE init and run, plus converters from SIMPLACE output
   to the FraNchEstYN input CSVs.
@@ -161,6 +196,9 @@ canonical FraNchEstYN CSV; `tools/check_parameters.py` checks this.
 - Docstrings are Google-style and are rendered by mkdocstrings. Every module
   has a page in `docs/models/<module>.md` and an entry in the `mkdocs.yml` nav.
   When you add, rename or remove a module, update both.
-- The example notebooks in `docs/examples/` are rendered into the docs through
-  mkdocs-jupyter. The torchcrop notebook is the main end-to-end example of
-  torchcrop crop growth plus septoria, with calibration and Morris screening.
+- The notebooks in `notebooks/` are rendered into the docs through
+  mkdocs-jupyter (via the `docs/examples` symlink, `execute: False`).
+  `notebooks/torchcrop-integration/indiana_potential_(winter_wheat)-calibration.ipynb`
+  is the main end-to-end example: torchcrop crop growth, observed-yield
+  comparison and calibration, septoria calibration, Morris screening and
+  diagnostics. Notebook data paths are relative to each notebook's folder.

@@ -467,14 +467,14 @@ def main() -> None:
     parser.add_argument("--location-id", type=int, default=0, help="Numeric id used for weather/<id>.csv and the 'location' column")
     parser.add_argument("--location-name", type=str, default="west_lafayette_in", help="Output subfolder name")
     parser.add_argument("--idpl", type=int, default=270, help="Sowing day-of-year (270 = late Sept, matches the Brandenburg winter-wheat reference)")
-    parser.add_argument("--out-dir", type=Path, default=None, help="Output torchcrop/ dir (default: docs/examples/data/<location-name>/torchcrop)")
+    parser.add_argument("--out-dir", type=Path, default=None, help="Output torchcrop/ dir (default: notebooks/data/<location-name>/torchcrop)")
     parser.add_argument("--chunk-years", type=int, default=5, help="Years per API request block")
     parser.add_argument("--sleep", type=float, default=1.0, help="Seconds to sleep between API requests")
     parser.add_argument("--hourly", action="store_true",
                         help="Also write weather_hourly/<id>.csv.gz (hourly temp/RH/rain/radiation for simpest)")
     args = parser.parse_args()
 
-    out_dir = args.out_dir or Path("docs/examples/data") / args.location_name / "torchcrop"
+    out_dir = args.out_dir or Path("notebooks/data") / args.location_name / "torchcrop"
     print(f"Output directory: {out_dir}")
 
     co2_years = [y for y in range(args.start_year, args.end_year + 1) if y in MAUNA_LOA_ANNUAL_CO2]
