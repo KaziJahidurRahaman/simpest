@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from simpest.models.fr_diagnostics import (
+    bound_check,
     days_between,
     error_stats,
     first_date,
@@ -87,6 +88,29 @@ class TestSeasonDiagnostics(unittest.TestCase):
         self.assertEqual(row["n_obs_after_season"], 1)
         self.assertEqual(row["peak_obs"], 80.0)
         self.assertEqual(row["fully_wet_days_AMJ"], len(sim))
+
+
+class TestBoundCheck(unittest.TestCase):
+    SPECS = {"disease": {"Topt": {"min": 18, "max": 24}, "PathogenSpread": {"min": 0.0, "max": 0.3},
+                         "Tmin": {"min": 5, "max": 10}}}
+
+    def test_flags_values_within_tolerance_of_a_bound(self):
+        best = {"disease_Topt": 21.0, "disease_PathogenSpread": 0.299, "disease_Tmin": 5.1}
+        table = bound_check(best, self.SPECS)
+        self.assertEqual(list(table.index), list(best))
+        self.assertAlmostEqual(table.loc["disease_Topt", "position"], 0.5)
+        self.assertEqual(table.loc["disease_Topt", "at_bound"], "")
+        self.assertEqual(table.loc["disease_PathogenSpread", "at_bound"], "upper")
+        self.assertEqual(table.loc["disease_Tmin", "at_bound"], "lower")
+
+    def test_tolerance_sets_the_width_of_the_band(self):
+        best = {"disease_Tmin": 5.4}  # 8 % of the way up the 5-10 range
+        self.assertEqual(bound_check(best, self.SPECS).loc["disease_Tmin", "at_bound"], "")
+        self.assertEqual(bound_check(best, self.SPECS, tolerance=0.1).loc["disease_Tmin", "at_bound"], "lower")
+
+    def test_parameter_without_spec_raises(self):
+        with self.assertRaises(KeyError):
+            bound_check({"disease_Unknown": 1.0}, self.SPECS)
 
 
 if __name__ == "__main__":

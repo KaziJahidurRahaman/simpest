@@ -172,7 +172,8 @@ canonical FraNchEstYN CSV; `tools/check_parameters.py` checks this.
 - `fr_inputs.py`: builds `crop_model_df`, `weather_df` and `management_df`
   from per-season arrays and DataFrames. NumPy/pandas only.
 - `fr_diagnostics.py`: result to DataFrame, same-date matching of reference
-  observations, per-season errors and threshold dates.
+  observations, per-season errors, threshold dates and a check for calibrated
+  values that sit on a bound.
 - `observed_yield.py`: reads USDA NASS yield exports, fits a two-segment
   trend, detrends to one technology level and compares with simulated yield.
 

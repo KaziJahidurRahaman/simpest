@@ -2,7 +2,8 @@
 
 These helpers turn a `run_franchestyn` result into a DataFrame, match
 reference observations to the simulated value on the same date, and
-summarise the errors per season.
+summarise the errors per season. `bound_check` reports calibrated values
+that ended up on a calibration bound.
 
 Seasons are keyed by sowing year. Reference observations are keyed by
 calendar ``year`` and ``DOY``, and a season's observations fall in its harvest
@@ -198,3 +199,52 @@ def season_diagnostics(
             "fully_wet_days_AMJ": int((amj["TotalLW"] >= 24).sum()),
         })
     return pd.DataFrame(rows).set_index("season")
+
+
+def bound_check(
+    best_params: dict, specs: dict, tolerance: float = 0.05
+) -> pd.DataFrame:
+    """Show where each calibrated value sits inside its calibration bounds.
+
+    A value on a bound usually means the optimizer wanted to go further, so
+    the parameter is compensating for something else and its fitted value
+    should not be read as an estimate.
+
+    Args:
+        best_params: Calibrated values keyed ``"<class>_<Name>"``, as in the
+            ``best_params`` of a `run_franchestyn` summary.
+        specs: The parameter specs the calibration used, as
+            ``{"crop": ..., "disease": ..., "fungicide": ...}``; each class
+            maps a parameter name to a spec with ``min`` and ``max``.
+        tolerance: Fraction of the bound range, measured from either bound,
+            within which a value counts as being on that bound.
+
+    Returns:
+        pd.DataFrame: One row per parameter in ``best_params``, indexed by
+        the ``"<class>_<Name>"`` key, with ``value``, ``min``, ``max``,
+        ``position`` (0 at ``min``, 1 at ``max``) and ``at_bound``
+        (``"lower"``, ``"upper"`` or ``""``).
+
+    Raises:
+        KeyError: If a parameter has no spec in ``specs``.
+    """
+    rows = {}
+    for key, value in best_params.items():
+        cls, name = key.split("_", 1)
+        spec = specs[cls][name]
+        lo, hi = float(spec["min"]), float(spec["max"])
+        position = (float(value) - lo) / (hi - lo) if hi > lo else np.nan
+        if position <= tolerance:
+            at_bound = "lower"
+        elif position >= 1 - tolerance:
+            at_bound = "upper"
+        else:
+            at_bound = ""
+        rows[key] = {
+            "value": float(value), "min": lo, "max": hi,
+            "position": position, "at_bound": at_bound,
+        }
+    columns = ["value", "min", "max", "position", "at_bound"]
+    out = pd.DataFrame.from_dict(rows, orient="index", columns=columns)
+    out.index.name = "parameter"
+    return out
