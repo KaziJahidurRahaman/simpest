@@ -4,7 +4,8 @@ Calibration, sensitivity screens and forward checks all run the model many
 times on the same inputs. `FranchestynSession` keeps those inputs together,
 builds the `FranchestynRunner` once (see `franchestyn.build_runner`) and
 offers the runs a notebook needs: a plain run, a forward run with the current
-parameter values, and a calibration repeated over several seeds.
+parameter values, a forward run with some values replaced, and a calibration
+repeated over several seeds.
 """
 
 from __future__ import annotations
@@ -105,6 +106,35 @@ class FranchestynSession:
             return self.run()
         finally:
             self.config.is_calibration = was_calibration
+
+    def run_forward_with(self, values: dict) -> dict:
+        """Run forward with some parameter values replaced for this run only.
+
+        The config's parameter specs are put back afterwards, so repeated
+        calls scan a parameter without changing the session.
+
+        Args:
+            values: Values to use for this run, keyed ``"<class>_<Name>"``
+                (for example ``{"disease_RUEreducerDamage": 0.5}``).
+
+        Returns:
+            dict: The result of `franchestyn.run_franchestyn`.
+
+        Raises:
+            KeyError: If a key has an unknown class or names a missing
+                parameter.
+        """
+        cfg = self.config
+        saved = {
+            "crop": copy.deepcopy(cfg.crop_parameters),
+            "disease": copy.deepcopy(cfg.disease_parameters),
+            "fungicide": copy.deepcopy(cfg.fungicide_parameters),
+        }
+        try:
+            franchestyn.apply_best_params(cfg, values)
+            return self.run_forward()
+        finally:
+            self._restore(saved)
 
     def calibrate_seeds(self, seeds, n_trials: int) -> SeedCalibration:
         """Calibrate from the same start once per seed and keep the best run.
