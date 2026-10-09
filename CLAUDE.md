@@ -167,8 +167,7 @@ canonical FraNchEstYN CSV; `tools/check_parameters.py` checks this.
 
 **Workflow helpers**
 - `fr_session.py`: `FranchestynSession` keeps one set of inputs, builds the
-  runner once, and offers `run`, `run_forward`, `run_forward_with` (some
-  values replaced for one run) and `calibrate_seeds` (best of
+  runner once, and offers `run`, `run_forward` and `calibrate_seeds` (best of
   several optimizer seeds, written back into the config).
 - `fr_inputs.py`: builds `crop_model_df`, `weather_df` and `management_df`
   from per-season arrays and DataFrames. NumPy/pandas only.
@@ -204,7 +203,6 @@ canonical FraNchEstYN CSV; `tools/check_parameters.py` checks this.
   is the main end-to-end example: torchcrop phenology calibration (TSUM1/TSUM2
   against `phenology/phenology.csv`), yield calibration against detrended NASS
   yields, then FraNchEstYN driven by the calibrated crop run and hourly weather:
-  Morris screening, calibration of five septoria parameters, damage
-  coefficients anchored to a measured yield loss, severity and yield loss,
+  Morris screening, calibration of five septoria parameters, severity and yield loss,
   diagnostics and a hold-out check. Notebook data paths are relative to each
   notebook's folder.

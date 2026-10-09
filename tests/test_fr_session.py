@@ -65,22 +65,6 @@ class TestFranchestynSession(unittest.TestCase):
         self.assertEqual(seen, [False])
         self.assertTrue(self.config.is_calibration)
 
-    def test_run_forward_with_replaces_values_for_one_run_only(self):
-        name = next(iter(self.config.disease_parameters))
-        start_value = self.config.disease_parameters[name]["value"]
-        seen = []
-
-        def fake_run(config, runner, **_):
-            seen.append((config.disease_parameters[name]["value"], config.is_calibration))
-            return {"outputs": {}}
-
-        with mock.patch.object(franchestyn, "build_runner"), mock.patch.object(franchestyn, "run_franchestyn", fake_run):
-            self.session.run_forward_with({f"disease_{name}": 0.123})
-            with self.assertRaises(KeyError):
-                self.session.run_forward_with({"disease_NoSuchParameter": 1.0})
-        self.assertEqual(seen, [(0.123, False)])
-        self.assertEqual(self.config.disease_parameters[name]["value"], start_value)
-
     def test_calibrate_seeds_keeps_best_and_restarts_each_seed(self):
         name = next(iter(self.config.disease_parameters))
         start_value = self.config.disease_parameters[name]["value"]
