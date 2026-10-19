@@ -124,6 +124,16 @@ class DiseaseOutputs:
     disease_severity: float = 0.0       # % disease severity (sporulating + dead)
     susceptible_fraction: float = 1.0   # fraction of healthy susceptible tissue
 
+    # Upper-leaf tissue pool (simpest option, see Parameters.upper_leaf_pool).
+    # All fractions are relative to the full area of the upper leaves, except
+    # the severity, which is relative to the area emerged so far.
+    upper_leaf_emerged: float = 0.0      # fraction of the upper-leaf area emerged
+    upper_leaf_latent: float = 0.0       # latent fraction
+    upper_leaf_sporulating: float = 0.0  # sporulating fraction
+    upper_leaf_dead: float = 0.0         # dead fraction
+    upper_leaf_affected: float = 0.0     # latent + sporulating + dead
+    upper_leaf_severity: float = 0.0     # (sporulating + dead) / emerged, 0-1
+
     damage_mechanisms: DamageMechanisms = field(default_factory=DamageMechanisms)
 
     first_seasonal_infection: datetime = field(default_factory=lambda: datetime(1900, 1, 1))
@@ -233,9 +243,10 @@ class ParFungicide:
 class Parameters:
     """Container for all three parameter groups.
 
-    The two switches below are *not* FraNchEstYN parameters: they are simpest
-    options, defaulting to the C#-equivalent behaviour, that let an epidemic
-    fail to establish in a season whose weather never favours it. See
+    The options below are *not* FraNchEstYN parameters: they are simpest
+    options, defaulting to the C#-equivalent behaviour. The first two let an
+    epidemic fail to establish in a season whose weather never favours it; the
+    upper-leaf pool tracks the disease on the leaves that emerge last. See
     :class:`~simpest.models.franchestyn.FranchestynConfig`.
 
     Attributes:
@@ -250,12 +261,23 @@ class Parameters:
             monotonically accumulating, as in the C# model, so the onset gate
             is eventually crossed in every season; a value below 1 lets a long
             dry spell push onset back out of reach.
+        upper_leaf_pool (bool): When True, the disease model also tracks a
+            second tissue pool for the upper leaves (see
+            :meth:`~simpest.models.fr_disease_model.DiseaseModel.run_daily`).
+            ``False`` (default) leaves the model as in C#.
+        upper_leaf_cycle_start (float): Crop cycle percentage at which the
+            upper leaves start to emerge.
+        upper_leaf_cycle_full (float): Crop cycle percentage at which the
+            upper leaves are fully emerged.
     """
     par_disease: ParDisease = field(default_factory=ParDisease)
     par_crop: ParCrop = field(default_factory=ParCrop)
     par_fungicide: ParFungicide = field(default_factory=ParFungicide)
     rain_limited_primary_inoculum: bool = False
     htt_state_dry_decay: float = 1.0
+    upper_leaf_pool: bool = False
+    upper_leaf_cycle_start: float = 36.0
+    upper_leaf_cycle_full: float = 52.0
 
 
 @dataclass

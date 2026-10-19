@@ -38,6 +38,14 @@ class TestSimulationFrame(unittest.TestCase):
         self.assertEqual(sim["DiseaseSeverity"].iloc[0], 25.0)
         self.assertEqual(simulation_frame(result, severity_percent=False)["DiseaseSeverity"].iloc[0], 0.25)
 
+    def test_scales_upper_leaf_severity_when_present(self):
+        result = {"outputs": {"simulation": [
+            {"Date": "02/03/1981", "DiseaseSeverity": 0.25, "UpperLeafSeverity": 0.5, "UpperLeafEmerged": 0.5}]}}
+        sim = simulation_frame(result)
+        self.assertEqual(sim["UpperLeafSeverity"].iloc[0], 50.0)
+        self.assertEqual(sim["UpperLeafEmerged"].iloc[0], 0.5)
+        self.assertEqual(simulation_frame(result, severity_percent=False)["UpperLeafSeverity"].iloc[0], 0.5)
+
 
 class TestMatchRefToSim(unittest.TestCase):
     def test_matches_same_date_and_skips_out_of_season(self):
@@ -88,6 +96,14 @@ class TestSeasonDiagnostics(unittest.TestCase):
         self.assertEqual(row["n_obs_after_season"], 1)
         self.assertEqual(row["peak_obs"], 80.0)
         self.assertEqual(row["fully_wet_days_AMJ"], len(sim))
+        self.assertEqual(row["peak_sim"], sim["DiseaseSeverity"].max())
+
+    def test_peak_sim_follows_sim_col(self):
+        sim, ref = _sim_df(), _ref_df()
+        sim["UpperLeafSeverity"] = sim["DiseaseSeverity"] / 2.0
+        err = match_ref_to_sim(sim, ref, [1980], "sev", "UpperLeafSeverity")
+        diag = season_diagnostics(sim, ref, err, [1980], "sev", sim_col="UpperLeafSeverity")
+        self.assertEqual(diag.loc["1980/81", "peak_sim"], sim["UpperLeafSeverity"].max())
 
 
 class TestBoundCheck(unittest.TestCase):

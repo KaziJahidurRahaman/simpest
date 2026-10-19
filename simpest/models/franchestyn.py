@@ -213,6 +213,25 @@ class FranchestynConfig:
             with each daily output and therefore never exceeds 23 — so a
             ``DryCriticalInterruption`` above 23 hours can never trigger and the
             parameter is inert.
+        upper_leaf_pool (bool): Track a second tissue pool for the upper
+            leaves, which emerge shortly before heading and are what field
+            severity assessments usually score. The pool is infected by the
+            same rule as the canopy and reported as ``UpperLeafSeverity``;
+            with the switch on, the calibration objective compares the
+            reference severity with it instead of ``DiseaseSeverity``. The
+            canopy epidemic and the yield damage are not changed. ``False``
+            (default) matches the C# model, which has a single pool.
+        upper_leaf_cycle_start (float): Crop cycle percentage at which the
+            upper leaves start to emerge. The default (36) and
+            ``upper_leaf_cycle_full`` (52) are for the upper four leaves of
+            soft red winter wheat cv. Monon at West Lafayette, Indiana: in
+            1990 leaf F-2 was fully expanded 27 days, F-1 21 days and the flag
+            leaf 14 days before spike emergence (Shaner and Buechley 1995,
+            Plant Disease 79:928-938), which is 43, 47 and 52 % of the
+            simulated crop cycle; the start is extrapolated to the emergence
+            of F-3. Set both for another crop, cultivar or leaf layer.
+        upper_leaf_cycle_full (float): Crop cycle percentage at which the
+            upper leaves are fully emerged.
         n_restarts (int): Number of calibration restarts. Used by
             ``optimizer="nelder-mead"``.
         max_iter (int): Maximum calibration iterations per simplex. Used by
@@ -265,6 +284,9 @@ class FranchestynConfig:
     rain_limited_primary_inoculum: bool = False
     htt_state_dry_decay: float = 1.0
     carry_dry_counter: bool = False
+    upper_leaf_pool: bool = False
+    upper_leaf_cycle_start: float = 36.0
+    upper_leaf_cycle_full: float = 52.0
     n_restarts: int = 1
     max_iter: int = 100
     n_jobs: int = 1
@@ -325,6 +347,8 @@ def _outputs_to_records(date_outputs):
                 "Affected": out.disease.affected_sum,
                 "Dead": out.disease.dead_sum,
                 "DiseaseSeverity": out.disease.disease_severity,
+                "UpperLeafEmerged": out.disease.upper_leaf_emerged,
+                "UpperLeafSeverity": out.disease.upper_leaf_severity,
                 "FungicideEfficacy": out.fungicide.efficacy,
                 "Tmax": out.inputs_daily.tmax if out.inputs_daily else None,
                 "Tmin": out.inputs_daily.tmin if out.inputs_daily else None,
@@ -415,6 +439,9 @@ def _build_franchestyn_runner(
             rain_limited_primary_inoculum=config.rain_limited_primary_inoculum,
             htt_state_dry_decay=config.htt_state_dry_decay,
             carry_dry_counter=config.carry_dry_counter,
+            upper_leaf_pool=config.upper_leaf_pool,
+            upper_leaf_cycle_start=config.upper_leaf_cycle_start,
+            upper_leaf_cycle_full=config.upper_leaf_cycle_full,
             calibration_variable=config.calibration_variable,
             is_calibration=config.is_calibration,
             use_gdd=config.use_gdd,

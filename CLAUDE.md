@@ -128,6 +128,9 @@ The public API is exported from `simpest/models/__init__.py`: `FranchestynConfig
   daily increments).
 - `fr_disease_model.py`: `DiseaseModel`, with `run_hourly` for infection and
   wetness, and `run_daily` for SEIR tissue compartments and severity.
+  `upper_leaf_pool=True` (a simpest option, off by default, not in C#) adds a
+  second tissue pool for the upper leaves; the objective then uses its
+  severity (`UpperLeafSeverity`). See `docs/models/fr_disease_model.md`.
 - `fr_fungicide_model.py`: fungicide efficacy decay since the last treatment.
 - `fr_data.py`: all dataclasses for inputs, outputs, parameters and the
   simulation unit.
@@ -203,6 +206,7 @@ canonical FraNchEstYN CSV; `tools/check_parameters.py` checks this.
   is the main end-to-end example: torchcrop phenology calibration (TSUM1/TSUM2
   against `phenology/phenology.csv`), yield calibration against detrended NASS
   yields, then FraNchEstYN driven by the calibrated crop run and hourly weather:
-  Morris screening, calibration of five septoria parameters, severity and yield loss,
+  Morris screening, calibration of five septoria parameters against the
+  upper-leaf severity (`upper_leaf_pool=True`), severity and yield loss,
   diagnostics and a hold-out check. Notebook data paths are relative to each
   notebook's folder.

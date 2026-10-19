@@ -74,6 +74,9 @@ class TestDryCounterAndDecay(unittest.TestCase):
         runner.rain_limited_primary_inoculum = switches.get("rain_limited_primary_inoculum", False)
         runner.htt_state_dry_decay = switches.get("htt_state_dry_decay", 1.0)
         runner.carry_dry_counter = switches.get("carry_dry_counter", False)
+        runner.upper_leaf_pool = switches.get("upper_leaf_pool", False)
+        runner.upper_leaf_cycle_start = switches.get("upper_leaf_cycle_start", 36.0)
+        runner.upper_leaf_cycle_full = switches.get("upper_leaf_cycle_full", 52.0)
         return runner
 
     def test_switches_reach_the_parameters_object(self):

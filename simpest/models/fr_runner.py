@@ -101,6 +101,14 @@ class FranchestynRunner:
             Defaults to ``False`` (C# behaviour), where the counter resets with
             each daily output and so never exceeds 23, making
             ``DryCriticalInterruption`` values above 23 inert.
+        upper_leaf_pool (bool): Track a second tissue pool for the upper
+            leaves and use its severity in the calibration objective. Defaults
+            to ``False`` (C# behaviour). See
+            :class:`~simpest.models.fr_data.Parameters`.
+        upper_leaf_cycle_start (float): Crop cycle percentage at which the
+            upper leaves start to emerge.
+        upper_leaf_cycle_full (float): Crop cycle percentage at which the
+            upper leaves are fully emerged.
     """
 
     def __init__(
@@ -134,6 +142,9 @@ class FranchestynRunner:
         rain_limited_primary_inoculum: bool = False,
         htt_state_dry_decay: float = 1.0,
         carry_dry_counter: bool = False,
+        upper_leaf_pool: bool = False,
+        upper_leaf_cycle_start: float = 36.0,
+        upper_leaf_cycle_full: float = 52.0,
     ) -> None:
         self.weather_dir = weather_dir
         self.param_file = param_file
@@ -155,6 +166,9 @@ class FranchestynRunner:
         self.rain_limited_primary_inoculum = rain_limited_primary_inoculum
         self.htt_state_dry_decay = htt_state_dry_decay
         self.carry_dry_counter = carry_dry_counter
+        self.upper_leaf_pool = upper_leaf_pool
+        self.upper_leaf_cycle_start = upper_leaf_cycle_start
+        self.upper_leaf_cycle_full = upper_leaf_cycle_full
         self.use_prev_day_alignment = use_prev_day_alignment
         self.all_row_includes_end_year = all_row_includes_end_year
 
@@ -459,7 +473,12 @@ class FranchestynRunner:
                 dis_err = 0.0
                 by_date = ref.disease_date_disease_sev.get(self.disease, {})
                 if ref_key in by_date:
-                    sim_ds = out.disease.disease_severity * 100.0
+                    # With the upper-leaf pool on, the reference severity is
+                    # taken to describe the upper leaves.
+                    if self.upper_leaf_pool:
+                        sim_ds = out.disease.upper_leaf_severity * 100.0
+                    else:
+                        sim_ds = out.disease.disease_severity * 100.0
                     dis_err = (by_date[ref_key] - sim_ds) ** 2
                     has_ref = True
 
@@ -493,6 +512,9 @@ class FranchestynRunner:
         parameters = Parameters(
             rain_limited_primary_inoculum=self.rain_limited_primary_inoculum,
             htt_state_dry_decay=self.htt_state_dry_decay,
+            upper_leaf_pool=self.upper_leaf_pool,
+            upper_leaf_cycle_start=self.upper_leaf_cycle_start,
+            upper_leaf_cycle_full=self.upper_leaf_cycle_full,
         )
 
         for key, p in self.name_param.items():

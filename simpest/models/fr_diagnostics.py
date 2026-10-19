@@ -18,14 +18,19 @@ import numpy as np
 import pandas as pd
 
 
+# Simulated severity columns: the canopy's, and the upper-leaf pool's (filled
+# only when ``FranchestynConfig.upper_leaf_pool`` is on).
+SEVERITY_COLUMNS = ("DiseaseSeverity", "UpperLeafSeverity")
+
+
 def simulation_frame(result: dict, severity_percent: bool = True) -> pd.DataFrame:
     """Turn a `run_franchestyn` result into a daily DataFrame.
 
     Args:
         result: The dict returned by `run_franchestyn`.
-        severity_percent: Convert ``DiseaseSeverity`` from a 0-1 fraction to
-            percent. Build any `build_season_summary` from the fraction first:
-            it expects 0-1.
+        severity_percent: Convert ``DiseaseSeverity`` and, when present,
+            ``UpperLeafSeverity`` from a 0-1 fraction to percent. Build any
+            `build_season_summary` from the fraction first: it expects 0-1.
 
     Returns:
         pd.DataFrame: One row per simulated day, with ``Date`` parsed.
@@ -33,7 +38,9 @@ def simulation_frame(result: dict, severity_percent: bool = True) -> pd.DataFram
     sim = pd.DataFrame(result["outputs"]["simulation"])
     sim["Date"] = pd.to_datetime(sim["Date"], dayfirst=True)
     if severity_percent:
-        sim["DiseaseSeverity"] = sim["DiseaseSeverity"] * 100.0
+        for col in SEVERITY_COLUMNS:
+            if col in sim.columns:
+                sim[col] = sim[col] * 100.0
     return sim
 
 
@@ -154,6 +161,7 @@ def season_diagnostics(
     severity_err: pd.DataFrame,
     seasons: Sequence[int],
     disease_col: str,
+    sim_col: str = "DiseaseSeverity",
 ) -> pd.DataFrame:
     """Per-season fit and weather summary of a disease simulation.
 
@@ -168,6 +176,9 @@ def season_diagnostics(
         severity_err: `match_ref_to_sim` table for disease severity.
         seasons: Sowing years to summarise.
         disease_col: Observed severity column in ``ref_df``.
+        sim_col: Simulated severity column in ``sim_df`` that ``peak_sim`` is
+            taken from; ``"UpperLeafSeverity"`` for a run with the upper-leaf
+            pool.
 
     Returns:
         pd.DataFrame: One row per season (``"1972/73"`` style index) with
@@ -189,7 +200,7 @@ def season_diagnostics(
             "season": f"{sow_year}/{str(sow_year + 1)[2:]}",
             "rmse": np.sqrt((err ** 2).mean()),
             "bias": err.mean(),
-            "peak_sim": sim["DiseaseSeverity"].max(),
+            "peak_sim": sim[sim_col].max(),
             "peak_obs": obs[disease_col].max(),
             "sim_end": sim_end.date(),
             "last_obs": obs["Date"].max().date(),
