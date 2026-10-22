@@ -232,6 +232,12 @@ class FranchestynConfig:
             of F-3. Set both for another crop, cultivar or leaf layer.
         upper_leaf_cycle_full (float): Crop cycle percentage at which the
             upper leaves are fully emerged.
+        score_harvest_after_maturity (bool): Score a yield observation dated
+            after the simulated maturity of its season against the season's
+            final simulated yield. Grain yield is measured at harvest, which
+            can fall after the day the simulated crop matures, and the run has
+            no output after maturity. ``False`` (default) matches the C# model,
+            where such an observation is silently left out of the objective.
         n_restarts (int): Number of calibration restarts. Used by
             ``optimizer="nelder-mead"``.
         max_iter (int): Maximum calibration iterations per simplex. Used by
@@ -287,6 +293,7 @@ class FranchestynConfig:
     upper_leaf_pool: bool = False
     upper_leaf_cycle_start: float = 36.0
     upper_leaf_cycle_full: float = 52.0
+    score_harvest_after_maturity: bool = False
     n_restarts: int = 1
     max_iter: int = 100
     n_jobs: int = 1
@@ -369,7 +376,7 @@ def _build_franchestyn_runner(
     config: FranchestynConfig,
     weather_df: pd.DataFrame,
     management_df: pd.DataFrame,
-    crop_model_df: pd.DataFrame,
+    crop_model_df: pd.DataFrame | None,
     ref_df: pd.DataFrame,
     crop_param_file: str | None = None,
     disease_param_file: str | None = None,
@@ -390,7 +397,8 @@ def _build_franchestyn_runner(
         config (FranchestynConfig): Simulation configuration object.
         weather_df (pd.DataFrame): In-memory weather input.
         management_df (pd.DataFrame): In-memory management input.
-        crop_model_df (pd.DataFrame): In-memory crop model input.
+        crop_model_df (pd.DataFrame|None): In-memory external crop-model
+            series, or ``None`` to grow the crop with the internal crop model.
         ref_df (pd.DataFrame): In-memory reference input.
         crop_param_file (str|None, optional): Path to crop parameter file.
         disease_param_file (str|None, optional): Path to disease parameter file.
@@ -407,8 +415,8 @@ def _build_franchestyn_runner(
         raise ValueError("weather_df must be a non-empty DataFrame.")
     if management_df is None or management_df.empty:
         raise ValueError("management_df must be a non-empty DataFrame.")
-    if crop_model_df is None or crop_model_df.empty:
-        raise ValueError("crop_model_df must be a non-empty DataFrame.")
+    if crop_model_df is not None and crop_model_df.empty:
+        raise ValueError("crop_model_df must be None (internal crop model) or a non-empty DataFrame.")
     if ref_df is None or ref_df.empty:
         raise ValueError("ref_df must be a non-empty DataFrame.")
 
@@ -420,7 +428,9 @@ def _build_franchestyn_runner(
     with tempfile.TemporaryDirectory(prefix="simpest_franchestyn_") as tmp_dir:
         weather_input = _write_temp_csv(weather_df, tmp_dir, "weather.csv")
         management_input = _write_temp_csv(management_df, tmp_dir, "management.csv")
-        crop_model_input = _write_temp_csv(crop_model_df, tmp_dir, "crop_model.csv")
+        crop_model_input = (
+            None if crop_model_df is None else _write_temp_csv(crop_model_df, tmp_dir, "crop_model.csv")
+        )
         reference_input = _write_temp_csv(ref_df, tmp_dir, "reference.csv")
 
         runner = FranchestynRunner(
@@ -442,6 +452,7 @@ def _build_franchestyn_runner(
             upper_leaf_pool=config.upper_leaf_pool,
             upper_leaf_cycle_start=config.upper_leaf_cycle_start,
             upper_leaf_cycle_full=config.upper_leaf_cycle_full,
+            score_harvest_after_maturity=config.score_harvest_after_maturity,
             calibration_variable=config.calibration_variable,
             is_calibration=config.is_calibration,
             use_gdd=config.use_gdd,
@@ -466,7 +477,7 @@ def build_runner(
     config: FranchestynConfig,
     weather_df: pd.DataFrame,
     management_df: pd.DataFrame,
-    crop_model_df: pd.DataFrame,
+    crop_model_df: pd.DataFrame | None,
     ref_df: pd.DataFrame,
     crop_param_file: str | None = None,
     disease_param_file: str | None = None,
@@ -504,7 +515,7 @@ def run_franchestyn(
     config: FranchestynConfig,
     weather_df: pd.DataFrame,
     management_df: pd.DataFrame,
-    crop_model_df: pd.DataFrame,
+    crop_model_df: pd.DataFrame | None,
     ref_df: pd.DataFrame,
     crop_param_file: str | None = None,
     disease_param_file: str | None = None,
@@ -520,7 +531,8 @@ def run_franchestyn(
         config (FranchestynConfig): Simulation configuration object.
         weather_df (pd.DataFrame): In-memory weather input.
         management_df (pd.DataFrame): In-memory management input.
-        crop_model_df (pd.DataFrame): In-memory crop model input.
+        crop_model_df (pd.DataFrame|None): In-memory external crop-model
+            series, or ``None`` to grow the crop with the internal crop model.
         ref_df (pd.DataFrame): In-memory reference input.
         crop_param_file (str|None, optional): Path to crop parameter file.
         disease_param_file (str|None, optional): Path to disease parameter file.

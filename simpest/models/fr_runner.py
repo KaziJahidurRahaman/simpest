@@ -109,6 +109,11 @@ class FranchestynRunner:
             upper leaves start to emerge.
         upper_leaf_cycle_full (float): Crop cycle percentage at which the
             upper leaves are fully emerged.
+        score_harvest_after_maturity (bool): Score a yield observation dated
+            after the simulated crop has matured against the season's final
+            simulated yield. Defaults to ``False`` (C# behaviour), where such an
+            observation has no simulated day to match and is silently left out
+            of the objective. See :meth:`compute_rmse`.
     """
 
     def __init__(
@@ -145,6 +150,7 @@ class FranchestynRunner:
         upper_leaf_pool: bool = False,
         upper_leaf_cycle_start: float = 36.0,
         upper_leaf_cycle_full: float = 52.0,
+        score_harvest_after_maturity: bool = False,
     ) -> None:
         self.weather_dir = weather_dir
         self.param_file = param_file
@@ -169,6 +175,7 @@ class FranchestynRunner:
         self.upper_leaf_pool = upper_leaf_pool
         self.upper_leaf_cycle_start = upper_leaf_cycle_start
         self.upper_leaf_cycle_full = upper_leaf_cycle_full
+        self.score_harvest_after_maturity = score_harvest_after_maturity
         self.use_prev_day_alignment = use_prev_day_alignment
         self.all_row_includes_end_year = all_row_includes_end_year
 
@@ -404,6 +411,10 @@ class FranchestynRunner:
         positive, and a near-zero simulated light interception during the
         growing season, are both heavily penalised.
 
+        With ``score_harvest_after_maturity`` on, yield observations that fall
+        after the simulated maturity of their season are added as well (see
+        :meth:`_post_maturity_yield_errors`).
+
         Args:
             date_outputs (Dict[datetime, Outputs]): Daily outputs produced by
                 :meth:`run`.
@@ -496,6 +507,9 @@ class FranchestynRunner:
             if has_ref:
                 errors.append(total_err)
 
+        if self.score_harvest_after_maturity:
+            errors.extend(self._post_maturity_yield_errors(date_outputs, include_crop, include_disease))
+
         if not errors:
             return 0.0
         import math
@@ -504,6 +518,66 @@ class FranchestynRunner:
     # -----------------------------------------------------------------------
     # Private helpers
     # -----------------------------------------------------------------------
+
+    def _post_maturity_yield_errors(
+        self,
+        date_outputs: Dict[datetime, Outputs],
+        include_crop: bool,
+        include_disease: bool,
+    ) -> List[float]:
+        """Errors of yield observations dated after the simulated maturity.
+
+        Grain yield is measured at harvest, which can come after the day the
+        simulated crop reaches maturity; the run stops at maturity, so such an
+        observation has no simulated day to match. Yield does not change after
+        maturity, so it is compared here with the last simulated day before
+        the observation, provided that day is a matured one (so the
+        observation belongs to that season and not to a later one). An
+        observation whose day is simulated is left to the daily loop of
+        :meth:`compute_rmse`. The error terms, scaling and zero-yield penalty
+        are those of :meth:`compute_rmse`.
+
+        Args:
+            date_outputs (Dict[datetime, Outputs]): Daily outputs produced by
+                :meth:`run`.
+            include_crop (bool): Score attainable-yield observations.
+            include_disease (bool): Score actual-yield observations.
+
+        Returns:
+            List[float]: One summed squared error per observation date.
+        """
+        from bisect import bisect_left
+
+        ref = self.sim_unit.reference_data
+        days = sorted((dt.date(), out) for dt, out in date_outputs.items() if dt.hour == 23)
+        sim_dates = [d for d, _ in days]
+        simulated = set(sim_dates)
+        shift = timedelta(days=1) if self.use_prev_day_alignment else timedelta(0)
+
+        series = []
+        if include_crop:
+            series.append((ref.date_yield_attainable, lambda o: o.crop.yield_attainable))
+        if include_disease:
+            series.append((ref.date_yield_actual, lambda o: o.crop.yield_actual))
+
+        errors_by_date: Dict = {}
+        for observations, simulated_yield in series:
+            for ref_day, yield_ref in observations.items():
+                sim_day = ref_day - shift
+                if sim_day in simulated:
+                    continue
+                i = bisect_left(sim_dates, sim_day) - 1
+                if i < 0:
+                    continue
+                last_out = days[i][1]
+                if last_out.crop.cycle_completion_percentage < 100.0:
+                    continue
+                sim_y = simulated_yield(last_out)
+                err = ((yield_ref - sim_y) / 100.0) ** 2
+                if sim_y == 0.0 and yield_ref > 0.0:
+                    err *= 1000.0
+                errors_by_date[ref_day] = errors_by_date.get(ref_day, 0.0) + err
+        return list(errors_by_date.values())
 
     def _build_parameters(
         self, param_values: Dict[str, float]

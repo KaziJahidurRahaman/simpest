@@ -137,6 +137,7 @@ class TestUpperLeafPoolWiring(unittest.TestCase):
         runner.upper_leaf_pool = upper_leaf_pool
         runner.upper_leaf_cycle_start = 40.0
         runner.upper_leaf_cycle_full = 55.0
+        runner.score_harvest_after_maturity = False
         return runner
 
     def test_defaults_match_csharp(self):

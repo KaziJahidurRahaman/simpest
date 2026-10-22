@@ -63,10 +63,11 @@ SOILGRIDS_URL = "https://rest.isric.org/soilgrids/v2.0/properties/query"
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/reverse"
 USER_AGENT = "torchcrop-dataset-builder/1.0 (research use; contact via repo issue tracker)"
 
-# NOAA GML Mauna Loa annual mean atmospheric CO2 (ppm), 1970-2000. Static
+# NOAA GML Mauna Loa annual mean atmospheric CO2 (ppm), 1970-2015. Static
 # reference table (not live-fetched) -- copied verbatim from
 # https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_annmean_mlo.txt
-# (fetched 2026-08-11). NOAA revises earlier years occasionally as they
+# (fetched 2026-08-11; 2001-2015 added from the same file, fetched 2026-10-20,
+# whose 1970-2000 values were unchanged). NOAA revises earlier years occasionally as they
 # recalibrate reference gas mixtures, so re-pull that file if exactness
 # against the current published series matters.
 MAUNA_LOA_ANNUAL_CO2 = {
@@ -76,7 +77,10 @@ MAUNA_LOA_ANNUAL_CO2 = {
     1985: 346.35, 1986: 347.61, 1987: 349.31, 1988: 351.69, 1989: 353.20,
     1990: 354.45, 1991: 355.70, 1992: 356.54, 1993: 357.21, 1994: 358.96,
     1995: 360.97, 1996: 362.74, 1997: 363.88, 1998: 366.84, 1999: 368.54,
-    2000: 369.71,
+    2000: 369.71, 2001: 371.32, 2002: 373.45, 2003: 375.98, 2004: 377.70,
+    2005: 379.98, 2006: 382.09, 2007: 384.02, 2008: 385.83, 2009: 387.64,
+    2010: 390.10, 2011: 391.85, 2012: 394.06, 2013: 396.74, 2014: 398.81,
+    2015: 401.01,
 }
 
 # Soil parameters that the Brandenburg reference set holds constant across all

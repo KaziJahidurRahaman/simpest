@@ -212,7 +212,7 @@ def run_morris_sensitivity(
     config,
     weather_df: "pd.DataFrame",
     management_df: "pd.DataFrame",
-    crop_model_df: "pd.DataFrame",
+    crop_model_df: "pd.DataFrame | None",
     ref_df: "pd.DataFrame",
     *,
     n_trajectories: int = 20,

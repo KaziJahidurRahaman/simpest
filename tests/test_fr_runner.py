@@ -125,6 +125,25 @@ class TestConfigPassThrough(unittest.TestCase):
         self.assertEqual(kwargs["weather_time_step"], "hourly")
         self.assertEqual(kwargs["latitude"], 40.5)
 
+    def test_no_crop_model_df_selects_internal_crop_model(self):
+        config = franchestyn.FranchestynConfig(fungicide_type=None)
+        frame = pd.DataFrame({"x": [0]})
+        with mock.patch.object(franchestyn, "FranchestynRunner") as fake_runner:
+            with franchestyn._build_franchestyn_runner(
+                2000, 2000, config, frame, frame, None, frame,
+            ):
+                pass
+        self.assertIsNone(fake_runner.call_args.kwargs["crop_model_dir"])
+
+    def test_empty_crop_model_df_is_rejected(self):
+        config = franchestyn.FranchestynConfig(fungicide_type=None)
+        frame = pd.DataFrame({"x": [0]})
+        with self.assertRaises(ValueError):
+            with franchestyn._build_franchestyn_runner(
+                2000, 2000, config, frame, frame, pd.DataFrame(), frame,
+            ):
+                pass
+
     def test_defaults_keep_daily_weather(self):
         config = franchestyn.FranchestynConfig(fungicide_type=None)
         self.assertEqual(config.weather_time_step, "daily")

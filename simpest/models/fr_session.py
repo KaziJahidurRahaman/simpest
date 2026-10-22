@@ -55,7 +55,8 @@ class FranchestynSession:
         end_year: Last simulated year.
         weather_df: Weather input.
         management_df: Management (sowing) input.
-        crop_model_df: External crop-model series.
+        crop_model_df: External crop-model series, or ``None`` for the
+            internal crop model.
         ref_df: Reference observations.
     """
 
@@ -66,7 +67,7 @@ class FranchestynSession:
         end_year: int,
         weather_df: pd.DataFrame,
         management_df: pd.DataFrame,
-        crop_model_df: pd.DataFrame,
+        crop_model_df: pd.DataFrame | None,
         ref_df: pd.DataFrame,
     ):
         self.config = config

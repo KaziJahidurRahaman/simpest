@@ -17,7 +17,7 @@ The crop trajectory can come from three places:
   must not import or depend on torch or torchcrop. Its output reaches
   FraNchEstYN as plain arrays through `fr_inputs.py`.
 - **The internal crop model** in `fr_crop_model.py`, used when no external
-  crop-model series is given.
+  crop-model series is given (`run_franchestyn(..., crop_model_df=None, ...)`).
 
 ## Package vs notebooks
 
@@ -53,6 +53,7 @@ python tools/dual_run/run_dual.py --python-only   # Python side only, no .NET ne
 python tools/dual_run/run_calibration.py          # C# vs Python calibration comparison
 python tools/check_parameters.py <franchestynParametersForPackage.csv>  # JSON params vs canonical source
 python tools/fetch_torchcrop_dataset.py --lat .. --lon .. --start-year .. --end-year .. --location-name ..
+python tools/fetch_power_torchcrop_dataset.py --lat .. --lon .. --sow-years .. --idpl .. --out-dir ..  # per-season torchcrop set from NASA POWER
 ```
 
 On this Linux box, importing `optuna` (and therefore the notebooks and
@@ -131,6 +132,10 @@ The public API is exported from `simpest/models/__init__.py`: `FranchestynConfig
   `upper_leaf_pool=True` (a simpest option, off by default, not in C#) adds a
   second tissue pool for the upper leaves; the objective then uses its
   severity (`UpperLeafSeverity`). See `docs/models/fr_disease_model.md`.
+- `score_harvest_after_maturity=True` (config, off by default, not in C#)
+  scores a yield observation dated after the simulated maturity against the
+  season's final yield; by default such observations are silently dropped
+  from `compute_rmse`.
 - `fr_fungicide_model.py`: fungicide efficacy decay since the last treatment.
 - `fr_data.py`: all dataclasses for inputs, outputs, parameters and the
   simulation unit.
@@ -210,3 +215,10 @@ canonical FraNchEstYN CSV; `tools/check_parameters.py` checks this.
   upper-leaf severity (`upper_leaf_pool=True`), severity and yield loss,
   diagnostics and a hold-out check. Notebook data paths are relative to each
   notebook's folder.
+- `notebooks/Sharkiya/sharkiya_yellow_rust_yield_loss.ipynb` reproduces the
+  FraNchEstYN R vignette for yellow rust in Egypt (Omara et al. 2016) with the
+  internal crop model: crop, disease and per-cultivar calibration, then
+  simulated vs measured (protected vs infected plot) yield loss.
+  `sharkiya_yellow_rust_yield_loss_torchcrop.ipynb` is the same workflow with
+  the attainable crop from torchcrop (potential production, one
+  `scale_factor_rue` per cultivar fitted to the protected-plot yields).
