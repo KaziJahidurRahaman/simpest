@@ -16,6 +16,7 @@ from simpest.models.observed_yield import (
     fit_linear_trend,
     fit_stats,
     fit_two_segment_trend,
+    measured_disease_loss,
     read_nass_yield,
 )
 
@@ -99,3 +100,27 @@ class TestFitStats(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestMeasuredDiseaseLoss(unittest.TestCase):
+    def test_loss_per_group(self):
+        plots = pd.DataFrame({
+            "n_rate_kg_ha": [0, 0, 0, 0, 60, 60, 120],
+            "trt": ["fung", "fung", "none", "none", "fung", "none", "fung"],
+            "yield_kg_ha": [4000.0, 4200.0, 3000.0, 3200.0, 5000.0, 4500.0, 6000.0],
+        })
+        loss = measured_disease_loss(plots, "trt", treated="fung", untreated="none")
+        # 120 kg N has no untreated plot, so it is left out.
+        self.assertEqual(loss["n_rate_kg_ha"].tolist(), [0, 60])
+        self.assertAlmostEqual(loss["loss_pct"].iloc[0], 100 * (1 - 3100 / 4100))
+        self.assertAlmostEqual(loss["loss_pct"].iloc[1], 10.0)
+        self.assertEqual(loss["n_treated"].tolist(), [2, 1])
+
+    def test_ignores_other_treatments(self):
+        plots = pd.DataFrame({
+            "n_rate_kg_ha": [0, 0, 0],
+            "trt": ["fung", "none", "resistant"],
+            "yield_kg_ha": [4000.0, 3000.0, 9999.0],
+        })
+        loss = measured_disease_loss(plots, "trt", treated="fung", untreated="none")
+        self.assertAlmostEqual(loss["loss_pct"].iloc[0], 25.0)

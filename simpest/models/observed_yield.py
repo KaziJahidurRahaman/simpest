@@ -7,7 +7,9 @@ they are compared with, or used to calibrate, simulated yields.
 
 The functions here read USDA NASS yield exports, fit a linear or two-segment
 linear trend, express observed yields at one technology level and line them
-up with simulated yields season by season.
+up with simulated yields season by season. `measured_disease_loss` turns
+paired fungicide-treated and untreated plot yields into a measured disease
+loss, to check a simulated relative yield loss.
 """
 
 from __future__ import annotations
@@ -229,3 +231,54 @@ def fit_stats(simulated, observed) -> dict:
     err = sim - obs
     return {"RMSE": float(np.sqrt(np.mean(err ** 2))), "bias": float(err.mean()),
             "r": float(np.corrcoef(sim, obs)[0, 1])}
+
+
+def measured_disease_loss(
+    plots: pd.DataFrame,
+    treatment_col: str,
+    treated: str,
+    untreated: str,
+    by: str = "n_rate_kg_ha",
+    yield_col: str = "yield_kg_ha",
+) -> pd.DataFrame:
+    """Measured disease yield loss from paired treated and untreated plots.
+
+    Within each group (for example each nitrogen rate), the loss is the drop
+    in mean yield from the disease-protected (e.g. fungicide-treated) plots
+    to the untreated plots::
+
+        loss_pct = 100 * (1 - untreated_mean / treated_mean)
+
+    The ratio cancels the yield level of the plots, so it can be compared with
+    a simulated relative yield loss whatever the simulated attainable yield.
+    Pass plots of one cultivar and one season, at one grain moisture. If the
+    protected plots still had some disease, the loss is a lower bound.
+
+    Args:
+        plots: Plot yields, one row per plot.
+        treatment_col: Column that marks the disease treatment of each plot.
+        treated: Value of ``treatment_col`` for the protected plots.
+        untreated: Value of ``treatment_col`` for the untreated plots.
+        by: Column to group the plots by before pairing.
+        yield_col: Column with the plot yield.
+
+    Returns:
+        pd.DataFrame: One row per group with ``by``, ``treated_mean``,
+        ``untreated_mean``, ``n_treated``, ``n_untreated`` and ``loss_pct``.
+        Groups missing either treatment are left out.
+    """
+    stats = (
+        plots[plots[treatment_col].isin([treated, untreated])]
+        .groupby([by, treatment_col])[yield_col]
+        .agg(["mean", "count"])
+        .unstack(treatment_col)
+        .dropna()
+    )
+    out = pd.DataFrame({
+        "treated_mean": stats[("mean", treated)],
+        "untreated_mean": stats[("mean", untreated)],
+        "n_treated": stats[("count", treated)].astype(int),
+        "n_untreated": stats[("count", untreated)].astype(int),
+    })
+    out["loss_pct"] = 100.0 * (1.0 - out["untreated_mean"] / out["treated_mean"])
+    return out.reset_index()
