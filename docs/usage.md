@@ -205,8 +205,17 @@ runs once with the JSON defaults (or with `crop_parameters` /
   processes evaluate them, and the results are recorded in a fixed order. A
   run is therefore reproducible for a given `seed` and `n_jobs`. Changing
   `n_jobs` changes the batch size and so the trial sequence.
+- `"multistart-simplex"` — a port of the multi-start downhill simplex the C#
+  (and R) FraNchEstYN calibrates with (`UNIMI.optimizer.MultiStartSimplex`):
+  its random generator, starting vertices, simplex moves, stopping rule,
+  `(min, max]` bounds penalty and final sort. `n_restarts` is the number of
+  simplexes (the R package uses 3), `max_iter` the iterations per simplex (R
+  `iterations`) and `ftol` the tolerance (C# uses `1e-12`). `seed` replaces
+  the C# `new Random().Next()` draw, so with a fixed seed the run is
+  reproducible; simplexes can run concurrently via `n_jobs` without changing
+  the result.
 
-`n_jobs` (either optimizer) and `optimizer` apply to whichever calibration
+`n_jobs` (any optimizer) and `optimizer` apply to whichever calibration
 call reads `config` next — set them once on the `FranchestynConfig` you reuse
 across calibration stages rather than per-call, so every stage (staged
 sweeps, a reduced-parameter refit after screening, a final joint polish, …)

@@ -109,7 +109,9 @@ The public API is exported from `simpest/models/__init__.py`: `FranchestynConfig
 - `compute_rmse` is **the** calibration objective. It uses scaled squared errors
   for AGB (/200), yield (/100), fInt (×100) and severity (%), with ×1000
   penalties. By default it aligns days as sim[d-1] vs ref[d]
-  (`use_prev_day_alignment`) to match C#.
+  (`use_prev_day_alignment`) to match C#. It scores every reference date in
+  the simulated years, outside a season against zero output (`_state_at`),
+  as the C# objective does.
 - Parameter loading has three precedence levels:
   1. In-memory spec dicts from the config.
   2. JSON file plus type.
@@ -134,8 +136,10 @@ The public API is exported from `simpest/models/__init__.py`: `FranchestynConfig
   severity (`UpperLeafSeverity`). See `docs/models/fr_disease_model.md`.
 - `score_harvest_after_maturity=True` (config, off by default, not in C#)
   scores a yield observation dated after the simulated maturity against the
-  season's final yield; by default such observations are silently dropped
-  from `compute_rmse`.
+  season's final yield. By default, as in C#, `compute_rmse` compares every
+  observation in the simulated years with the C# hour-0 state: zero output
+  before sowing and after maturity, so a yield observed after maturity is a
+  zero yield with the ×1000 penalty.
 - `fr_fungicide_model.py`: fungicide efficacy decay since the last treatment.
 - `fr_data.py`: all dataclasses for inputs, outputs, parameters and the
   simulation unit.
@@ -166,6 +170,11 @@ canonical FraNchEstYN CSV; `tools/check_parameters.py` checks this.
   above 1, it runs batched ask/tell against a persistent process pool, where
   each worker receives the optimizer once. Results are reproducible for a given
   `seed` and `n_jobs`.
+- `fr_optimizer_simplex.py`: `MultiStartSimplexOptimizer`
+  (`optimizer="multistart-simplex"`), a port of the C# calibration library
+  `UNIMI.optimizer.MultiStartSimplex` (`optimizerSimplex.dll`, binary only
+  upstream): same random generator, vertices, moves, bounds penalty and sort.
+  Checked bit for bit against the DLL; `seed` replaces C#'s unseeded draw.
 - `fr_sensitivity.py`: `MorrisSensitivity` and `run_morris_sensitivity`
   (SALib). They reuse the base selection and objective, then return a ranked
   `mu_star`/`sigma` table.

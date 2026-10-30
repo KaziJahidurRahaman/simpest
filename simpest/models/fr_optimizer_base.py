@@ -163,6 +163,7 @@ class BaseFranchestynOptimizer:
 OPTIMIZERS: Dict[str, str] = {
     "nelder-mead": "simpest.models.fr_optimizer:NelderMeadOptimizer",
     "optuna": "simpest.models.fr_optimizer_optuna:OptunaOptimizer",
+    "multistart-simplex": "simpest.models.fr_optimizer_simplex:MultiStartSimplexOptimizer",
 }
 
 

@@ -138,6 +138,7 @@ class TestUpperLeafPoolWiring(unittest.TestCase):
         runner.upper_leaf_cycle_start = 40.0
         runner.upper_leaf_cycle_full = 55.0
         runner.score_harvest_after_maturity = False
+        runner.start_year, runner.end_year = 2000, 2000
         return runner
 
     def test_defaults_match_csharp(self):
@@ -164,7 +165,7 @@ class TestUpperLeafPoolWiring(unittest.TestCase):
             runner = self._bare_runner(switch)
             runner.disease = "sev"
             runner.use_prev_day_alignment = False
-            runner.sim_unit = SimpleNamespace(reference_data=reference)
+            runner.sim_unit = SimpleNamespace(reference_data=reference, year_sowing_doy={})
             rmse = runner.compute_rmse(outputs, include_crop=False, include_disease=True)
             self.assertAlmostEqual(rmse, expected)
 

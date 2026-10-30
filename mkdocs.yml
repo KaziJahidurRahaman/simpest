@@ -114,6 +114,7 @@ nav:
               - fr_optimizer_base module: models/fr_optimizer_base.md
               - fr_optimizer module: models/fr_optimizer.md
               - fr_optimizer_optuna module: models/fr_optimizer_optuna.md
+              - fr_optimizer_simplex module: models/fr_optimizer_simplex.md
               - fr_sensitivity module: models/fr_sensitivity.md
               - fr_session module: models/fr_session.md
               - fr_inputs module: models/fr_inputs.md

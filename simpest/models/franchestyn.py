@@ -168,7 +168,9 @@ class FranchestynConfig:
         optimizer (str): Calibration optimizer to use. ``"nelder-mead"``
             (default) runs a multi-start Nelder–Mead simplex search via
             :func:`scipy.optimize.minimize`; ``"optuna"`` runs an Optuna
-            (TPE / Bayesian) search.
+            (TPE / Bayesian) search; ``"multistart-simplex"`` runs the
+            port of the C# FraNchEstYN multi-start simplex
+            (:mod:`~simpest.models.fr_optimizer_simplex`).
         n_trials (int): Optuna trial budget (number of parameter sets to
             evaluate). Only used when ``optimizer="optuna"``.
         optuna_timeout (float|None): Optional wall-clock cap in seconds for the
@@ -178,7 +180,8 @@ class FranchestynConfig:
             reproducible. ``None`` (default) is non-deterministic. Applies to
             all optimizers.
         ftol (float): Nelder–Mead convergence tolerance on the objective spread
-            across the simplex vertices. Used by ``optimizer="nelder-mead"``.
+            across the simplex vertices. Used by ``optimizer="nelder-mead"``
+            and ``"multistart-simplex"``.
         use_gdd (bool): Method for crop cycle completion. ``False`` (default)
             uses calendar-day interpolation of the external crop-model series;
             ``True`` uses the thermal-time (GDD) based cycle percentage.
@@ -237,11 +240,12 @@ class FranchestynConfig:
             final simulated yield. Grain yield is measured at harvest, which
             can fall after the day the simulated crop matures, and the run has
             no output after maturity. ``False`` (default) matches the C# model,
-            where such an observation is silently left out of the objective.
-        n_restarts (int): Number of calibration restarts. Used by
-            ``optimizer="nelder-mead"``.
+            where such an observation is compared with zero output and gets
+            the ×1000 zero-yield penalty.
+        n_restarts (int): Number of calibration restarts (simplexes). Used by
+            ``optimizer="nelder-mead"`` and ``"multistart-simplex"``.
         max_iter (int): Maximum calibration iterations per simplex. Used by
-            ``optimizer="nelder-mead"``.
+            ``optimizer="nelder-mead"`` and ``"multistart-simplex"``.
         n_jobs (int): Number of independent model evaluations to run
             concurrently via ``joblib``. ``1`` (default) runs sequentially
             in-process, matching prior behavior exactly. Used by
