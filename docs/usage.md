@@ -97,6 +97,32 @@ DataFrames — `run_franchestyn` writes them to temporary CSVs internally, so
 any source that produces DataFrames with the expected columns works, not
 just the SIMPLACE conversion helpers above.
 
+### Weather: daily vs hourly
+
+The disease model runs hourly, and its infection logic depends on relative
+humidity and leaf wetness. How those are obtained depends on the weather
+you provide:
+
+- **Daily** (`weather_time_step="daily"`, the default): hourly values are
+  synthesised from each day's record. Include `rhx`/`rhn` (daily RH
+  extremes) columns if you have them. Without them, RH is estimated from
+  Tmax/Tmin alone and carries almost no year-to-year humidity signal. Leaf
+  wetness is derived from that RH and from the day's rain spread evenly over
+  24 hours, so any day with 4.8 mm of rain or more counts as 24 wet hours.
+- **Hourly** (`weather_time_step="hourly"`): pass hourly records with columns
+  `date, hour, temp, rh, prec, rad` (`rad` in MJ m⁻² h⁻¹). Measured RH and
+  rain timing are used directly. Set `latitude` if the file has no radiation.
+
+```python
+config = FranchestynConfig(..., weather_time_step="hourly", latitude=40.47)
+```
+
+`tools/fetch_torchcrop_dataset.py --hourly` writes both a daily file (with
+`RHmax`/`RHmin`) and an hourly file in this layout from the Open-Meteo ERA5
+archive. `fr_inputs.build_weather_df(..., mode="daily_rh")` takes `rhx`/`rhn`
+from the daily file's `RHmax`/`RHmin` columns, so a crop model and FraNchEstYN
+can run on the same daily file.
+
 ### Daily output fields
 
 Each record in `result["outputs"]["simulation"]` has one row per simulated
@@ -165,19 +191,40 @@ runs once with the JSON defaults (or with `crop_parameters` /
 
 `optimizer` selects the search strategy:
 
-- `"nelder-mead"` (default) — the built-in multi-start Nelder–Mead simplex
-  search described above, controlled by `n_restarts`, `max_iter`, and `ftol`.
-- `"scipy-nelder-mead"` — the same algorithm run through
+- `"nelder-mead"` (default) — a multi-start Nelder–Mead simplex search run
+  through
   [`scipy.optimize.minimize`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html),
-  also multi-start and sharing the `n_restarts` / `max_iter` / `ftol` knobs.
-  Useful as a maintained reference to cross-check the built-in optimizer.
+  controlled by `n_restarts`, `max_iter`, and `ftol`. Restarts can run
+  concurrently via `n_jobs`.
 - `"optuna"` — an [Optuna](https://optuna.org/) TPE (Bayesian) search,
   controlled by `n_trials` (number of parameter sets to evaluate) and an
   optional `optuna_timeout` (seconds). It keeps every candidate inside the
   parameter bounds and tends to handle the noisy objective surface with fewer
-  evaluations than restart-heavy Nelder–Mead.
+  evaluations than restart-heavy Nelder–Mead. Trials can also run concurrently
+  via `n_jobs`: the sampler proposes `n_jobs` trials at a time, worker
+  processes evaluate them, and the results are recorded in a fixed order. A
+  run is therefore reproducible for a given `seed` and `n_jobs`. Changing
+  `n_jobs` changes the batch size and so the trial sequence.
+- `"multistart-simplex"` — a port of the multi-start downhill simplex the C#
+  (and R) FraNchEstYN calibrates with (`UNIMI.optimizer.MultiStartSimplex`):
+  its random generator, starting vertices, simplex moves, stopping rule,
+  `(min, max]` bounds penalty and final sort. `n_restarts` is the number of
+  simplexes (the R package uses 3), `max_iter` the iterations per simplex (R
+  `iterations`) and `ftol` the tolerance (C# uses `1e-12`). `seed` replaces
+  the C# `new Random().Next()` draw, so with a fixed seed the run is
+  reproducible; simplexes can run concurrently via `n_jobs` without changing
+  the result.
 
-`seed` makes any of the searches reproducible.
+`n_jobs` (any optimizer) and `optimizer` apply to whichever calibration
+call reads `config` next — set them once on the `FranchestynConfig` you reuse
+across calibration stages rather than per-call, so every stage (staged
+sweeps, a reduced-parameter refit after screening, a final joint polish, …)
+stays on the same search strategy and the same parallelism instead of
+silently drifting if one stage overwrites `config.optimizer` and a later one
+doesn't.
+
+`seed` makes any of the searches reproducible (subject to the `n_jobs>1`
+caveat above for Optuna).
 
 ```python
 fr_cfg = FranchestynConfig(

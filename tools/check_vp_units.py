@@ -8,10 +8,10 @@ def classify(rh):
     return 20.0 <= rh <= 100.0
 
 datasets = {
-    'indiana':      r'c:\ParamVC\Research\simpest\docs\examples\data\weather_sim\indiana.txt',
-    'indiana_sim':  r'c:\ParamVC\Research\simpest\docs\examples\data\weather_sim\indiana_sim.txt',
-    'sevilla':      r'c:\ParamVC\Research\simpest\docs\examples\data\weather_sim\sevilla.txt',
-    'wageningen':   r'c:\ParamVC\Research\simpest\docs\examples\data\weather_sim\wageningen.txt',
+    'indiana':      r'c:\ParamVC\Research\simpest\notebooks\data\weather_sim\indiana.txt',
+    'indiana_sim':  r'c:\ParamVC\Research\simpest\notebooks\data\weather_sim\indiana_sim.txt',
+    'sevilla':      r'c:\ParamVC\Research\simpest\notebooks\data\weather_sim\sevilla.txt',
+    'wageningen':   r'c:\ParamVC\Research\simpest\notebooks\data\weather_sim\wageningen.txt',
 }
 
 for name, path in datasets.items():

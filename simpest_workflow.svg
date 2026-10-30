@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1000" viewBox="0 0 1700 1000" role="img" aria-label="SIMPEST workflow">
+  <style>@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&amp;family=IBM+Plex+Sans+Condensed:wght@600&amp;display=swap");</style>
+  <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4a584f"/></marker><marker id="ahr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9a3f22"/></marker><marker id="ahc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8c5d08"/></marker></defs>
+  <rect x="0" y="0" width="1700" height="1000" fill="#ffffff"/>
+  <rect x="20" y="20" width="300" height="960" rx="8" fill="#ffffff" stroke="#c3cec6" stroke-width="1.4"/>
+  <text x="40" y="50" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="12.5" font-weight="600" fill="#4a584f" letter-spacing="1">STEP 1</text>
+  <text x="40" y="78" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="21" font-weight="600" fill="#16221a">Inputs</text>
+  <text x="40" y="128" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="18" font-weight="600" fill="#16221a">Weather</text>
+  <text x="40" y="154" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Daily or hourly: temperature,</text>
+  <text x="40" y="174" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">rain, radiation, humidity</text>
+  <path d="M40 210 H300" stroke="#c3cec6" stroke-width="1"/>
+  <text x="40" y="240" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="18" font-weight="600" fill="#16221a">Management</text>
+  <text x="40" y="266" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Sowing date, cultivar,</text>
+  <text x="40" y="286" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">fungicide spray dates</text>
+  <path d="M40 322 H300" stroke="#c3cec6" stroke-width="1"/>
+  <text x="40" y="352" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="18" font-weight="600" fill="#16221a">Observations</text>
+  <text x="40" y="378" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Biomass, yield, light</text>
+  <text x="40" y="398" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">interception, disease severity</text>
+  <path d="M40 434 H300" stroke="#c3cec6" stroke-width="1"/>
+  <text x="40" y="464" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="18" font-weight="600" fill="#16221a">External crop series</text>
+  <text x="40" y="490" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Daily biomass, yield, light</text>
+  <text x="40" y="510" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">interception, thermal time</text>
+  <path d="M40 546 H300" stroke="#c3cec6" stroke-width="1"/>
+  <text x="40" y="576" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="18" font-weight="600" fill="#2f6f2b">Crop parameters</text>
+  <text x="40" y="602" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Phenology, canopy, growth,</text>
+  <text x="40" y="622" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">varietal resistance</text>
+  <path d="M40 658 H300" stroke="#c3cec6" stroke-width="1"/>
+  <text x="40" y="688" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="18" font-weight="600" fill="#9a3f22">Disease parameters</text>
+  <text x="40" y="714" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Infection, onset and cycle,</text>
+  <text x="40" y="734" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">inoculum and spread, damage</text>
+  <path d="M40 770 H300" stroke="#c3cec6" stroke-width="1"/>
+  <text x="40" y="800" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="18" font-weight="600" fill="#25618f">Fungicide parameters</text>
+  <text x="40" y="826" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Dose, degradation,</text>
+  <text x="40" y="846" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">tenacity, efficacy</text>
+  <text x="40" y="892" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">Each parameter has a value,</text>
+  <text x="40" y="910" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">min, max and calibrate flag</text>
+  <path d="M320 115 H336" fill="none" stroke="#4a584f" stroke-width="2.2" marker-end="url(#ah)"/>
+  <rect x="340" y="20" width="660" height="190" rx="8" fill="#ffffff" stroke="#c3cec6" stroke-width="1.4"/>
+  <text x="360" y="50" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="12.5" font-weight="600" fill="#4a584f" letter-spacing="1">STEP 2 · CHOOSE ONE</text>
+  <text x="360" y="78" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="21" font-weight="600" fill="#16221a">Attainable crop growth</text>
+  <rect x="360" y="96" width="300" height="60" rx="6" fill="#e8f2e4" stroke="#2f6f2b" stroke-width="1.2"/>
+  <text x="374" y="120" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#2f6f2b">External crop model</text>
+  <text x="374" y="143" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#4a584f">daily series from a prior run</text>
+  <rect x="680" y="96" width="300" height="60" rx="6" fill="#e8f2e4" stroke="#2f6f2b" stroke-width="1.2"/>
+  <text x="694" y="120" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="16" font-weight="600" fill="#2f6f2b">Internal crop model</text>
+  <text x="694" y="143" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#4a584f">thermal time, logistic fInt, RUE</text>
+  <text x="360" y="188" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Daily attainable biomass, yield, fInt and development</text>
+  <rect x="1020" y="20" width="660" height="190" rx="8" fill="#ffffff" stroke="#c3cec6" stroke-width="1.4"/>
+  <text x="1040" y="50" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="12.5" font-weight="600" fill="#4a584f" letter-spacing="1">STEP 3</text>
+  <text x="1040" y="78" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="21" font-weight="600" fill="#16221a">Prepare inputs</text>
+  <text x="1040" y="110" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Daily weather → hourly temperature, RH and leaf wetness</text>
+  <text x="1040" y="134" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Hourly weather used as measured</text>
+  <text x="1040" y="158" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Column names matched by alias</text>
+  <text x="1040" y="182" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Runner built once, reused across calibration runs</text>
+  <path d="M1000 115 H1016" fill="none" stroke="#4a584f" stroke-width="2.2" marker-end="url(#ah)"/>
+  <path d="M1210 210 V246" fill="none" stroke="#4a584f" stroke-width="2.2" marker-end="url(#ah)"/>
+  <rect x="340" y="250" width="1050" height="500" rx="10" fill="#f6f8f4" stroke="#c3cec6" stroke-width="1.4"/>
+  <text x="360" y="280" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="12.5" font-weight="600" fill="#4a584f" letter-spacing="1">STEP 4 · ONE SEASON AT A TIME</text>
+  <text x="360" y="308" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="21" font-weight="600" fill="#16221a">Simulation loop</text>
+  <text x="540" y="308" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14.5" font-weight="400" fill="#4a584f">Sowing to full development. Each day at hour 23: crop, then fungicide, then disease.</text>
+  <rect x="354" y="330" width="1022" height="170" rx="8" fill="#e8f2e4" stroke="#2f6f2b" stroke-width="1.4"/>
+  <text x="372" y="362" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="20" font-weight="600" fill="#2f6f2b">Crop</text>
+  <text x="372" y="388" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">once a day,</text>
+  <text x="372" y="406" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">attainable and</text>
+  <text x="372" y="424" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">actual together</text>
+  <text x="372" y="442" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f"></text>
+  <text x="372" y="460" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">external model:</text>
+  <text x="372" y="478" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">a–c read from</text>
+  <text x="372" y="496" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">its daily series</text>
+  <rect x="506" y="344" width="196" height="142" rx="6" fill="#ffffff" stroke="#2f6f2b" stroke-width="1.2"/>
+  <text x="518" y="370" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="16" font-weight="600" fill="#2f6f2b">a · Development</text>
+  <text x="518" y="394" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">thermal time →</text>
+  <text x="518" y="413" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">% of crop cycle;</text>
+  <text x="518" y="432" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">flowering starts</text>
+  <text x="518" y="451" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">grain filling</text>
+  <path d="M702 415 H718" fill="none" stroke="#4a584f" stroke-width="2.2" marker-end="url(#ah)"/>
+  <rect x="722" y="344" width="196" height="142" rx="6" fill="#ffffff" stroke="#2f6f2b" stroke-width="1.2"/>
+  <text x="734" y="370" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="16" font-weight="600" fill="#2f6f2b">b · Interception</text>
+  <text x="734" y="394" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">fInt from logistic</text>
+  <text x="734" y="413" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">growth and</text>
+  <text x="734" y="432" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">senescence curves</text>
+  <path d="M918 415 H934" fill="none" stroke="#4a584f" stroke-width="2.2" marker-end="url(#ah)"/>
+  <rect x="938" y="344" width="196" height="142" rx="6" fill="#ffffff" stroke="#2f6f2b" stroke-width="1.2"/>
+  <text x="950" y="370" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="16" font-weight="600" fill="#2f6f2b">c · Growth</text>
+  <text x="950" y="394" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">RUE × radiation × fInt</text>
+  <text x="950" y="413" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">→ biomass; after</text>
+  <text x="950" y="432" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">flowering a share</text>
+  <text x="950" y="451" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">goes to yield</text>
+  <path d="M1134 415 H1150" fill="none" stroke="#4a584f" stroke-width="2.2" marker-end="url(#ah)"/>
+  <rect x="1154" y="344" width="196" height="142" rx="6" fill="#ffffff" stroke="#2f6f2b" stroke-width="1.2"/>
+  <text x="1166" y="370" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="16" font-weight="600" fill="#2f6f2b">d · Disease damage</text>
+  <text x="1166" y="394" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">light stealers → fInt</text>
+  <text x="1166" y="413" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">RUE reducers → RUE</text>
+  <text x="1166" y="432" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">sappers → biomass</text>
+  <text x="1166" y="451" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">accelerators →</text>
+  <text x="1166" y="470" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">earlier senescence</text>
+  <rect x="354" y="560" width="1022" height="170" rx="8" fill="#f8eae3" stroke="#9a3f22" stroke-width="1.4"/>
+  <text x="372" y="592" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="20" font-weight="600" fill="#9a3f22">Disease</text>
+  <text x="372" y="618" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">hourly and daily,</text>
+  <text x="372" y="636" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">with fungicide;</text>
+  <text x="372" y="654" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">infects once wet</text>
+  <text x="372" y="672" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">hours and crop</text>
+  <text x="372" y="690" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">cycle % pass</text>
+  <text x="372" y="708" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">onset thresholds</text>
+  <rect x="506" y="574" width="196" height="142" rx="6" fill="#ffffff" stroke="#9a3f22" stroke-width="1.2"/>
+  <text x="518" y="600" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="16" font-weight="600" fill="#9a3f22">a · Hourly conditions</text>
+  <text x="518" y="624" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">temperature × RH /</text>
+  <text x="518" y="643" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">leaf wetness; dry</text>
+  <text x="518" y="662" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">spells interrupt →</text>
+  <text x="518" y="681" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">infection efficiency</text>
+  <path d="M702 645 H718" fill="none" stroke="#4a584f" stroke-width="2.2" marker-end="url(#ah)"/>
+  <rect x="722" y="574" width="196" height="142" rx="6" fill="#ffffff" stroke="#25618f" stroke-width="1.2"/>
+  <text x="734" y="600" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="16" font-weight="600" fill="#25618f">b · Fungicide</text>
+  <text x="734" y="624" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">efficacy decays</text>
+  <text x="734" y="643" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">after each spray;</text>
+  <text x="734" y="662" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">cuts inoculum and</text>
+  <text x="734" y="681" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">new infections</text>
+  <path d="M918 645 H934" fill="none" stroke="#4a584f" stroke-width="2.2" marker-end="url(#ah)"/>
+  <rect x="938" y="574" width="196" height="142" rx="6" fill="#ffffff" stroke="#9a3f22" stroke-width="1.2"/>
+  <text x="950" y="600" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="16" font-weight="600" fill="#9a3f22">c · Infection, SEIR</text>
+  <text x="950" y="624" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">primary inoculum +</text>
+  <text x="950" y="643" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">secondary spread →</text>
+  <text x="950" y="662" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">new latent tissue;</text>
+  <text x="950" y="681" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">latent → sporulating</text>
+  <text x="950" y="700" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">→ dead</text>
+  <path d="M1134 645 H1150" fill="none" stroke="#4a584f" stroke-width="2.2" marker-end="url(#ah)"/>
+  <rect x="1154" y="574" width="196" height="142" rx="6" fill="#ffffff" stroke="#9a3f22" stroke-width="1.2"/>
+  <text x="1166" y="600" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="16" font-weight="600" fill="#9a3f22">d · Severity</text>
+  <text x="1166" y="624" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">sporulating + dead</text>
+  <text x="1166" y="643" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">share of the canopy</text>
+  <text x="1166" y="662" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">(%); optional upper-</text>
+  <text x="1166" y="681" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">leaf pool</text>
+  <path d="M820 486 V570" fill="none" stroke="#4a584f" stroke-width="2.2" marker-end="url(#ah)"/>
+  <text x="830" y="520" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">fInt scales new infection,</text>
+  <text x="830" y="538" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#4a584f">cycle % gates onset</text>
+  <path d="M1252 574 V490" fill="none" stroke="#9a3f22" stroke-width="2.2" marker-end="url(#ahr)"/>
+  <text x="1262" y="520" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#9a3f22">severity,</text>
+  <text x="1262" y="538" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="13.5" font-weight="400" fill="#9a3f22">next day</text>
+  <path d="M500 750 V786" fill="none" stroke="#4a584f" stroke-width="2.2" marker-end="url(#ah)"/>
+  <rect x="340" y="790" width="330" height="190" rx="8" fill="#ffffff" stroke="#c3cec6" stroke-width="1.4"/>
+  <text x="360" y="820" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="12.5" font-weight="600" fill="#4a584f" letter-spacing="1">STEP 5</text>
+  <text x="360" y="848" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="21" font-weight="600" fill="#16221a">Daily outputs</text>
+  <text x="360" y="882" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Attainable and actual biomass,</text>
+  <text x="360" y="905" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">yield and fInt</text>
+  <text x="360" y="928" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Severity and SEIR tissue</text>
+  <text x="360" y="951" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Fungicide efficacy, damage terms</text>
+  <rect x="700" y="790" width="330" height="190" rx="8" fill="#ffffff" stroke="#c3cec6" stroke-width="1.4"/>
+  <text x="720" y="820" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="12.5" font-weight="600" fill="#4a584f" letter-spacing="1">STEP 6</text>
+  <text x="720" y="848" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="21" font-weight="600" fill="#16221a">Season summary</text>
+  <text x="720" y="882" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Yield loss, peak severity</text>
+  <text x="720" y="905" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Errors against observations</text>
+  <text x="720" y="928" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Threshold dates</text>
+  <text x="720" y="951" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Parameters on a bound</text>
+  <rect x="1060" y="790" width="330" height="190" rx="8" fill="#ffffff" stroke="#c3cec6" stroke-width="1.4"/>
+  <text x="1080" y="820" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="12.5" font-weight="600" fill="#4a584f" letter-spacing="1">STEP 7</text>
+  <text x="1080" y="848" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="21" font-weight="600" fill="#16221a">Final output</text>
+  <text x="1080" y="882" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Daily simulation records</text>
+  <text x="1080" y="905" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">Objective score, best parameters</text>
+  <text x="1080" y="928" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#16221a">CSV export and plots</text>
+  <path d="M670 885 H696" fill="none" stroke="#4a584f" stroke-width="2.2" marker-end="url(#ah)"/>
+  <path d="M1030 885 H1056" fill="none" stroke="#4a584f" stroke-width="2.2" marker-end="url(#ah)"/>
+  <rect x="1440" y="250" width="240" height="730" rx="10" fill="#faf1df" stroke="#8c5d08" stroke-width="1.4"/>
+  <text x="1458" y="280" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="12.5" font-weight="600" fill="#8c5d08" letter-spacing="1">OPTIONAL</text>
+  <text x="1458" y="308" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="21" font-weight="600" fill="#8c5d08">Calibration</text>
+  <rect x="1454" y="330" width="212" height="92" rx="6" fill="#ffffff" stroke="#8c5d08" stroke-width="1"/>
+  <text x="1468" y="358" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="16.5" font-weight="600" fill="#16221a">Screen</text>
+  <text x="1468" y="382" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">Morris sensitivity</text>
+  <text x="1468" y="402" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">ranks parameters</text>
+  <rect x="1454" y="440" width="212" height="132" rx="6" fill="#ffffff" stroke="#8c5d08" stroke-width="1"/>
+  <text x="1468" y="468" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="16.5" font-weight="600" fill="#16221a">Score each run</text>
+  <text x="1468" y="492" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">scaled squared errors</text>
+  <text x="1468" y="512" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">vs observations:</text>
+  <text x="1468" y="532" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">biomass, yield,</text>
+  <text x="1468" y="552" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">fInt, severity</text>
+  <rect x="1454" y="590" width="212" height="112" rx="6" fill="#ffffff" stroke="#8c5d08" stroke-width="1"/>
+  <text x="1468" y="618" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="16.5" font-weight="600" fill="#16221a">Search</text>
+  <text x="1468" y="642" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">multi-start simplex,</text>
+  <text x="1468" y="662" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">Nelder–Mead or</text>
+  <text x="1468" y="682" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">Optuna TPE</text>
+  <rect x="1454" y="720" width="212" height="92" rx="6" fill="#ffffff" stroke="#8c5d08" stroke-width="1"/>
+  <text x="1468" y="748" font-family="'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', Arial, sans-serif" font-size="16.5" font-weight="600" fill="#16221a">Write back</text>
+  <text x="1468" y="772" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">best parameters into</text>
+  <text x="1468" y="792" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#16221a">the run settings</text>
+  <path d="M1390 420 H1436" fill="none" stroke="#8c5d08" stroke-width="2.2" stroke-dasharray="7 5" marker-end="url(#ahc)"/>
+  <text x="1415" y="410" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="12.5" font-weight="600" fill="#8c5d08" text-anchor="middle">results</text>
+  <path d="M1440 480 H1394" fill="none" stroke="#8c5d08" stroke-width="2.2" stroke-dasharray="7 5" marker-end="url(#ahc)"/>
+  <text x="1415" y="500" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="12.5" font-weight="600" fill="#8c5d08" text-anchor="middle">trial</text>
+  <text x="1415" y="515" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="12.5" font-weight="600" fill="#8c5d08" text-anchor="middle">params</text>
+  <path d="M1440 930 H1394" fill="none" stroke="#8c5d08" stroke-width="2.2" stroke-dasharray="7 5" marker-end="url(#ahc)"/>
+  <text x="1415" y="920" font-family="'IBM Plex Sans', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="12.5" font-weight="600" fill="#8c5d08" text-anchor="middle">best</text>
+</svg>

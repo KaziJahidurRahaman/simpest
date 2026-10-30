@@ -54,6 +54,95 @@ def deactivate_calibration(params: dict, disable_list) -> dict:
     return params
 
 
+def apply_bound_overrides(params: dict, overrides: dict) -> dict:
+    """
+    Override parameter bounds (or any other spec field) in place.
+
+    Use this to widen a bound for one analysis without editing the canonical
+    ``fr_*_parameters.json`` files.
+
+    Args:
+        params (dict): Mapping of parameter name to parameter specification dict.
+        overrides (dict): Mapping of parameter name to the fields to set, e.g.
+            ``{"PathogenSpread": {"max": 0.6}}``.
+
+    Returns:
+        dict: The same ``params`` mapping.
+
+    Raises:
+        KeyError: If an override names a parameter that ``params`` lacks.
+    """
+    for name, fields in overrides.items():
+        if name not in params:
+            raise KeyError(f"no parameter {name!r} to override")
+        params[name].update(fields)
+    return params
+
+
+def apply_best_params(config: "FranchestynConfig", best_params: dict) -> None:
+    """
+    Write calibrated values back into a config's parameter specs.
+
+    Args:
+        config (FranchestynConfig): Config whose ``crop_parameters``,
+            ``disease_parameters`` and ``fungicide_parameters`` are updated in
+            place.
+        best_params (dict): Calibrated values keyed ``"<class>_<Name>"``, as
+            returned in ``summary["best_params"]`` by :func:`run_franchestyn`.
+
+    Raises:
+        KeyError: If a key has an unknown class or names a missing parameter.
+    """
+    sections = {
+        "crop": config.crop_parameters,
+        "disease": config.disease_parameters,
+        "fungicide": config.fungicide_parameters,
+    }
+    for key, value in best_params.items():
+        cls, name = key.split("_", 1)
+        sections[cls][name]["value"] = float(value)
+
+
+def inject_reference_params(params: dict, model_name: str, reference_df: pd.DataFrame) -> tuple[list, list]:
+    """
+    Copy parameter values from a FraNchEstYN calibrated-parameters table.
+
+    Each matching parameter gets the table's ``calibrated`` value and has its
+    ``calibration`` flag turned off, so a run reproduces the reference
+    engine's parameters instead of searching for its own. The ``calibrated``
+    column holds the value the reference engine used: the fitted value where
+    it calibrated the parameter, the default otherwise.
+
+    Args:
+        params (dict): Mapping of parameter name to parameter specification
+            dict, updated in place.
+        model_name (str): Which rows to use, by the table's ``Model`` column
+            (case-insensitive), e.g. ``"crop"`` or ``"disease"``.
+        reference_df (pd.DataFrame): Table with ``Model``, ``Parameter`` and
+            ``calibrated`` columns.
+
+    Returns:
+        tuple[list, list]: ``(matched, unmatched)`` parameter names, so naming
+        gaps between the table and ``params`` are visible. Rows whose value is
+        not numeric are skipped.
+    """
+    matched, unmatched = [], []
+    rows = reference_df[reference_df["Model"].astype(str).str.lower() == model_name.lower()]
+    for _, r in rows.iterrows():
+        name = str(r["Parameter"])
+        try:
+            val = float(r["calibrated"])
+        except (TypeError, ValueError):
+            continue
+        if name in params:
+            params[name]["value"] = val
+            params[name]["calibration"] = False
+            matched.append(name)
+        else:
+            unmatched.append(name)
+    return matched, unmatched
+
+
 @dataclass
 class FranchestynConfig:
     """
@@ -77,10 +166,11 @@ class FranchestynConfig:
         is_calibration (bool): Whether to run calibration.
         calibration_variable (str): Calibration variable ('all', 'crop', 'disease').
         optimizer (str): Calibration optimizer to use. ``"nelder-mead"``
-            (default) runs the built-in multi-start Nelder–Mead simplex search;
-            ``"scipy-nelder-mead"`` runs the same algorithm via
-            :func:`scipy.optimize.minimize`, also multi-start;
-            ``"optuna"`` runs an Optuna (TPE / Bayesian) search.
+            (default) runs a multi-start Nelder–Mead simplex search via
+            :func:`scipy.optimize.minimize`; ``"optuna"`` runs an Optuna
+            (TPE / Bayesian) search; ``"multistart-simplex"`` runs the
+            port of the C# FraNchEstYN multi-start simplex
+            (:mod:`~simpest.models.fr_optimizer_simplex`).
         n_trials (int): Optuna trial budget (number of parameter sets to
             evaluate). Only used when ``optimizer="optuna"``.
         optuna_timeout (float|None): Optional wall-clock cap in seconds for the
@@ -91,7 +181,7 @@ class FranchestynConfig:
             all optimizers.
         ftol (float): Nelder–Mead convergence tolerance on the objective spread
             across the simplex vertices. Used by ``optimizer="nelder-mead"``
-            and ``optimizer="scipy-nelder-mead"``.
+            and ``"multistart-simplex"``.
         use_gdd (bool): Method for crop cycle completion. ``False`` (default)
             uses calendar-day interpolation of the external crop-model series;
             ``True`` uses the thermal-time (GDD) based cycle percentage.
@@ -102,10 +192,68 @@ class FranchestynConfig:
         all_row_includes_end_year (bool): Whether an ``"All"`` sowing row covers
             the final year. ``False`` (default) omits ``end_year``; ``True``
             includes it. Has no effect for per-year sowing CSVs.
-        n_restarts (int): Number of calibration restarts. Used by
-            ``optimizer="nelder-mead"`` and ``optimizer="scipy-nelder-mead"``.
+        weather_time_step (str): Time step of ``weather_df``. ``"daily"``
+            (default) synthesizes hourly temperature, RH and leaf wetness from
+            daily values; ``"hourly"`` reads measured hourly records (columns
+            ``date, hour, temp, prec, rh, rad`` with ``rad`` in MJ m-2 h-1),
+            so relative humidity and leaf wetness come from the data.
+        latitude (float): Site latitude in decimal degrees. Only needed when
+            radiation must be estimated because ``weather_df`` has none.
+        rain_limited_primary_inoculum (bool): Let a rainless spell starve a
+            splash-borne epidemic of primary inoculum, by scaling external
+            infection with the rain-detachment efficiency that already scales
+            secondary spread. ``False`` (default) matches the C# model, where
+            primary inoculum does not depend on rain.
+        htt_state_dry_decay (float): Fraction of the accumulated hydro-thermal
+            time state that survives a day whose dry spell exceeds
+            ``DryCriticalInterruption``. ``1.0`` (default) matches the C# model,
+            where the state only accumulates and the onset gate is therefore
+            crossed in every season sooner or later. Below 1, a long dry spell
+            can keep an epidemic from ever starting. Needs
+            ``carry_dry_counter=True`` to have any effect.
+        carry_dry_counter (bool): Carry the dry-hour counter across midnight.
+            ``False`` (default) matches the C# model, where the counter is reset
+            with each daily output and therefore never exceeds 23 — so a
+            ``DryCriticalInterruption`` above 23 hours can never trigger and the
+            parameter is inert.
+        upper_leaf_pool (bool): Track a second tissue pool for the upper
+            leaves, which emerge shortly before heading and are what field
+            severity assessments usually score. The pool is infected by the
+            same rule as the canopy and reported as ``UpperLeafSeverity``;
+            with the switch on, the calibration objective compares the
+            reference severity with it instead of ``DiseaseSeverity``. The
+            canopy epidemic and the yield damage are not changed. ``False``
+            (default) matches the C# model, which has a single pool.
+        upper_leaf_cycle_start (float): Crop cycle percentage at which the
+            upper leaves start to emerge. The default (36) and
+            ``upper_leaf_cycle_full`` (52) are for the upper four leaves of
+            soft red winter wheat cv. Monon at West Lafayette, Indiana: in
+            1990 leaf F-2 was fully expanded 27 days, F-1 21 days and the flag
+            leaf 14 days before spike emergence (Shaner and Buechley 1995,
+            Plant Disease 79:928-938), which is 43, 47 and 52 % of the
+            simulated crop cycle; the start is extrapolated to the emergence
+            of F-3. Set both for another crop, cultivar or leaf layer.
+        upper_leaf_cycle_full (float): Crop cycle percentage at which the
+            upper leaves are fully emerged.
+        score_harvest_after_maturity (bool): Score a yield observation dated
+            after the simulated maturity of its season against the season's
+            final simulated yield. Grain yield is measured at harvest, which
+            can fall after the day the simulated crop matures, and the run has
+            no output after maturity. ``False`` (default) matches the C# model,
+            where such an observation is compared with zero output and gets
+            the ×1000 zero-yield penalty.
+        n_restarts (int): Number of calibration restarts (simplexes). Used by
+            ``optimizer="nelder-mead"`` and ``"multistart-simplex"``.
         max_iter (int): Maximum calibration iterations per simplex. Used by
-            ``optimizer="nelder-mead"`` and ``optimizer="scipy-nelder-mead"``.
+            ``optimizer="nelder-mead"`` and ``"multistart-simplex"``.
+        n_jobs (int): Number of independent model evaluations to run
+            concurrently via ``joblib``. ``1`` (default) runs sequentially
+            in-process, matching prior behavior exactly. Used by
+            ``optimizer="nelder-mead"``'s restarts, by ``optimizer="optuna"``
+            (trials evaluated in reproducible batches of ``n_jobs``) and by
+            :func:`~simpest.models.fr_sensitivity.run_morris_sensitivity`'s
+            trajectory evaluations; each independent unit of work gets its own
+            worker process, so results are unaffected beyond wall-clock time.
         crop_parameters (dict): Raw crop parameter spec dict for ``crop_type``,
             loaded from ``crop_param_file`` at construction. Editable in place;
             pass it through :func:`deactivate_calibration` to turn off
@@ -141,8 +289,18 @@ class FranchestynConfig:
     use_gdd: bool = False
     use_prev_day_alignment: bool = True
     all_row_includes_end_year: bool = False
+    weather_time_step: str = "daily"
+    latitude: float = 0.0
+    rain_limited_primary_inoculum: bool = False
+    htt_state_dry_decay: float = 1.0
+    carry_dry_counter: bool = False
+    upper_leaf_pool: bool = False
+    upper_leaf_cycle_start: float = 36.0
+    upper_leaf_cycle_full: float = 52.0
+    score_harvest_after_maturity: bool = False
     n_restarts: int = 1
     max_iter: int = 100
+    n_jobs: int = 1
     crop_disabled_params: frozenset[str] = frozenset()
     disease_disabled_params: frozenset[str] = frozenset()
 
@@ -200,6 +358,8 @@ def _outputs_to_records(date_outputs):
                 "Affected": out.disease.affected_sum,
                 "Dead": out.disease.dead_sum,
                 "DiseaseSeverity": out.disease.disease_severity,
+                "UpperLeafEmerged": out.disease.upper_leaf_emerged,
+                "UpperLeafSeverity": out.disease.upper_leaf_severity,
                 "FungicideEfficacy": out.fungicide.efficacy,
                 "Tmax": out.inputs_daily.tmax if out.inputs_daily else None,
                 "Tmin": out.inputs_daily.tmin if out.inputs_daily else None,
@@ -220,7 +380,7 @@ def _build_franchestyn_runner(
     config: FranchestynConfig,
     weather_df: pd.DataFrame,
     management_df: pd.DataFrame,
-    crop_model_df: pd.DataFrame,
+    crop_model_df: pd.DataFrame | None,
     ref_df: pd.DataFrame,
     crop_param_file: str | None = None,
     disease_param_file: str | None = None,
@@ -241,7 +401,8 @@ def _build_franchestyn_runner(
         config (FranchestynConfig): Simulation configuration object.
         weather_df (pd.DataFrame): In-memory weather input.
         management_df (pd.DataFrame): In-memory management input.
-        crop_model_df (pd.DataFrame): In-memory crop model input.
+        crop_model_df (pd.DataFrame|None): In-memory external crop-model
+            series, or ``None`` to grow the crop with the internal crop model.
         ref_df (pd.DataFrame): In-memory reference input.
         crop_param_file (str|None, optional): Path to crop parameter file.
         disease_param_file (str|None, optional): Path to disease parameter file.
@@ -258,8 +419,8 @@ def _build_franchestyn_runner(
         raise ValueError("weather_df must be a non-empty DataFrame.")
     if management_df is None or management_df.empty:
         raise ValueError("management_df must be a non-empty DataFrame.")
-    if crop_model_df is None or crop_model_df.empty:
-        raise ValueError("crop_model_df must be a non-empty DataFrame.")
+    if crop_model_df is not None and crop_model_df.empty:
+        raise ValueError("crop_model_df must be None (internal crop model) or a non-empty DataFrame.")
     if ref_df is None or ref_df.empty:
         raise ValueError("ref_df must be a non-empty DataFrame.")
 
@@ -271,7 +432,9 @@ def _build_franchestyn_runner(
     with tempfile.TemporaryDirectory(prefix="simpest_franchestyn_") as tmp_dir:
         weather_input = _write_temp_csv(weather_df, tmp_dir, "weather.csv")
         management_input = _write_temp_csv(management_df, tmp_dir, "management.csv")
-        crop_model_input = _write_temp_csv(crop_model_df, tmp_dir, "crop_model.csv")
+        crop_model_input = (
+            None if crop_model_df is None else _write_temp_csv(crop_model_df, tmp_dir, "crop_model.csv")
+        )
         reference_input = _write_temp_csv(ref_df, tmp_dir, "reference.csv")
 
         runner = FranchestynRunner(
@@ -285,7 +448,15 @@ def _build_franchestyn_runner(
             disease=config.disease,
             start_year=start_year,
             end_year=end_year,
-            weather_time_step="daily",
+            weather_time_step=config.weather_time_step,
+            latitude=config.latitude,
+            rain_limited_primary_inoculum=config.rain_limited_primary_inoculum,
+            htt_state_dry_decay=config.htt_state_dry_decay,
+            carry_dry_counter=config.carry_dry_counter,
+            upper_leaf_pool=config.upper_leaf_pool,
+            upper_leaf_cycle_start=config.upper_leaf_cycle_start,
+            upper_leaf_cycle_full=config.upper_leaf_cycle_full,
+            score_harvest_after_maturity=config.score_harvest_after_maturity,
             calibration_variable=config.calibration_variable,
             is_calibration=config.is_calibration,
             use_gdd=config.use_gdd,
@@ -304,17 +475,56 @@ def _build_franchestyn_runner(
         yield runner
 
 
+def build_runner(
+    start_year: int,
+    end_year: int,
+    config: FranchestynConfig,
+    weather_df: pd.DataFrame,
+    management_df: pd.DataFrame,
+    crop_model_df: pd.DataFrame | None,
+    ref_df: pd.DataFrame,
+    crop_param_file: str | None = None,
+    disease_param_file: str | None = None,
+    fungicide_param_file: str | None = None,
+) -> FranchestynRunner:
+    """
+    Build a standalone :class:`FranchestynRunner` the caller owns.
+
+    Unlike :func:`_build_franchestyn_runner`, the returned runner outlives the
+    temporary input CSVs: its weather series is parsed once (and cached, see
+    :meth:`FranchestynRunner._load_weather`) while the temp directory is still
+    alive, then the runner is handed back with no further dependency on disk.
+
+    Reuse the same runner across an entire calibration session — every stage
+    of a staged sweep, every forward-model check, every calibration restart —
+    via ``run_franchestyn(..., runner=this_runner)`` instead of rebuilding a
+    fresh runner (and re-parsing weather/sowing/reference data) on every call.
+
+    Args mirror :func:`run_franchestyn`.
+
+    Returns:
+        FranchestynRunner: A runner with its weather series already cached.
+    """
+    with _build_franchestyn_runner(
+        start_year, end_year, config, weather_df, management_df, crop_model_df,
+        ref_df, crop_param_file, disease_param_file, fungicide_param_file,
+    ) as runner:
+        runner._load_weather()  # populate the weather cache before the temp CSVs vanish
+        return runner
+
+
 def run_franchestyn(
     start_year: int,
     end_year: int,
     config: FranchestynConfig,
     weather_df: pd.DataFrame,
     management_df: pd.DataFrame,
-    crop_model_df: pd.DataFrame,
+    crop_model_df: pd.DataFrame | None,
     ref_df: pd.DataFrame,
     crop_param_file: str | None = None,
     disease_param_file: str | None = None,
     fungicide_param_file: str | None = None,
+    runner: FranchestynRunner | None = None,
 ) -> dict:
     """
     Run the crop-disease-fungicide simulation with in-memory DataFrame inputs.
@@ -325,41 +535,50 @@ def run_franchestyn(
         config (FranchestynConfig): Simulation configuration object.
         weather_df (pd.DataFrame): In-memory weather input.
         management_df (pd.DataFrame): In-memory management input.
-        crop_model_df (pd.DataFrame): In-memory crop model input.
+        crop_model_df (pd.DataFrame|None): In-memory external crop-model
+            series, or ``None`` to grow the crop with the internal crop model.
         ref_df (pd.DataFrame): In-memory reference input.
         crop_param_file (str|None, optional): Path to crop parameter file.
         disease_param_file (str|None, optional): Path to disease parameter file.
         fungicide_param_file (str|None, optional): Path to fungicide parameter file.
+        runner (FranchestynRunner|None, optional): A pre-built runner (from
+            :func:`build_runner`) to reuse instead of constructing a new one.
+            When given, ``weather_df``/``management_df``/``crop_model_df``/
+            ``ref_df``/``*_param_file`` are ignored for construction purposes
+            (the runner already has its own data) — only ``config``'s current
+            parameter specs are applied, via
+            :meth:`FranchestynRunner.update_param_specs`, before running.
+            This skips the temp-CSV write and full runner rebuild that
+            constructing a fresh runner requires, so repeated calls in a
+            calibration loop don't re-parse weather/sowing/reference data
+            every time.
 
     Returns:
         dict: Dictionary with simulation outputs and summary.
     """
-    with _build_franchestyn_runner(
-        start_year, end_year, config, weather_df, management_df, crop_model_df,
-        ref_df, crop_param_file, disease_param_file, fungicide_param_file,
-    ) as runner:
-        best_params = {}
-        if config.is_calibration:
-            disabled_by_class = {
-                "crop": set(config.crop_disabled_params),
-                "disease": set(config.disease_disabled_params),
-            }
-            optimizer = build_optimizer(
-                config.optimizer, runner, config, disabled_by_class
-            )
-            best_params = optimizer.calibrate()
-            date_outputs = runner.run(param_values=best_params)
-        else:
-            date_outputs = runner.run()
-
+    if runner is not None:
+        runner.update_param_specs(
+            config.crop_parameters, config.disease_parameters, config.fungicide_parameters,
+        )
+        best_params, date_outputs = _calibrate_or_run(runner, config)
         include_crop = config.calibration_variable in ("crop", "all")
         include_disease = config.calibration_variable in ("disease", "all")
         rmse = runner.compute_rmse(
-            date_outputs,
-            include_crop=include_crop,
-            include_disease=include_disease,
+            date_outputs, include_crop=include_crop, include_disease=include_disease,
         )
         records = _outputs_to_records(date_outputs)
+    else:
+        with _build_franchestyn_runner(
+            start_year, end_year, config, weather_df, management_df, crop_model_df,
+            ref_df, crop_param_file, disease_param_file, fungicide_param_file,
+        ) as built_runner:
+            best_params, date_outputs = _calibrate_or_run(built_runner, config)
+            include_crop = config.calibration_variable in ("crop", "all")
+            include_disease = config.calibration_variable in ("disease", "all")
+            rmse = built_runner.compute_rmse(
+                date_outputs, include_crop=include_crop, include_disease=include_disease,
+            )
+            records = _outputs_to_records(date_outputs)
 
     return {
         "outputs": {
@@ -372,6 +591,27 @@ def run_franchestyn(
             },
         }
     }
+
+
+def _calibrate_or_run(runner: FranchestynRunner, config: FranchestynConfig):
+    """Run ``runner`` per ``config``, calibrating first if requested.
+
+    Returns:
+        tuple[dict, dict]: ``(best_params, date_outputs)``, where
+        ``best_params`` is empty when ``config.is_calibration`` is ``False``.
+    """
+    best_params = {}
+    if config.is_calibration:
+        disabled_by_class = {
+            "crop": set(config.crop_disabled_params),
+            "disease": set(config.disease_disabled_params),
+        }
+        optimizer = build_optimizer(config.optimizer, runner, config, disabled_by_class)
+        best_params = optimizer.calibrate()
+        date_outputs = runner.run(param_values=best_params)
+    else:
+        date_outputs = runner.run()
+    return best_params, date_outputs
 
 
 def save_simulation_results_csv(res_ot_simulation, output_root: Path, filename: str = "franchestyn_simulation_results.csv") -> Path:

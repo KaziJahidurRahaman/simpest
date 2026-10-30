@@ -1,0 +1,20 @@
+crop_year,S0,S0_extrapolated,S26,S26_extrapolated,Sf,Y0,Y0_extrapolated,Y26,Y26_extrapolated,Yf,T8_days,AUDPC_S_table6,AUDPC_Y_table6,rS,rY,replicates_table5,AUDPC_Y_table5,AUDPC_S_table5,AUDPC_Y_recommended,note
+1973,5.4,False,9.1,False,9.4,0.31,False,0.92,False,0.98,18,290,2.59,0.137,0.020,,,,22.59,"original data lost, only assessment means survive (paper, Materials and Methods); Table 6 AUDPC_Y 2.59 is a misprint for 22.59 (the paper's 1973-1985 mean of 11.80 requires it)"
+1974,4.7,False,9.2,False,9.5,0.22,False,0.87,False,0.99,22,300,22.56,0.161,0.021,4,22.56,299.9,22.56,
+1975,4.5,False,8.4,False,9.1,0.20,False,0.80,False,0.88,22,213,14.58,0.180,0.022,4,7.29,106.6,,"Tables 5 and 6 disagree on AUDPC; Table 6 Sf/Yf appear swapped with 1976 (Figs. 1-2 show 1975 ending near S=7.8); neither table's AUDPC matches the Fig. 2 curve, so no recommended value"
+1976,3.0,False,6.9,False,7.8,0.09,False,0.51,False,0.59,35,170,7.65,0.124,0.010,4,5.27,136.1,,"Tables 5 and 6 disagree on AUDPC; Table 6 Sf/Yf appear swapped with 1975 (Figs. 1-2 show 1976 ending near S=9, Y=0.9); neither table's AUDPC matches the Fig. 2 curve, so no recommended value"
+1977,0.0,True,8.1,False,8.3,0.00,True,0.69,False,0.70,26,97,6.98,0.237,0.033,4,6.98,97.4,6.98,
+1978,4.3,False,7.0,True,6.8,0.24,False,0.49,True,0.48,36,144,7.87,0.105,0.012,4,7.87,143.8,7.87,
+1979,2.5,False,8.2,True,8.1,0.04,False,0.79,True,0.72,25,143,8.19,0.212,0.020,,,,8.19,
+1980,1.6,False,7.0,False,8.9,0.02,False,0.52,False,0.87,33,204,13.29,0.185,0.019,,,,13.29,"original data lost, only assessment means survive (paper, Materials and Methods)"
+1981,6.7,False,9.0,False,9.4,0.49,False,0.90,False,0.99,14,360,29.54,0.112,0.017,4,29.54,360.5,29.54,
+1982,0.0,True,6.2,False,7.7,0.00,True,0.44,False,0.62,34,69,3.48,0.275,0.025,2,3.48,68.7,3.48,
+1983,4.4,False,7.8,False,8.1,0.18,False,0.65,False,0.71,26,208,12.56,0.161,0.017,4,12.56,207.7,12.56,
+1984,3.0,False,6.9,True,5.9,0.07,False,0.44,True,0.36,34,82,3.41,0.152,0.014,4,3.41,81.9,3.41,
+1985,0.0,False,3.4,False,4.0,0.00,False,0.11,False,0.17,41,21,0.65,0.301,0.019,4,0.65,21.0,0.65,"only two assessment dates (paper, Fig. 1 caption)"
+1986,0.0,True,6.6,False,9.0,0.00,True,0.53,False,0.80,31,93,4.81,0.272,0.027,3,4.81,93.4,4.81,
+1987,2.6,False,8.5,True,8.0,0.04,False,0.69,True,0.67,24,131,8.10,0.246,0.026,4,8.1,131.2,8.1,
+1988,2.1,False,4.8,True,3.2,0.06,False,0.20,True,0.09,60,34,0.81,0.114,0.006,4,0.81,35.4,0.81,
+1989,2.1,False,8.3,False,8.8,0.04,False,0.74,False,0.84,28,175,11.13,0.200,0.019,4,11.13,175.1,11.13,
+1990,4.7,False,8.0,False,9.0,0.24,False,0.69,False,0.87,26,275,20.21,0.139,0.018,4,20.22,274.8,20.22,
+1991,2.9,False,9.0,False,9.0,0.11,False,0.88,False,0.88,21,102,6.10,0.202,0.026,4,12.36,183.0,12.36,"Tables 5 and 6 disagree on AUDPC; Table 5 (12.36) agrees with the Fig. 2 curve, Table 6 (6.10) does not"

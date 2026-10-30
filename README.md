@@ -88,14 +88,15 @@ print(result["outputs"]["summary"])
 
 For the full pipeline — running SIMPLACE first and converting its output into
 the DataFrames above — see the example notebooks at
-[`docs/examples/1_Run Simpest.ipynb`](docs/examples/1_Run%20Simpest.ipynb) and
-[`docs/examples/2_Plot.ipynb`](docs/examples/2_Plot.ipynb).
+[`notebooks/1_Run Simpest.ipynb`](notebooks/1_Run%20Simpest.ipynb) and
+[`notebooks/2_Plot.ipynb`](notebooks/2_Plot.ipynb).
 
 ## Directory layout
 
 ```text
 simpest/
-|- docs/                # MkDocs documentation site and example notebooks
+|- docs/                # MkDocs documentation site (docs/examples links to notebooks/)
+|- notebooks/           # demonstration notebooks and their data; they only import simpest
 |- simpest/
 |  |- common.py
 |  |- simpest.py
@@ -107,6 +108,10 @@ simpest/
 |     |- fr_disease_model.py # SEIR disease model
 |     |- fr_fungicide_model.py
 |     |- fr_optimizer.py     # multi-start Nelder-Mead calibration
+|     |- fr_session.py       # repeated runs on one set of inputs (runner built once)
+|     |- fr_inputs.py        # FraNchEstYN input frames from external crop-model arrays
+|     |- fr_diagnostics.py   # simulated vs observed matching and per-season errors
+|     |- observed_yield.py   # observed-yield reading, trends and detrending
 |     |- fr_data.py          # input/output/parameter data structures
 |     |- fr_*_reader.py      # weather, parameter, and reference data readers
 |- tests/
@@ -122,7 +127,7 @@ Full documentation, including the API reference, is published at
 
 - [Installation](docs/installation.md)
 - [Usage](docs/usage.md)
-- [Examples](docs/examples/1_Run%20Simpest.ipynb)
+- [Examples](notebooks/1_Run%20Simpest.ipynb)
 - [API Reference](docs/simpest.md)
 - [Contributing](docs/contributing.md)
 - [Changelog](docs/changelog.md)

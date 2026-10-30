@@ -92,6 +92,40 @@ Ready to contribute? Here's how to set up simpest for local development.
 
 7.  Submit a pull request through the GitHub website.
 
+## Package code and notebooks
+
+The repository keeps two things apart:
+
+- `simpest/` is the package. All functionality lives here: models, input
+  builders, calibration, statistics and diagnostics.
+- `notebooks/` holds the demonstration notebooks. They import `simpest`
+  and only set inputs, call package functions, plot and explain. The docs
+  site renders them through the `docs/examples` link.
+
+To change or add functionality that a notebook uses:
+
+1.  Change the code in `simpest/`, with tests in `tests/` and a docs page
+    under `docs/models/` if you add a module.
+2.  Run the tests:
+
+    ```shell
+    $ python -m unittest discover tests
+    ```
+
+3.  Reinstall the package into the notebook environment. The notebook
+    environment uses a regular (non-editable) install, so it only sees a
+    change after this step:
+
+    ```shell
+    $ pip install --no-deps --force-reinstall .
+    ```
+
+4.  Restart the notebook kernel and use the new functionality through
+    `import simpest`.
+
+Do not copy package logic into a notebook cell. If a notebook needs
+something the package does not do yet, add it to the package first.
+
 ## Pull Request Guidelines
 
 Before you submit a pull request, check that it meets these guidelines:

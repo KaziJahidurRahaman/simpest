@@ -10,7 +10,15 @@ shipped with torchcrop (``docs/examples/torchcrop-docs/examples/data/brandenburg
                               SMI, SMLOWI, RDMSO, RUNFR, CFEV, KSUB, NMINS,
                               PMINS, KMINS, RTNMINS, RTPMINS, RTKMINS
         weather/<id>.csv      daily: Date, TempMean, TempMin, TempMax,
-                              Radiation, Precipitation, VapPressure, Windspeed
+                              Radiation, Precipitation, VapPressure, Windspeed,
+                              RHmax, RHmin
+        weather_hourly/<id>.csv.gz  (only with ``--hourly``) hourly: date, hour,
+                              temp, rh, prec, rad -- the layout
+                              ``simpest``'s hourly weather reader expects
+
+torchcrop itself only reads the first eight daily columns; ``RHmax``/``RHmin``
+and the hourly file are there for the FraNchEstYN disease model, whose
+infection and leaf-wetness logic needs humidity.
 
 Only ``weather`` is a genuine per-day fetch. ``site``/``soil`` are single
 static rows assembled from a handful of lookups plus the generic LINTUL5/
@@ -55,10 +63,11 @@ SOILGRIDS_URL = "https://rest.isric.org/soilgrids/v2.0/properties/query"
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/reverse"
 USER_AGENT = "torchcrop-dataset-builder/1.0 (research use; contact via repo issue tracker)"
 
-# NOAA GML Mauna Loa annual mean atmospheric CO2 (ppm), 1970-2000. Static
+# NOAA GML Mauna Loa annual mean atmospheric CO2 (ppm), 1970-2015. Static
 # reference table (not live-fetched) -- copied verbatim from
 # https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_annmean_mlo.txt
-# (fetched 2026-08-11). NOAA revises earlier years occasionally as they
+# (fetched 2026-08-11; 2001-2015 added from the same file, fetched 2026-10-20,
+# whose 1970-2000 values were unchanged). NOAA revises earlier years occasionally as they
 # recalibrate reference gas mixtures, so re-pull that file if exactness
 # against the current published series matters.
 MAUNA_LOA_ANNUAL_CO2 = {
@@ -68,7 +77,10 @@ MAUNA_LOA_ANNUAL_CO2 = {
     1985: 346.35, 1986: 347.61, 1987: 349.31, 1988: 351.69, 1989: 353.20,
     1990: 354.45, 1991: 355.70, 1992: 356.54, 1993: 357.21, 1994: 358.96,
     1995: 360.97, 1996: 362.74, 1997: 363.88, 1998: 366.84, 1999: 368.54,
-    2000: 369.71,
+    2000: 369.71, 2001: 371.32, 2002: 373.45, 2003: 375.98, 2004: 377.70,
+    2005: 379.98, 2006: 382.09, 2007: 384.02, 2008: 385.83, 2009: 387.64,
+    2010: 390.10, 2011: 391.85, 2012: 394.06, 2013: 396.74, 2014: 398.81,
+    2015: 401.01,
 }
 
 # Soil parameters that the Brandenburg reference set holds constant across all
@@ -309,12 +321,8 @@ def fetch_daily_block(lat: float, lon: float, start_date: str, end_date: str) ->
     )
 
 
-def fetch_hourly_derived_block(lat: float, lon: float, start_date: str, end_date: str) -> pd.DataFrame:
-    """Daily-mean actual vapour pressure [kPa] and 2m wind speed [m/s].
-
-    Both are derived from hourly fields since Open-Meteo's daily archive
-    endpoint doesn't expose a daily mean humidity or wind speed directly.
-    """
+def fetch_hourly_block(lat: float, lon: float, start_date: str, end_date: str) -> pd.DataFrame:
+    """Raw hourly temperature, RH, wind, precipitation and radiation."""
     data = http_get_json(
         ARCHIVE_URL,
         {
@@ -322,7 +330,8 @@ def fetch_hourly_derived_block(lat: float, lon: float, start_date: str, end_date
             "longitude": lon,
             "start_date": start_date,
             "end_date": end_date,
-            "hourly": "temperature_2m,relative_humidity_2m,wind_speed_10m",
+            "hourly": "temperature_2m,relative_humidity_2m,wind_speed_10m,"
+                      "precipitation,shortwave_radiation",
             "wind_speed_unit": "ms",
             "timezone": "auto",
         },
@@ -334,10 +343,22 @@ def fetch_hourly_derived_block(lat: float, lon: float, start_date: str, end_date
             "temperature_2m": h["temperature_2m"],
             "relative_humidity_2m": h["relative_humidity_2m"],
             "wind_speed_10m": h["wind_speed_10m"],
+            "precipitation": h["precipitation"],
+            "shortwave_radiation": h["shortwave_radiation"],
         }
     )
     df["Date"] = df["datetime"].str.slice(0, 10)
+    return df
 
+
+def derive_daily_from_hourly(df: pd.DataFrame) -> pd.DataFrame:
+    """Daily-mean actual vapour pressure [kPa], 2m wind speed [m/s], and daily
+    RH extremes [%].
+
+    All are derived from hourly fields since Open-Meteo's daily archive
+    endpoint doesn't expose daily humidity or mean wind speed directly.
+    """
+    df = df.copy()
     t = df["temperature_2m"].astype(float)
     rh = df["relative_humidity_2m"].astype(float)
     sat_vp = 0.6108 * np.exp(17.27 * t / (t + 237.3))  # Tetens/FAO-56, kPa
@@ -347,8 +368,28 @@ def fetch_hourly_derived_block(lat: float, lon: float, start_date: str, end_date
     daily = df.groupby("Date", as_index=False).agg(
         VapPressure=("vap_pressure", "mean"),
         Windspeed=("wind_2m", "mean"),
+        RHmax=("relative_humidity_2m", "max"),
+        RHmin=("relative_humidity_2m", "min"),
     )
     return daily
+
+
+def hourly_for_simpest(df: pd.DataFrame) -> pd.DataFrame:
+    """Hourly records in the column layout of ``simpest``'s hourly weather reader.
+
+    Open-Meteo's hourly ``shortwave_radiation`` is the mean flux over the
+    preceding hour [W m-2]; x 0.0036 turns it into an hourly sum [MJ m-2 h-1].
+    """
+    return pd.DataFrame(
+        {
+            "date": df["Date"],
+            "hour": df["datetime"].str.slice(11, 13).astype(int),
+            "temp": df["temperature_2m"].astype(float).round(1),
+            "rh": df["relative_humidity_2m"].astype(float).round(0),
+            "prec": df["precipitation"].astype(float).round(1),
+            "rad": (df["shortwave_radiation"].astype(float) * 0.0036).round(3),
+        }
+    )
 
 
 def year_chunks(start_year: int, end_year: int, chunk_years: int):
@@ -359,16 +400,21 @@ def year_chunks(start_year: int, end_year: int, chunk_years: int):
         y = y_end + 1
 
 
-def fetch_weather(lat: float, lon: float, start_year: int, end_year: int, chunk_years: int, sleep_s: float) -> pd.DataFrame:
+def fetch_weather(lat: float, lon: float, start_year: int, end_year: int, chunk_years: int, sleep_s: float):
+    """Return ``(daily, hourly)``: the torchcrop daily table and the hourly
+    records in simpest's hourly layout."""
     frames = []
+    hourly_frames = []
     chunks = list(year_chunks(start_year, end_year, chunk_years))
     for i, (y0, y1) in enumerate(chunks, 1):
         start_date, end_date = f"{y0}-01-01", f"{y1}-12-31"
         print(f"  [{i}/{len(chunks)}] fetching {start_date}..{end_date}")
         daily = fetch_daily_block(lat, lon, start_date, end_date)
         time.sleep(sleep_s)
-        derived = fetch_hourly_derived_block(lat, lon, start_date, end_date)
+        hourly = fetch_hourly_block(lat, lon, start_date, end_date)
         time.sleep(sleep_s)
+        hourly_frames.append(hourly_for_simpest(hourly))
+        derived = derive_daily_from_hourly(hourly)
         merged = daily.merge(derived, on="Date", how="left")
         frames.append(merged)
 
@@ -394,7 +440,17 @@ def fetch_weather(lat: float, lon: float, start_year: int, end_year: int, chunk_
     weather["Precipitation"] = weather["Precipitation"].round(1)
     weather["VapPressure"] = weather["VapPressure"].round(2)
     weather["Windspeed"] = weather["Windspeed"].round(1)
-    return weather[["Date", "TempMean", "TempMin", "TempMax", "Radiation", "Precipitation", "VapPressure", "Windspeed"]]
+    weather["RHmax"] = weather["RHmax"].round(0)
+    weather["RHmin"] = weather["RHmin"].round(0)
+    daily = weather[["Date", "TempMean", "TempMin", "TempMax", "Radiation", "Precipitation",
+                     "VapPressure", "Windspeed", "RHmax", "RHmin"]]
+
+    hourly = pd.concat(hourly_frames, ignore_index=True)
+    if hourly.duplicated(subset=["date", "hour"]).any():
+        raise RuntimeError("hourly series has duplicate (date, hour) rows -- check the timezone.")
+    value_cols = ["temp", "rh", "prec", "rad"]
+    hourly[value_cols] = hourly[value_cols].interpolate(limit=3, limit_direction="both")
+    return daily, hourly
 
 
 def write_csv(rows, columns, path: Path) -> None:
@@ -415,12 +471,14 @@ def main() -> None:
     parser.add_argument("--location-id", type=int, default=0, help="Numeric id used for weather/<id>.csv and the 'location' column")
     parser.add_argument("--location-name", type=str, default="west_lafayette_in", help="Output subfolder name")
     parser.add_argument("--idpl", type=int, default=270, help="Sowing day-of-year (270 = late Sept, matches the Brandenburg winter-wheat reference)")
-    parser.add_argument("--out-dir", type=Path, default=None, help="Output torchcrop/ dir (default: docs/examples/data/<location-name>/torchcrop)")
+    parser.add_argument("--out-dir", type=Path, default=None, help="Output torchcrop/ dir (default: notebooks/data/<location-name>/torchcrop)")
     parser.add_argument("--chunk-years", type=int, default=5, help="Years per API request block")
     parser.add_argument("--sleep", type=float, default=1.0, help="Seconds to sleep between API requests")
+    parser.add_argument("--hourly", action="store_true",
+                        help="Also write weather_hourly/<id>.csv.gz (hourly temp/RH/rain/radiation for simpest)")
     args = parser.parse_args()
 
-    out_dir = args.out_dir or Path("docs/examples/data") / args.location_name / "torchcrop"
+    out_dir = args.out_dir or Path("notebooks/data") / args.location_name / "torchcrop"
     print(f"Output directory: {out_dir}")
 
     co2_years = [y for y in range(args.start_year, args.end_year + 1) if y in MAUNA_LOA_ANNUAL_CO2]
@@ -438,7 +496,7 @@ def main() -> None:
     soil_row = build_soil_row(args.location_id, args.lat, args.lon)
 
     print(f"Fetching daily weather {args.start_year}-{args.end_year} (Open-Meteo ERA5 archive)...")
-    weather_df = fetch_weather(args.lat, args.lon, args.start_year, args.end_year, args.chunk_years, args.sleep)
+    weather_df, hourly_df = fetch_weather(args.lat, args.lon, args.start_year, args.end_year, args.chunk_years, args.sleep)
     print(f"  {len(weather_df)} days fetched ({weather_df['Date'].iloc[0]} .. {weather_df['Date'].iloc[-1]})")
 
     site_cols = ["location", "NUTS_ID", "NUTS_NAME", "STATE_NAME", "LATITUDE", "ALTITUDE", "IDPL", "CO2"]
@@ -449,11 +507,16 @@ def main() -> None:
     write_csv([soil_row], soil_cols, out_dir / "soil" / "soil.csv")
     (out_dir / "weather").mkdir(parents=True, exist_ok=True)
     weather_df.to_csv(out_dir / "weather" / f"{args.location_id}.csv", index=False)
+    if args.hourly:
+        (out_dir / "weather_hourly").mkdir(parents=True, exist_ok=True)
+        hourly_df.to_csv(out_dir / "weather_hourly" / f"{args.location_id}.csv.gz", index=False)
 
     print("\nDone. Wrote:")
     print(f"  {out_dir / 'site' / 'site.csv'}")
     print(f"  {out_dir / 'soil' / 'soil.csv'}")
     print(f"  {out_dir / 'weather' / f'{args.location_id}.csv'}")
+    if args.hourly:
+        print(f"  {out_dir / 'weather_hourly' / f'{args.location_id}.csv.gz'}")
     print(
         "\nCaveats: soil.csv's SMDRY/SMW/SMFC/SMO/KSUB are pedotransfer-function estimates "
         "from SoilGrids texture (Saxton-Rawls 2006), not calibrated reference values -- "

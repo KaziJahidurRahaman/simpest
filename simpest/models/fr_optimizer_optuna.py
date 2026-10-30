@@ -12,6 +12,18 @@ bounds by construction.
 The search is controlled by ``n_trials`` (how many parameter sets to evaluate)
 and an optional ``timeout`` (wall-clock cap in seconds). Supplying a ``seed``
 makes the TPE sampling reproducible.
+
+``n_jobs`` fans trials out across worker *processes* rather than the threads
+Optuna's own ``study.optimize(n_jobs=...)`` would use -- threads don't help a
+CPU-bound, pure-Python objective like this one (GIL). The main process keeps
+the only study and runs a batched ask/tell loop: it asks the sampler for
+``n_jobs`` trials, evaluates them concurrently in a persistent process pool,
+and tells the results back in ask order. The sampler uses Optuna's
+"constant liar" so trials within one batch spread out instead of piling onto
+the same point. Because the order of every ask and tell is fixed, a run is
+reproducible for a given ``seed`` and ``n_jobs``. Different ``n_jobs`` values
+give different (but individually reproducible) trial sequences, because the
+batch size changes what history each ask sees.
 """
 
 from __future__ import annotations
@@ -24,6 +36,21 @@ import optuna
 
 from .fr_optimizer_base import BaseFranchestynOptimizer
 from .fr_runner import FranchestynRunner
+
+
+# Each pool worker holds one optimizer, sent once through the pool
+# initializer, so a batch only has to ship parameter vectors, not the runner
+# and its cached weather series.
+_WORKER_OPTIMIZER: Optional["OptunaOptimizer"] = None
+
+
+def _init_worker(optimizer: "OptunaOptimizer") -> None:
+    global _WORKER_OPTIMIZER
+    _WORKER_OPTIMIZER = optimizer
+
+
+def _evaluate_in_worker(x: np.ndarray) -> float:
+    return _WORKER_OPTIMIZER._evaluate_rmse(x)
 
 
 class OptunaOptimizer(BaseFranchestynOptimizer):
@@ -45,6 +72,11 @@ class OptunaOptimizer(BaseFranchestynOptimizer):
         n_trials (int): Number of parameter sets to evaluate.
         timeout (Optional[float]): Optional wall-clock limit in seconds; the
             search stops once either ``n_trials`` or ``timeout`` is reached.
+        n_jobs (int): Number of trials to evaluate concurrently in worker
+            processes. ``1`` (default) runs sequentially in-process. Larger
+            values evaluate trials in batches of ``n_jobs`` (see the module
+            docstring); results are reproducible for a fixed ``seed`` and
+            ``n_jobs``.
     """
 
     def __init__(
@@ -55,6 +87,7 @@ class OptunaOptimizer(BaseFranchestynOptimizer):
         seed: Optional[int] = None,
         n_trials: int = 100,
         timeout: Optional[float] = None,
+        n_jobs: int = 1,
     ) -> None:
         super().__init__(
             runner=runner,
@@ -64,11 +97,12 @@ class OptunaOptimizer(BaseFranchestynOptimizer):
         )
         self.n_trials = n_trials
         self.timeout = timeout
+        self.n_jobs = n_jobs
 
     @classmethod
     def from_config(cls, runner, config, disabled_by_class=None) -> "OptunaOptimizer":
         """Build from a :class:`FranchestynConfig` (reads ``n_trials`` /
-        ``optuna_timeout`` / ``seed``)."""
+        ``optuna_timeout`` / ``seed`` / ``n_jobs``)."""
         return cls(
             runner=runner,
             calibration_variable=config.calibration_variable,
@@ -76,6 +110,7 @@ class OptunaOptimizer(BaseFranchestynOptimizer):
             seed=getattr(config, "seed", None),
             n_trials=getattr(config, "n_trials", 100),
             timeout=getattr(config, "optuna_timeout", None),
+            n_jobs=getattr(config, "n_jobs", 1),
         )
 
     def calibrate(self) -> Dict[str, float]:
@@ -117,19 +152,57 @@ class OptunaOptimizer(BaseFranchestynOptimizer):
             )
             sys.stdout.flush()
 
-        sampler = optuna.samplers.TPESampler(seed=self.seed)
-        study = optuna.create_study(direction="minimize", sampler=sampler)
-        study.optimize(
-            objective,
-            n_trials=self.n_trials,
-            timeout=self.timeout,
-            show_progress_bar=False,
-            callbacks=[_progress],
-        )
+        if self.n_jobs == 1:
+            sampler = optuna.samplers.TPESampler(seed=self.seed)
+            study = optuna.create_study(direction="minimize", sampler=sampler)
+            study.optimize(
+                objective,
+                n_trials=self.n_trials,
+                timeout=self.timeout,
+                show_progress_bar=False,
+                callbacks=[_progress],
+            )
+            best_params = {key: float(study.best_params[key]) for key in self.calib_keys}
+            best_value = study.best_value
+        else:
+            import time
+            from concurrent.futures import ProcessPoolExecutor
 
-        best_params = {key: float(study.best_params[key]) for key in self.calib_keys}
+            n_workers = min(self.n_jobs, self.n_trials)
+            print(
+                f"- Evaluating trials in batches of {n_workers} across "
+                f"{n_workers} worker processes."
+            )
+            sampler = optuna.samplers.TPESampler(seed=self.seed, constant_liar=True)
+            study = optuna.create_study(direction="minimize", sampler=sampler)
+            started = time.monotonic()
 
-        print(f"\nBest RMSE: {study.best_value:.4f}")
+            with ProcessPoolExecutor(
+                max_workers=n_workers, initializer=_init_worker, initargs=(self,)
+            ) as pool:
+                while len(study.trials) < self.n_trials:
+                    if self.timeout is not None and time.monotonic() - started > self.timeout:
+                        break
+                    batch = min(n_workers, self.n_trials - len(study.trials))
+                    trials = [study.ask() for _ in range(batch)]
+                    xs = [
+                        np.array(
+                            [
+                                t.suggest_float(key, lo, hi)
+                                for key, (lo, hi) in zip(self.calib_keys, self.bounds)
+                            ],
+                            dtype=float,
+                        )
+                        for t in trials
+                    ]
+                    for trial, value in zip(trials, pool.map(_evaluate_in_worker, xs)):
+                        study.tell(trial, value)
+                        _progress(study, study.trials[trial.number])
+
+            best_params = {key: float(study.best_params[key]) for key in self.calib_keys}
+            best_value = study.best_value
+
+        print(f"\nBest RMSE: {best_value:.4f}")
         print(best_params)
 
         return best_params

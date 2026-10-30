@@ -53,7 +53,7 @@ import pandas as pd
 # --------------------------------------------------------------------------
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
-EX = REPO / "docs" / "examples" / "data"
+EX = REPO / "notebooks" / "data"
 CS_DIR = REPO / "franchestyn_ref" / "src_csharp" / "FraNchEstYN" / "FraNchEstYN" / "bin" / "Debug" / "net8.0"
 CS_EXE = CS_DIR / "FraNchEstYN.exe"
 

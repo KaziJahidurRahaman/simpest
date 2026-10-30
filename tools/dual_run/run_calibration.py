@@ -243,7 +243,7 @@ def main() -> None:
     ap.add_argument("--restarts", type=int, default=1, help="Python n_restarts (nelder-mead)")
     ap.add_argument("--iters", type=int, default=100, help="Python max_iter (nelder-mead)")
     ap.add_argument("--seed", type=int, default=0, help="Python RNG seed")
-    ap.add_argument("--optimizer", choices=["nelder-mead", "scipy-nelder-mead", "optuna"],
+    ap.add_argument("--optimizer", choices=["nelder-mead", "optuna"],
                     default="nelder-mead", help="Python calibration optimizer")
     ap.add_argument("--n-trials", type=int, default=100, help="Python n_trials (optuna)")
     ap.add_argument("--cs-simplexes", type=int, default=3)
@@ -283,15 +283,9 @@ def main() -> None:
             runner=runner, calibration_variable=CALIB_VARIABLE,
             n_trials=args.n_trials, seed=args.seed,
         )
-    elif args.optimizer == "scipy-nelder-mead":
-        from simpest.models.fr_optimizer_scipy import ScipyNelderMeadOptimizer
-        opt = ScipyNelderMeadOptimizer(
-            runner=runner, calibration_variable=CALIB_VARIABLE,
-            n_restarts=args.restarts, max_iter=args.iters, seed=args.seed,
-        )
     else:
-        from simpest.models.fr_optimizer import FranchestynOptimizer
-        opt = FranchestynOptimizer(
+        from simpest.models.fr_optimizer import NelderMeadOptimizer
+        opt = NelderMeadOptimizer(
             runner=runner, calibration_variable=CALIB_VARIABLE,
             n_restarts=args.restarts, max_iter=args.iters, seed=args.seed,
         )

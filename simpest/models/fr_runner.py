@@ -91,6 +91,29 @@ class FranchestynRunner:
             applied. Defaults to ``False`` (the final year is omitted); set
             ``True`` to apply it through ``end_year`` inclusive. Has no effect
             for per-year sowing CSVs.
+        rain_limited_primary_inoculum (bool): Scale primary (external) infection
+            by rain detachment for splash-borne diseases. Defaults to ``False``
+            (C# behaviour). See :class:`~simpest.models.fr_data.Parameters`.
+        htt_state_dry_decay (float): Fraction of accumulated hydro-thermal time
+            surviving a dry-interrupted day. Defaults to ``1.0`` (C# behaviour,
+            no decay). See :class:`~simpest.models.fr_data.Parameters`.
+        carry_dry_counter (bool): Carry the dry-hour counter across midnight.
+            Defaults to ``False`` (C# behaviour), where the counter resets with
+            each daily output and so never exceeds 23, making
+            ``DryCriticalInterruption`` values above 23 inert.
+        upper_leaf_pool (bool): Track a second tissue pool for the upper
+            leaves and use its severity in the calibration objective. Defaults
+            to ``False`` (C# behaviour). See
+            :class:`~simpest.models.fr_data.Parameters`.
+        upper_leaf_cycle_start (float): Crop cycle percentage at which the
+            upper leaves start to emerge.
+        upper_leaf_cycle_full (float): Crop cycle percentage at which the
+            upper leaves are fully emerged.
+        score_harvest_after_maturity (bool): Score a yield observation dated
+            after the simulated crop has matured against the season's final
+            simulated yield. Defaults to ``False`` (C# behaviour), where such an
+            observation is compared with zero output and, being a zero yield
+            after maturity, gets the ×1000 penalty. See :meth:`compute_rmse`.
     """
 
     def __init__(
@@ -121,6 +144,13 @@ class FranchestynRunner:
         use_gdd: bool = False,
         use_prev_day_alignment: bool = True,
         all_row_includes_end_year: bool = False,
+        rain_limited_primary_inoculum: bool = False,
+        htt_state_dry_decay: float = 1.0,
+        carry_dry_counter: bool = False,
+        upper_leaf_pool: bool = False,
+        upper_leaf_cycle_start: float = 36.0,
+        upper_leaf_cycle_full: float = 52.0,
+        score_harvest_after_maturity: bool = False,
     ) -> None:
         self.weather_dir = weather_dir
         self.param_file = param_file
@@ -139,6 +169,13 @@ class FranchestynRunner:
         self.disease_type = disease_type
         self.fungicide_type = fungicide_type
         self.use_gdd = use_gdd
+        self.rain_limited_primary_inoculum = rain_limited_primary_inoculum
+        self.htt_state_dry_decay = htt_state_dry_decay
+        self.carry_dry_counter = carry_dry_counter
+        self.upper_leaf_pool = upper_leaf_pool
+        self.upper_leaf_cycle_start = upper_leaf_cycle_start
+        self.upper_leaf_cycle_full = upper_leaf_cycle_full
+        self.score_harvest_after_maturity = score_harvest_after_maturity
         self.use_prev_day_alignment = use_prev_day_alignment
         self.all_row_includes_end_year = all_row_includes_end_year
 
@@ -198,6 +235,13 @@ class FranchestynRunner:
         if crop_model_dir:
             self.crop_model_data = read_crop_model_data(crop_model_dir, use_gdd=self.use_gdd)
 
+        # Populated lazily by _load_weather() and reused for the runner's
+        # lifetime — weather_dir/site/start_year/end_year/latitude never
+        # change after construction, so re-parsing on every run() call (as
+        # calibration does, once per objective evaluation) is pure waste.
+        self._weather_cache: Optional[Dict[datetime, InputsHourly]] = None
+        self._weather_hours_cache: Optional[List[datetime]] = None
+
     # -----------------------------------------------------------------------
     # Public API
     # -----------------------------------------------------------------------
@@ -219,6 +263,7 @@ class FranchestynRunner:
         """
         parameters = self._build_parameters(param_values or {})
         weather_data = self._load_weather()
+        weather_hours = self._weather_hours()
 
         date_outputs: Dict[datetime, Outputs] = {}
 
@@ -236,7 +281,7 @@ class FranchestynRunner:
         is_planted = False
         last_treatment_date = datetime(1900, 1, 1)
 
-        for hour_dt in sorted(weather_data.keys()):
+        for hour_dt in weather_hours:
             year = hour_dt.year
             if year < self.start_year or year > self.end_year:
                 output = Outputs()
@@ -291,6 +336,10 @@ class FranchestynRunner:
                     output_t1.disease.is_primary_inoculum_started = (
                         output.disease.is_primary_inoculum_started
                     )
+                    if self.carry_dry_counter:
+                        # Optional: let a dry spell span midnight instead of
+                        # resetting with the daily output (see Parameters).
+                        output_t1.disease.counter_dry = output.disease.counter_dry
                     output_t1.disease.first_seasonal_infection = (
                         output.disease.first_seasonal_infection
                     )
@@ -353,14 +402,26 @@ class FranchestynRunner:
     ) -> float:
         """Compute the root-mean-square error against reference data.
 
-        This is the calibration objective. For each simulated day that has a
-        matching reference observation, it accumulates the squared, scaled
-        errors of the selected variables — above-ground biomass, attainable and
-        actual yield, light interception, and disease severity — and returns the
-        root mean of those per-day error sums. Two penalty rules sharpen the
-        objective: a zero simulated yield at maturity where the reference is
-        positive, and a near-zero simulated light interception during the
-        growing season, are both heavily penalised.
+        This is the calibration objective, a port of the C#
+        ``Optimizer.ObjfuncVal``. Every reference observation dated within the
+        simulated years is scored: the squared, scaled errors of the selected
+        variables (above-ground biomass, attainable and actual yield, light
+        interception and disease severity) are summed per date, and the
+        result is the root mean of those per-date sums.
+
+        The simulated state an observation on day ``d`` is compared with is
+        the C# state at hour 0 of ``d`` (see :meth:`_state_at`): the output of
+        ``d - 1`` while the crop grows (previous-day alignment), and all-zero
+        output outside a season, i.e. before sowing and from the day after
+        maturity until the next sowing. An observation dated after maturity is
+        therefore compared with zero, not left out. Two penalty rules sharpen
+        the objective, as in C#: a zero simulated yield where the reference
+        is positive once the crop has matured, and a near-zero simulated light
+        interception while the crop is planted, are multiplied by 1000.
+
+        With ``score_harvest_after_maturity`` on (a simpest option, not in
+        C#), a yield observation between maturity and the next sowing is
+        compared with the season's final simulated yield instead of zero.
 
         Args:
             date_outputs (Dict[datetime, Outputs]): Daily outputs produced by
@@ -372,82 +433,72 @@ class FranchestynRunner:
 
         Returns:
             float: The root-mean-square error, rounded to three decimals; ``0.0``
-            when no reference observations overlap the simulated days.
+            when there are no reference observations in the simulated years.
         """
-        errors: List[float] = []
         ref = self.sim_unit.reference_data
+        by_date = ref.disease_date_disease_sev.get(self.disease, {})
+        series = []
+        if include_crop:
+            series += [ref.date_agb, ref.date_yield_attainable, ref.date_fint]
+        if include_disease:
+            series += [by_date, ref.date_yield_actual]
+        ref_days = sorted({
+            d for s in series for d in s
+            if self.start_year <= d.year <= self.end_year
+        })
 
-        from datetime import date as date_type
-        for hour_dt, out in date_outputs.items():
-            if hour_dt.hour != 23:
-                continue
-            # Reference keys are datetime.date; convert for lookup.
-            sim_day: date_type = hour_dt.date()
-            # Day alignment between simulated output and reference data.
-            #   Previous-day alignment (default): compare this simulated day to
-            #   the next day's reference, i.e. sim[d] vs ref[d+1], which is
-            #   equivalent to sim[d-1] vs ref[d].
-            #   Same-day alignment: sim[d] vs ref[d], matching the daily table.
-            ref_key: date_type = (
-                sim_day + timedelta(days=1)
-                if self.use_prev_day_alignment else sim_day
-            )
+        days = sorted(
+            (dt.date(), out) for dt, out in date_outputs.items() if dt.hour == 23
+        )
+        sim_dates = [d for d, _ in days]
+
+        errors: List[float] = []
+        for ref_key in ref_days:
+            out, is_planted, is_matured, last_out = self._state_at(ref_key, days, sim_dates)
             total_err = 0.0
-            has_ref = False
 
-            # Infer crop state for the penalty multipliers below
-            is_matured = out.crop.cycle_completion_percentage >= 100.0
-            is_planted = out.crop.day_after_sowing > 0 and not is_matured
+            def yield_error(yield_ref: float, sim_y: float, final_y: Optional[float]) -> float:
+                if final_y is not None:
+                    sim_y = final_y
+                err = ((yield_ref - sim_y) / 100.0) ** 2
+                # Penalty: heavily penalise zero yield at maturity when ref > 0
+                if sim_y == 0.0 and yield_ref > 0.0 and is_matured:
+                    err *= 1000.0
+                return err
+
+            # The season's final yield, for score_harvest_after_maturity.
+            harvest = last_out if (self.score_harvest_after_maturity and last_out is not None) else None
 
             if include_crop:
-                agb_err = 0.0
                 if ref_key in ref.date_agb:
-                    sim_agb = out.crop.agb_attainable
-                    agb_err = ((ref.date_agb[ref_key] - sim_agb) / 200.0) ** 2
-                    has_ref = True
-
-                yield_err = 0.0
+                    total_err += ((ref.date_agb[ref_key] - out.crop.agb_attainable) / 200.0) ** 2
                 if ref_key in ref.date_yield_attainable:
-                    sim_y = out.crop.yield_attainable
-                    yield_ref = ref.date_yield_attainable[ref_key]
-                    yield_err = ((yield_ref - sim_y) / 100.0) ** 2
-                    # Penalty: heavily penalise zero yield at maturity when ref > 0
-                    if sim_y == 0.0 and yield_ref > 0.0 and is_matured:
-                        yield_err *= 1000.0
-                    has_ref = True
-
-                fint_err = 0.0
+                    total_err += yield_error(
+                        ref.date_yield_attainable[ref_key], out.crop.yield_attainable,
+                        harvest.crop.yield_attainable if harvest else None)
                 if ref_key in ref.date_fint:
                     sim_fi = out.crop.light_interception_attainable * 100.0
                     fint_err = (ref.date_fint[ref_key] * 100.0 - sim_fi) ** 2
                     # Penalty: heavily penalise near-zero interception during the season
                     if sim_fi < 0.1 and is_planted:
                         fint_err *= 1000.0
-                    has_ref = True
-
-                total_err += agb_err + yield_err + fint_err
+                    total_err += fint_err
 
             if include_disease:
-                dis_err = 0.0
-                by_date = ref.disease_date_disease_sev.get(self.disease, {})
                 if ref_key in by_date:
-                    sim_ds = out.disease.disease_severity * 100.0
-                    dis_err = (by_date[ref_key] - sim_ds) ** 2
-                    has_ref = True
-
-                yield_err2 = 0.0
+                    # With the upper-leaf pool on, the reference severity is
+                    # taken to describe the upper leaves.
+                    if self.upper_leaf_pool:
+                        sim_ds = out.disease.upper_leaf_severity * 100.0
+                    else:
+                        sim_ds = out.disease.disease_severity * 100.0
+                    total_err += (by_date[ref_key] - sim_ds) ** 2
                 if ref_key in ref.date_yield_actual:
-                    sim_ya = out.crop.yield_actual
-                    yield_ref2 = ref.date_yield_actual[ref_key]
-                    yield_err2 = ((yield_ref2 - sim_ya) / 100.0) ** 2
-                    # Penalty: heavily penalise zero actual yield at maturity when ref > 0
-                    if sim_ya == 0.0 and yield_ref2 > 0.0 and is_matured:
-                        yield_err2 *= 1000.0
-                    has_ref = True
+                    total_err += yield_error(
+                        ref.date_yield_actual[ref_key], out.crop.yield_actual,
+                        harvest.crop.yield_actual if harvest else None)
 
-                total_err += dis_err + yield_err2
-            if has_ref:
-                errors.append(total_err)
+            errors.append(total_err)
 
         if not errors:
             return 0.0
@@ -458,11 +509,52 @@ class FranchestynRunner:
     # Private helpers
     # -----------------------------------------------------------------------
 
+    def _state_at(self, ref_day, days, sim_dates):
+        """Simulated state an observation on ``ref_day`` is compared with.
+
+        Mirrors the C# loop, which scores an observation at hour 0 of its day,
+        after the day's state update:
+
+        - while the crop grows, the output of the previous day (or of the same
+          day with ``use_prev_day_alignment=False``);
+        - on a sowing day, zero output with the crop planted;
+        - from the day after maturity until the next sowing, zero output with
+          the crop matured;
+        - before the first sowing, zero output.
+
+        Returns:
+            tuple: ``(outputs, is_planted, is_matured, last_matured)``, where
+            ``last_matured`` is the matured output of the season (``None``
+            unless the zero state follows a maturity).
+        """
+        from bisect import bisect_right
+
+        sim_day = ref_day - timedelta(days=1) if self.use_prev_day_alignment else ref_day
+        i = bisect_right(sim_dates, sim_day) - 1
+        out = days[i][1] if i >= 0 and sim_dates[i] == sim_day else None
+        if out is not None:
+            matured = out.crop.cycle_completion_percentage >= 100.0
+            if not (matured and self.use_prev_day_alignment):
+                return out, out.crop.day_after_sowing > 0 and not matured, matured, None
+
+        if self.sim_unit.year_sowing_doy.get(ref_day.year) == ref_day.timetuple().tm_yday:
+            return Outputs(), True, False, None
+        last = days[i][1] if i >= 0 else None
+        if last is not None and last.crop.cycle_completion_percentage >= 100.0:
+            return Outputs(), False, True, last
+        return Outputs(), False, False, None
+
     def _build_parameters(
         self, param_values: Dict[str, float]
     ) -> Parameters:
         """Assemble a Parameters object from CSV defaults + overrides."""
-        parameters = Parameters()
+        parameters = Parameters(
+            rain_limited_primary_inoculum=self.rain_limited_primary_inoculum,
+            htt_state_dry_decay=self.htt_state_dry_decay,
+            upper_leaf_pool=self.upper_leaf_pool,
+            upper_leaf_cycle_start=self.upper_leaf_cycle_start,
+            upper_leaf_cycle_full=self.upper_leaf_cycle_full,
+        )
 
         for key, p in self.name_param.items():
             # key = "class_ParamName", e.g. "crop_TbaseCrop"
@@ -488,7 +580,17 @@ class FranchestynRunner:
 
         If ``self.weather_dir`` is itself an existing CSV file, it is used
         directly (i.e. the caller already resolved the full path).
+
+        The parsed/synthesized hourly series is cached on the instance after
+        the first call: ``weather_dir``/``site``/``start_year``/``end_year``/
+        ``latitude`` are fixed for the runner's lifetime, so re-reading and
+        re-synthesizing (daily -> hourly involves physically based diurnal
+        curves, not just a CSV parse) on every ``run()`` call — as happens
+        once per calibration objective evaluation — would be pure waste.
         """
+        if self._weather_cache is not None:
+            return self._weather_cache
+
         wd = self.weather_dir
         if os.path.isfile(wd):
             weather_file = wd
@@ -497,15 +599,53 @@ class FranchestynRunner:
                 wd, self.weather_time_step, f"{self.site}.csv"
             )
         if self.weather_time_step == "hourly":
-            return read_hourly(
+            weather_data = read_hourly(
                 weather_file, self.start_year, self.end_year,
                 site=self.site, latitude=self.latitude
             )
         else:
-            return read_daily(
+            weather_data = read_daily(
                 weather_file, self.start_year, self.end_year,
                 latitude=self.latitude
             )
+
+        self._weather_cache = weather_data
+        return weather_data
+
+    def _weather_hours(self) -> List[datetime]:
+        """Return the cached weather series' timestamps, sorted once."""
+        if self._weather_hours_cache is None:
+            self._weather_hours_cache = sorted(self._load_weather().keys())
+        return self._weather_hours_cache
+
+    def update_param_specs(
+        self,
+        crop_param_specs: Optional[Dict[str, dict]] = None,
+        disease_param_specs: Optional[Dict[str, dict]] = None,
+        fungicide_param_specs: Optional[Dict[str, dict]] = None,
+    ) -> None:
+        """Refresh calibration flags/values from updated spec dicts in place.
+
+        Rebuilds only ``self.name_param`` (the cheap part) from the given
+        spec dicts — leaving weather, sowing, reference and crop-model data
+        untouched — so a single runner can be reused across an entire
+        calibration session (staged sweeps, repeated forward checks, …)
+        instead of being rebuilt from scratch for every call.
+
+        Args:
+            crop_param_specs: Updated crop parameter spec dict, or ``None`` to
+                leave the crop parameters as they are.
+            disease_param_specs: Updated disease parameter spec dict, or
+                ``None`` to leave the disease parameters as they are.
+            fungicide_param_specs: Updated fungicide parameter spec dict, or
+                ``None`` to leave the fungicide parameters as they are.
+        """
+        if crop_param_specs is not None:
+            self.name_param.update(build_params_from_specs(crop_param_specs, "crop"))
+        if disease_param_specs is not None and self.disease_type:
+            self.name_param.update(build_params_from_specs(disease_param_specs, "disease"))
+        if fungicide_param_specs is not None and self.fungicide_type:
+            self.name_param.update(build_params_from_specs(fungicide_param_specs, "fungicide"))
 
 
 # ---------------------------------------------------------------------------

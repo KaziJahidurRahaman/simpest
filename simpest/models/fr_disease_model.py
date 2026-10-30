@@ -42,6 +42,10 @@ class DiseaseModel:
         # Tissue cohort list – persists across the entire season
         self.tissue_tracking: List[TissueState] = []
 
+        # Cohorts of the upper-leaf pool (only filled when
+        # Parameters.upper_leaf_pool is on)
+        self.upper_tissue_tracking: List[TissueState] = []
+
     # -----------------------------------------------------------------------
     # Hourly step
     # -----------------------------------------------------------------------
@@ -120,13 +124,15 @@ class DiseaseModel:
             output1.disease.hydro_thermal_time_rate = rate_norm
 
             # Cumulate state (carried forward day to day via output)
-            output1.disease.hydro_thermal_time_state = (
-                output.disease.hydro_thermal_time_state + rate_norm
-            )
+            carried = output.disease.hydro_thermal_time_state
 
-            # Dry-spell interruption overrides infection for this day
+            # Dry-spell interruption overrides infection for this day, and
+            # optionally decays the accumulated state (see Parameters).
             if output1.disease.counter_dry > par.dry_critical_interruption:
                 output1.disease.hydro_thermal_time_infection = 0.0
+                carried *= parameters.htt_state_dry_decay
+
+            output1.disease.hydro_thermal_time_state = carried + rate_norm
 
             # Daily weather summary (for output only)
             output1.disease.tmax_daily  = max(self._temp)
@@ -181,6 +187,20 @@ class DiseaseModel:
         according to thermal time; and (3) aggregates the compartment fractions
         into the daily latent, sporulating, dead, affected, and severity outputs,
         and updates the susceptible fraction for the following day.
+
+        With ``parameters.upper_leaf_pool`` on, a second tissue pool is tracked
+        for the upper leaves, the leaves that emerge last and whose disease is
+        what field assessments around heading usually score. The pool starts
+        empty and opens linearly between the crop cycle percentages
+        ``upper_leaf_cycle_start`` and ``upper_leaf_cycle_full``. Its tissue is
+        infected by the same rule as the canopy: primary inoculum plus
+        secondary spread at the ``PathogenSpread`` rate, where the sporulating
+        source is the canopy's sporulating fraction plus the pool's own. New
+        infection is that pressure times the emerged, unaffected fraction of
+        the pool (no light-interception scaling, no loss to senescence), and
+        the cohorts progress like the canopy's. The results are written to the
+        ``upper_leaf_*`` outputs; the canopy epidemic, and so the damage to
+        the crop, is not changed.
 
         At entry, ``output`` holds the hourly-accumulated state for the day and
         ``output1`` is a fresh daily output whose season-persistent fields
@@ -242,8 +262,11 @@ class DiseaseModel:
                     output1.crop.light_interception_attainable,
                 )
 
-            # External infection (primary inoculum × HTT infection efficiency)
+            # External infection (primary inoculum × HTT infection efficiency),
+            # optionally requiring rain to detach the primary inoculum too.
             ext_inf = output.disease.hydro_thermal_time_infection * outer_ino
+            if parameters.rain_limited_primary_inoculum and par.is_splash_borne:
+                ext_inf *= (1.0 - spo_detach)
 
             # Internal infection (secondary spread from sporulating tissue)
             int_inf = (
@@ -265,6 +288,32 @@ class DiseaseModel:
             if latent_value > 0.0:
                 self.tissue_tracking.append(TissueState(latent_state=latent_value))
 
+            # Upper-leaf pool: same infection pressure, with the pool's own
+            # sporulating tissue added to the secondary source.
+            if parameters.upper_leaf_pool:
+                emerged = _upper_leaf_emerged(
+                    output.crop.cycle_completion_percentage,
+                    parameters.upper_leaf_cycle_start,
+                    parameters.upper_leaf_cycle_full,
+                )
+                if emerged > 0.0:
+                    upper_int_inf = (
+                        output.disease.upper_leaf_sporulating / emerged
+                        * output.disease.sporulation_efficiency
+                        * par.pathogen_spread
+                        * (1.0 - spo_detach)
+                    )
+                    upper_latent = (
+                        (ext_inf + int_inf + upper_int_inf)
+                        * max(0.0, emerged - output.disease.upper_leaf_affected)
+                        * (1.0 - pc.varietal_resistance)
+                        * (1.0 - output1.fungicide.efficacy)
+                    )
+                    if upper_latent > 0.0:
+                        self.upper_tissue_tracking.append(
+                            TissueState(latent_state=upper_latent)
+                        )
+
         # ----------------------------------------------------------------
         # SEIR progression for all existing cohorts
         # ----------------------------------------------------------------
@@ -278,22 +327,7 @@ class DiseaseModel:
 
         efficacy = output1.fungicide.efficacy
 
-        for tissue in self.tissue_tracking:
-            if tissue.dead_state == 1.0:
-                continue
-
-            # Latent → sporulating
-            tissue.latent_counter += lat_progress * (1.0 - efficacy)
-            if tissue.latent_counter >= 1.0 and tissue.latent_state > 0.0:
-                tissue.sporulating_state = tissue.latent_state
-                tissue.latent_state = 0.0
-
-            # Sporulating → dead
-            if tissue.sporulating_state > 0.0:
-                tissue.sporulating_counter += spo_progress * (1.0 - efficacy)
-            if tissue.sporulating_counter >= 1.0 and tissue.sporulating_state > 0.0:
-                tissue.dead_state = tissue.sporulating_state
-                tissue.sporulating_state = 0.0
+        _advance_cohorts(self.tissue_tracking, lat_progress, spo_progress, efficacy)
 
         # ----------------------------------------------------------------
         # Aggregate tissue states (cap each fraction at 1)
@@ -338,6 +372,36 @@ class DiseaseModel:
         )
 
         # ----------------------------------------------------------------
+        # Upper-leaf pool: progress the cohorts and aggregate
+        # ----------------------------------------------------------------
+        if parameters.upper_leaf_pool:
+            _advance_cohorts(
+                self.upper_tissue_tracking, lat_progress, spo_progress, efficacy
+            )
+            emerged = _upper_leaf_emerged(
+                output.crop.cycle_completion_percentage,
+                parameters.upper_leaf_cycle_start,
+                parameters.upper_leaf_cycle_full,
+            )
+            upper_latent_sum = sum(t.latent_state for t in self.upper_tissue_tracking)
+            upper_spor_sum = sum(
+                t.sporulating_state for t in self.upper_tissue_tracking
+            )
+            upper_dead_sum = sum(t.dead_state for t in self.upper_tissue_tracking)
+
+            output1.disease.upper_leaf_emerged = emerged
+            output1.disease.upper_leaf_latent = upper_latent_sum
+            output1.disease.upper_leaf_sporulating = upper_spor_sum
+            output1.disease.upper_leaf_dead = upper_dead_sum
+            output1.disease.upper_leaf_affected = min(
+                upper_latent_sum + upper_spor_sum + upper_dead_sum, emerged
+            )
+            if emerged > 0.0:
+                output1.disease.upper_leaf_severity = min(
+                    (upper_spor_sum + upper_dead_sum) / emerged, 1.0
+                )
+
+        # ----------------------------------------------------------------
         # Reset aggregates when no green tissue remains
         # ----------------------------------------------------------------
         if light_att_today == 0.0:
@@ -350,6 +414,42 @@ class DiseaseModel:
 # ---------------------------------------------------------------------------
 # Private helpers
 # ---------------------------------------------------------------------------
+
+def _advance_cohorts(
+    cohorts: List[TissueState],
+    lat_progress: float,
+    spo_progress: float,
+    efficacy: float,
+) -> None:
+    """Advance tissue cohorts one day through latent → sporulating → dead."""
+    for tissue in cohorts:
+        if tissue.dead_state == 1.0:
+            continue
+
+        # Latent → sporulating
+        tissue.latent_counter += lat_progress * (1.0 - efficacy)
+        if tissue.latent_counter >= 1.0 and tissue.latent_state > 0.0:
+            tissue.sporulating_state = tissue.latent_state
+            tissue.latent_state = 0.0
+
+        # Sporulating → dead
+        if tissue.sporulating_state > 0.0:
+            tissue.sporulating_counter += spo_progress * (1.0 - efficacy)
+        if tissue.sporulating_counter >= 1.0 and tissue.sporulating_state > 0.0:
+            tissue.dead_state = tissue.sporulating_state
+            tissue.sporulating_state = 0.0
+
+
+def _upper_leaf_emerged(cycle_pct: float, start: float, full: float) -> float:
+    """Fraction (0–1) of the upper-leaf area emerged at a crop cycle percentage.
+
+    Rises linearly from 0 at ``start`` to 1 at ``full``; a step at ``start``
+    when ``full`` is not above it.
+    """
+    if full <= start:
+        return 1.0 if cycle_pct >= start else 0.0
+    return min(max((cycle_pct - start) / (full - start), 0.0), 1.0)
+
 
 def _rh_function(
     rh: float, lw: float, rh_lw: float, rh_crit: float
