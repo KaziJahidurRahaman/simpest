@@ -554,7 +554,13 @@ def run_franchestyn(
             every time.
 
     Returns:
-        dict: Dictionary with simulation outputs and summary.
+        dict: ``{"outputs": {"simulation": records, "summary": summary}}``.
+        The summary holds ``rmse`` (the objective of the final run, scored on
+        ``config.calibration_variable``), ``is_calibration``,
+        ``calibration_variable``, ``best_params`` and ``objective_terms``,
+        the per-date terms of that objective
+        (:meth:`FranchestynRunner.objective_terms`; see
+        :func:`simpest.models.fr_diagnostics.objective_terms`).
     """
     if runner is not None:
         runner.update_param_specs(
@@ -564,6 +570,9 @@ def run_franchestyn(
         include_crop = config.calibration_variable in ("crop", "all")
         include_disease = config.calibration_variable in ("disease", "all")
         rmse = runner.compute_rmse(
+            date_outputs, include_crop=include_crop, include_disease=include_disease,
+        )
+        terms = runner.objective_terms(
             date_outputs, include_crop=include_crop, include_disease=include_disease,
         )
         records = _outputs_to_records(date_outputs)
@@ -578,6 +587,9 @@ def run_franchestyn(
             rmse = built_runner.compute_rmse(
                 date_outputs, include_crop=include_crop, include_disease=include_disease,
             )
+            terms = built_runner.objective_terms(
+                date_outputs, include_crop=include_crop, include_disease=include_disease,
+            )
             records = _outputs_to_records(date_outputs)
 
     return {
@@ -588,6 +600,7 @@ def run_franchestyn(
                 "is_calibration": config.is_calibration,
                 "calibration_variable": config.calibration_variable,
                 "best_params": best_params,
+                "objective_terms": terms,
             },
         }
     }

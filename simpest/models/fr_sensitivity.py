@@ -91,6 +91,7 @@ class MorrisSensitivity(BaseFranchestynOptimizer):
         self.n_trajectories = n_trajectories
         self.num_levels = num_levels
         self.n_jobs = n_jobs
+        self.n_trajectories_dropped = 0
 
     @classmethod
     def from_config(cls, runner, config, disabled_by_class=None) -> "MorrisSensitivity":
@@ -110,6 +111,9 @@ class MorrisSensitivity(BaseFranchestynOptimizer):
     def analyze(self) -> pd.DataFrame:
         """
         Run the Morris screen and return a ranked sensitivity table.
+
+        Trajectories that contain a failed run (``1e300`` penalty) are left
+        out of the analysis; ``n_trajectories_dropped`` counts them.
 
         Returns:
             pd.DataFrame: One row per calibratable parameter, columns
@@ -171,13 +175,7 @@ class MorrisSensitivity(BaseFranchestynOptimizer):
                 dtype=float,
             )
 
-        n_failed = int(np.count_nonzero(y >= 1e299))
-        if n_failed:
-            print(
-                f"WARNING: {n_failed}/{n_runs} runs hit the failure penalty "
-                f"(1e300); elementary effects for the parameters involved are "
-                f"inflated."
-            )
+        x_samples, y = self._drop_failed_trajectories(x_samples, y)
 
         si = _morris_analyze.analyze(
             problem,
@@ -204,6 +202,44 @@ class MorrisSensitivity(BaseFranchestynOptimizer):
 
         print(table.to_string(index=False))
         return table
+
+    def _drop_failed_trajectories(self, x_samples: np.ndarray, y: np.ndarray):
+        """Remove every trajectory that contains a failed run.
+
+        A failed run scores the ``1e300`` penalty, so an elementary effect
+        that uses it is about 1e300 and swamps ``mu_star`` and ``sigma``. A
+        Morris trajectory is ``k + 1`` consecutive samples, so a trajectory
+        with a failed run is dropped whole and the analysis uses the rest.
+        Sets ``n_trajectories_dropped``.
+
+        Args:
+            x_samples: Morris samples, ``n_trajectories * (k + 1)`` rows.
+            y: Objective of each sample.
+
+        Returns:
+            tuple: The kept samples and objectives.
+
+        Raises:
+            RuntimeError: If fewer than two trajectories have no failed run.
+        """
+        k = x_samples.shape[1]
+        n_traj = len(y) // (k + 1)
+        failed = (y >= 1e299).reshape(n_traj, k + 1).any(axis=1)
+        self.n_trajectories_dropped = int(failed.sum())
+        if not failed.any():
+            return x_samples, y
+        if n_traj - failed.sum() < 2:
+            raise RuntimeError(
+                f"{failed.sum()} of {n_traj} Morris trajectories contain a failed run "
+                "(1e300 penalty); too few remain to screen. Check the parameter bounds."
+            )
+        print(
+            f"WARNING: {int(np.count_nonzero(y >= 1e299))}/{len(y)} runs hit the failure "
+            f"penalty (1e300); dropping the {failed.sum()} of {n_traj} trajectories "
+            f"that contain them."
+        )
+        keep = np.repeat(~failed, k + 1)
+        return x_samples[keep], y[keep]
 
 
 def run_morris_sensitivity(
@@ -251,8 +287,11 @@ def run_morris_sensitivity(
             runner rebuild, reusing its already-cached weather series.
 
     Returns:
-        dict: ``{"table": <DataFrame>, "n_runs": int, "settings": {...}}``. The
-        table is the ranked output of :meth:`MorrisSensitivity.analyze`.
+        dict: ``{"table": <DataFrame>, "n_runs": int,
+        "n_trajectories_dropped": int, "settings": {...}}``. The table is the
+        ranked output of :meth:`MorrisSensitivity.analyze`;
+        ``n_trajectories_dropped`` counts the trajectories left out because
+        they contain a failed run.
     """
     disabled_by_class = {
         "crop": set(config.crop_disabled_params),
@@ -304,6 +343,7 @@ def run_morris_sensitivity(
     return {
         "table": table,
         "n_runs": int(n_trajectories * (len(table) + 1)) if len(table) else 0,
+        "n_trajectories_dropped": screen.n_trajectories_dropped,
         "settings": {
             "n_trajectories": n_trajectories,
             "num_levels": num_levels,

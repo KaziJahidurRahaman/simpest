@@ -21,7 +21,7 @@ from __future__ import annotations
 import os
 from copy import deepcopy
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from .fr_data import (
     CropModelData, InputsDaily, InputsHourly,
@@ -435,6 +435,41 @@ class FranchestynRunner:
             float: The root-mean-square error, rounded to three decimals; ``0.0``
             when there are no reference observations in the simulated years.
         """
+        terms = self.objective_terms(
+            date_outputs, include_crop=include_crop, include_disease=include_disease)
+        if not terms:
+            return 0.0
+        import math
+        return round(math.sqrt(sum(t["total"] for t in terms) / len(terms)), 3)
+
+    def objective_terms(
+        self,
+        date_outputs: Dict[datetime, Outputs],
+        include_crop: bool = True,
+        include_disease: bool = True,
+    ) -> List[Dict[str, Any]]:
+        """Per-date terms of the calibration objective.
+
+        :meth:`compute_rmse` is the root of the mean of the ``total`` column,
+        so this shows which observations drive the objective, for example one
+        compared with the zero state after maturity.
+
+        Args:
+            date_outputs (Dict[datetime, Outputs]): Daily outputs produced by
+                :meth:`run`.
+            include_crop (bool): Include the crop-related error terms.
+            include_disease (bool): Include the disease-related error terms.
+
+        Returns:
+            List[Dict[str, Any]]: One dict per scored reference date, in date
+            order, with ``date``; ``state``, the simulated state the
+            observations are compared with (``"growing"``, ``"sowing day"``,
+            ``"matured"`` for the zero state after maturity, or
+            ``"no crop"``); one scaled, squared error per scored variable
+            (``agb``, ``yield_attainable``, ``fint``, ``severity``,
+            ``yield_actual``), ``None`` where the date has no observation of
+            it; and ``total``, their sum.
+        """
         ref = self.sim_unit.reference_data
         by_date = ref.disease_date_disease_sev.get(self.disease, {})
         series = []
@@ -452,10 +487,19 @@ class FranchestynRunner:
         )
         sim_dates = [d for d, _ in days]
 
-        errors: List[float] = []
+        terms: List[Dict[str, Any]] = []
         for ref_key in ref_days:
             out, is_planted, is_matured, last_out = self._state_at(ref_key, days, sim_dates)
-            total_err = 0.0
+            term: Dict[str, Any] = {
+                "date": ref_key, "agb": None, "yield_attainable": None, "fint": None,
+                "severity": None, "yield_actual": None,
+            }
+            if is_matured:
+                term["state"] = "matured"
+            elif is_planted:
+                term["state"] = "growing" if out.crop.day_after_sowing > 0 else "sowing day"
+            else:
+                term["state"] = "no crop"
 
             def yield_error(yield_ref: float, sim_y: float, final_y: Optional[float]) -> float:
                 if final_y is not None:
@@ -471,9 +515,9 @@ class FranchestynRunner:
 
             if include_crop:
                 if ref_key in ref.date_agb:
-                    total_err += ((ref.date_agb[ref_key] - out.crop.agb_attainable) / 200.0) ** 2
+                    term["agb"] = ((ref.date_agb[ref_key] - out.crop.agb_attainable) / 200.0) ** 2
                 if ref_key in ref.date_yield_attainable:
-                    total_err += yield_error(
+                    term["yield_attainable"] = yield_error(
                         ref.date_yield_attainable[ref_key], out.crop.yield_attainable,
                         harvest.crop.yield_attainable if harvest else None)
                 if ref_key in ref.date_fint:
@@ -482,7 +526,7 @@ class FranchestynRunner:
                     # Penalty: heavily penalise near-zero interception during the season
                     if sim_fi < 0.1 and is_planted:
                         fint_err *= 1000.0
-                    total_err += fint_err
+                    term["fint"] = fint_err
 
             if include_disease:
                 if ref_key in by_date:
@@ -492,22 +536,21 @@ class FranchestynRunner:
                         sim_ds = out.disease.upper_leaf_severity * 100.0
                     else:
                         sim_ds = out.disease.disease_severity * 100.0
-                    total_err += (by_date[ref_key] - sim_ds) ** 2
+                    term["severity"] = (by_date[ref_key] - sim_ds) ** 2
                 if ref_key in ref.date_yield_actual:
-                    total_err += yield_error(
+                    term["yield_actual"] = yield_error(
                         ref.date_yield_actual[ref_key], out.crop.yield_actual,
                         harvest.crop.yield_actual if harvest else None)
 
-            errors.append(total_err)
-
-        if not errors:
-            return 0.0
-        import math
-        return round(math.sqrt(sum(errors) / len(errors)), 3)
-
-    # -----------------------------------------------------------------------
-    # Private helpers
-    # -----------------------------------------------------------------------
+            # Summed in the C# order: agb, attainable yield, fint, severity,
+            # actual yield.
+            total_err = 0.0
+            for name in ("agb", "yield_attainable", "fint", "severity", "yield_actual"):
+                if term[name] is not None:
+                    total_err += term[name]
+            term["total"] = total_err
+            terms.append(term)
+        return terms
 
     def _state_at(self, ref_day, days, sim_dates):
         """Simulated state an observation on ``ref_day`` is compared with.

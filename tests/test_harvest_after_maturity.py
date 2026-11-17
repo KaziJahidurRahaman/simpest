@@ -104,3 +104,33 @@ class TestPostMaturityObservations(unittest.TestCase):
             with franchestyn._build_franchestyn_runner(2000, 2000, config, frame, frame, None, frame):
                 pass
         self.assertTrue(fake_runner.call_args.kwargs["score_harvest_after_maturity"])
+
+
+class TestObjectiveTerms(unittest.TestCase):
+    """``objective_terms`` is the per-date split of ``compute_rmse``."""
+
+    def _runner(self):
+        return _runner(True, yield_attainable={date(2014, 5, 10): 6600.0},
+                       yield_actual={date(2014, 5, 15): 3400.0},
+                       fint={date(2014, 5, 15): 0.3})
+
+    def test_terms_reproduce_the_rmse(self):
+        runner = self._runner()
+        terms = runner.objective_terms(OUTPUTS)
+        rmse = round(math.sqrt(sum(t["total"] for t in terms) / len(terms)), 3)
+        self.assertEqual(rmse, runner.compute_rmse(OUTPUTS))
+
+    def test_state_and_per_variable_errors(self):
+        growing, matured = self._runner().objective_terms(OUTPUTS)
+        self.assertEqual(growing["state"], "growing")
+        self.assertEqual(growing["yield_attainable"], 36.0)   # (6600 - 6000) / 100, squared
+        self.assertIsNone(growing["fint"])
+        self.assertEqual(matured["state"], "matured")
+        self.assertEqual(matured["fint"], 900.0)               # 30 % against the zero state
+        self.assertAlmostEqual(matured["yield_actual"], 1.0)   # final yield 3500 against 3400
+        self.assertAlmostEqual(matured["total"], 901.0)
+
+    def test_scope_flags(self):
+        terms = self._runner().objective_terms(OUTPUTS, include_crop=False, include_disease=True)
+        self.assertEqual([t["date"] for t in terms], [date(2014, 5, 15)])
+        self.assertIsNone(terms[0]["fint"])

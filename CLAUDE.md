@@ -177,7 +177,8 @@ canonical FraNchEstYN CSV; `tools/check_parameters.py` checks this.
   Checked bit for bit against the DLL; `seed` replaces C#'s unseeded draw.
 - `fr_sensitivity.py`: `MorrisSensitivity` and `run_morris_sensitivity`
   (SALib). They reuse the base selection and objective, then return a ranked
-  `mu_star`/`sigma` table.
+  `mu_star`/`sigma` table. Trajectories that contain a failed run (1e300
+  penalty) are dropped before the analysis (`n_trajectories_dropped`).
 - To add an optimizer, subclass the base, implement `calibrate()` and
   `from_config()`, and register it in `OPTIMIZERS`. Then add a docs page (see
   below).
@@ -189,8 +190,10 @@ canonical FraNchEstYN CSV; `tools/check_parameters.py` checks this.
 - `fr_inputs.py`: builds `crop_model_df`, `weather_df` and `management_df`
   from per-season arrays and DataFrames. NumPy/pandas only.
 - `fr_diagnostics.py`: result to DataFrame, same-date matching of reference
-  observations, per-season errors, threshold dates and a check for calibrated
-  values that sit on a bound.
+  observations, per-season errors, threshold dates, a check for calibrated
+  values that sit on a bound, and `objective_terms`, the per-date split of the
+  objective (from `summary["objective_terms"]`, filled by
+  `FranchestynRunner.objective_terms`, which `compute_rmse` sums).
 - `observed_yield.py`: reads USDA NASS yield exports, fits a two-segment
   trend, detrends to one technology level and compares with simulated yield.
 

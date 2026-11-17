@@ -51,6 +51,30 @@ class TestMorrisSensitivity(unittest.TestCase):
         with self.assertRaises(ValueError):
             MorrisSensitivity(runner, n_trajectories=4).analyze()
 
+    def test_failed_runs_drop_their_trajectories(self):
+        runner = _dominant_b_setup()
+        run = runner.run
+
+        def failing(param_values=None):
+            if param_values["crop_A"] > 9.0 and param_values["crop_B"] > 9.0:   # an invalid corner, like Topt = Tmax
+                raise ValueError("invalid parameter combination")
+            return run(param_values)
+
+        runner.run = failing
+        screen = MorrisSensitivity(runner, seed=0, n_trajectories=20)
+        table = screen.analyze()
+
+        self.assertGreater(screen.n_trajectories_dropped, 0)
+        self.assertLess(screen.n_trajectories_dropped, 20)
+        self.assertTrue((table["mu_star"] < 1e10).all())
+        self.assertEqual(table["parameter"].iloc[0], "crop_A")
+
+    def test_too_few_valid_trajectories_raise(self):
+        runner = _dominant_b_setup()
+        runner.run = lambda param_values=None: 1 / 0
+        with self.assertRaises(RuntimeError):
+            MorrisSensitivity(runner, seed=0, n_trajectories=4).analyze()
+
 
 if __name__ == "__main__":
     unittest.main()
