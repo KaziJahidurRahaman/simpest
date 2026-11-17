@@ -131,3 +131,26 @@ class TestBoundCheck(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestObjectiveTerms(unittest.TestCase):
+    def test_frame_and_share(self):
+        from datetime import date
+        from simpest.models.fr_diagnostics import objective_terms
+        terms = [
+            {"date": date(2014, 4, 1), "state": "growing", "agb": None, "yield_attainable": None,
+             "fint": None, "severity": 25.0, "yield_actual": None, "total": 25.0},
+            {"date": date(2014, 5, 15), "state": "matured", "agb": None, "yield_attainable": None,
+             "fint": None, "severity": 75.0, "yield_actual": None, "total": 75.0},
+        ]
+        df = objective_terms({"outputs": {"summary": {"objective_terms": terms}}})
+        self.assertEqual(list(df["state"]), ["growing", "matured"])
+        self.assertTrue(np.isnan(df["fint"].iloc[0]))
+        np.testing.assert_allclose(df["share"], [0.25, 0.75])
+        self.assertEqual(df.index[1], pd.Timestamp(2014, 5, 15))
+
+    def test_empty(self):
+        from simpest.models.fr_diagnostics import objective_terms
+        df = objective_terms({"outputs": {"summary": {}}})
+        self.assertTrue(df.empty)
+        self.assertIn("share", df.columns)

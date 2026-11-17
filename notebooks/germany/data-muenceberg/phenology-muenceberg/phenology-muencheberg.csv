@@ -1,0 +1,10 @@
+date,event,bbch_range,note,source
+2025-11-01,sowing,,winter wheat sown in patches 21 39 73 and reference field 02-02,site diary
+2025-11-20,emergence,,wheat emerges after sowing well,site diary
+2026-02-12,observation,,slight yellowing at the leaf tips (probably frost damage),site diary
+2026-03-02,bbch,11-12,,site diary
+2026-03-23,bbch,13-21,,site diary
+2026-04-13,bbch,25-29,,site diary
+2026-04-23,bbch,23-30,,site diary
+2026-05-26,heading,49-52,winter wheat heading,disease survey (disease-muencheberg)
+2026-07-21,harvest,,winter wheat harvested,harvest date reported by user

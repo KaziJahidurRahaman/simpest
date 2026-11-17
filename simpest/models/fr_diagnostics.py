@@ -3,7 +3,8 @@
 These helpers turn a `run_franchestyn` result into a DataFrame, match
 reference observations to the simulated value on the same date, and
 summarise the errors per season. `bound_check` reports calibrated values
-that ended up on a calibration bound.
+that ended up on a calibration bound. `objective_terms` splits the calibration
+objective into its per-date, per-variable terms.
 
 Seasons are keyed by sowing year. Reference observations are keyed by
 calendar ``year`` and ``DOY``, and a season's observations fall in its harvest
@@ -259,3 +260,39 @@ def bound_check(
     out = pd.DataFrame.from_dict(rows, orient="index", columns=columns)
     out.index.name = "parameter"
     return out
+
+
+OBJECTIVE_TERMS = ("agb", "yield_attainable", "fint", "severity", "yield_actual")
+
+
+def objective_terms(result: dict) -> pd.DataFrame:
+    """Per-date terms of the calibration objective of a run.
+
+    The objective (``rmse`` in the summary) is the root of the mean, over the
+    scored reference dates, of each date's ``total``. This table shows which
+    observations drive it: for example, an observation dated after the
+    simulated maturity is compared with zero output (``state`` is
+    ``"matured"``) and can dominate the objective without the parameters
+    being able to change it.
+
+    Args:
+        result: The dict returned by `run_franchestyn`.
+
+    Returns:
+        pd.DataFrame: One row per scored reference date, indexed by ``date``,
+        with ``state`` (``"growing"``, ``"sowing day"``, ``"matured"`` or
+        ``"no crop"``); the scaled squared error of each variable (``agb``,
+        ``yield_attainable``, ``fint``, ``severity``, ``yield_actual``; NaN
+        where the date has no observation of it); ``total``; and ``share``,
+        the date's fraction of the summed totals.
+    """
+    terms = result["outputs"]["summary"].get("objective_terms", [])
+    columns = ["state", *OBJECTIVE_TERMS, "total", "share"]
+    if not terms:
+        return pd.DataFrame(columns=columns).rename_axis("date")
+    df = pd.DataFrame(terms)
+    df["date"] = pd.to_datetime(df["date"])
+    df[list(OBJECTIVE_TERMS)] = df[list(OBJECTIVE_TERMS)].astype(float)
+    total = df["total"].sum()
+    df["share"] = df["total"] / total if total > 0 else 0.0
+    return df.set_index("date")[columns]
